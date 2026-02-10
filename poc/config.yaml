@@ -1,0 +1,26 @@
+poc:
+  name: "Zero-Touch Training PoC"
+  version: "0.1.0"
+
+scope:
+  site: "Anniston Army Depot"
+  site_code: "ANAD"
+  process: "Purchase Requisition to Goods Receipt"
+  role: "Purchasing Officer"
+
+sources:
+  tosca:
+    - data/tosca/purchase_requisition.xml
+    - data/tosca/goods_receipt.xml
+  bpmn:
+    - data/bpmn/purchase_to_pay.xml
+  overlay:
+    - data/opal_overlay.yaml
+
+output:
+  directory: output/
+  formats:
+    walkthrough: markdown
+    video_script: markdown
+    job_aid: docx
+    walkme_draft: json

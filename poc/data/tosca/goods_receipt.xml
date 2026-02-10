@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestScript xmlns="http://www.tricentis.com/tosca/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Metadata>
+    <TestScriptId>TS_MIGO_POST_GR_001</TestScriptId>
+    <Name>Post Goods Receipt in SAP Fiori - Anniston Army Depot</Name>
+    <Description>Test script for posting Goods Receipt (MIGO - Movement Type 101) at Anniston Army Depot. Validates Anniston-specific constraints: storage location must match equipment assignment, mandatory quality inspection for Class IX materials, and stock update verification.</Description>
+    <Version>1.0</Version>
+    <CreatedDate>2024-01-20T09:15:00Z</CreatedDate>
+    <LastExecutedDate>2024-02-08T15:45:30Z</LastExecutedDate>
+    <LastModifiedDate>2024-02-08T15:45:30Z</LastModifiedDate>
+    <ExecutionStatus>PASSED</ExecutionStatus>
+    <ExecutionCount>38</ExecutionCount>
+    <PassCount>38</PassCount>
+    <FailCount>0</FailCount>
+    <AverageExecutionTime>142</AverageExecutionTime>
+  </Metadata>
+
+  <TestEnvironment>
+    <SystemName>SAP ECC 6.0 EHP8</SystemName>
+    <SiteCode>ANAD</SiteCode>
+    <SiteName>Anniston Army Depot</SiteName>
+    <URL>https://sap.anad.army.mil:8443/irj/portal</URL>
+    <Client>100</Client>
+    <Language>EN</Language>
+  </TestEnvironment>
+
+  <TestSteps>
+    <Step>
+      <StepId>STEP_001</StepId>
+      <StepNumber>1</StepNumber>
+      <Description>Open SAP Fiori Launchpad for Warehouse Clerk</Description>
+      <Action>
+        <Type>NAVIGATE</Type>
+        <TargetURL>https://sap.anad.army.mil:8443/irj/portal</TargetURL>
+      </Action>
+      <ExpectedResult>SAP Fiori Launchpad displayed, user authenticated as ANAD_WAREHOUSE_CLERK</ExpectedResult>
+      <ScreenshotReference>screenshot_001_gr_fiori_launchpad.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_002</StepId>
+      <StepNumber>2</StepNumber>
+      <Description>Search for "Post Goods Receipt" app in Fiori</Description>
+      <Action>
+        <Type>INPUT</Type>
+        <Element>
+          <Identifier>id://searchInput</Identifier>
+          <Description>Fiori Launchpad search box</Description>
+        </Element>
+        <Value>Post Goods Receipt</Value>
+      </Action>
+      <ExpectedResult>Search results display "Post Goods Receipt" (MIGO) app tile</ExpectedResult>
+      <ScreenshotReference>screenshot_002_search_migo.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_003</StepId>
+      <StepNumber>3</StepNumber>
+      <Description>Click on Post Goods Receipt app tile (MIGO)</Description>
+      <Action>
+        <Type>CLICK</Type>
+        <Element>
+          <Identifier>xpath://div[@class='sapMTile' and contains(.//span[@class='sapMTileContent'], 'Post Goods Receipt')]</Identifier>
+          <Description>MIGO app tile</Description>
+        </Element>
+      </Action>
+      <ExpectedResult>MIGO transaction opened in Fiori interface</ExpectedResult>
+      <ScreenshotReference>screenshot_003_migo_opened.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_004</StepId>
+      <StepNumber>4</StepNumber>
+      <Description>Verify MIGO form loads with movement type selection</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>xpath://form[@id='GR_CREATE_FORM']</Identifier>
+          <Description>Goods Receipt creation form</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>MovementTypeDropdown</FieldReference>
+      </Assertion>
+      <ExpectedResult>Goods Receipt form displayed with Movement Type dropdown visible</ExpectedResult>
+      <ScreenshotReference>screenshot_004_migo_form_ready.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_005</StepId>
+      <StepNumber>5</StepNumber>
+      <Description>Select Movement Type: 101 (Goods Receipt for Purchase Order)</Description>
+      <Action>
+        <Type>SELECT</Type>
+        <Element>
+          <Identifier>id://MovementType</Identifier>
+          <Description>Movement Type dropdown</Description>
+        </Element>
+        <Value>101</Value>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>MovementType</FieldReference>
+        <ExpectedValue>101</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>Movement Type set to "101 - Goods Receipt for Purchase Order"</ExpectedResult>
+      <ScreenshotReference>screenshot_005_movement_type_101.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_006</StepId>
+      <StepNumber>6</StepNumber>
+      <Description>Enter Purchase Order Number</Description>
+      <Action>
+        <Type>INPUT</Type>
+        <Element>
+          <Identifier>id://PONumber</Identifier>
+          <Description>Purchase Order Number field</Description>
+        </Element>
+        <Value>4500987654</Value>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>PONumber</FieldReference>
+        <ExpectedValue>4500987654</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>PO number "4500987654" entered</ExpectedResult>
+      <ScreenshotReference>screenshot_006_po_number_entered.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_007</StepId>
+      <StepNumber>7</StepNumber>
+      <Description>Verify line items auto-populate from PO</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>xpath://table[@id='POLineItemsTable']</Identifier>
+          <Description>Line items table populated from PO</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>POLineItemsTable</FieldReference>
+      </Assertion>
+      <Assertion>
+        <Type>TABLE_ROW_COUNT_GREATER_THAN</Type>
+        <FieldReference>POLineItemsTable</FieldReference>
+        <Value>0</Value>
+      </Assertion>
+      <ExpectedResult>Line items table displays 1 line item from PO 4500987654</ExpectedResult>
+      <ScreenshotReference>screenshot_007_line_items_populated.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_008</StepId>
+      <StepNumber>8</StepNumber>
+      <Description>Verify Material Number on line item</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>id://MaterialNumber_Item1</Identifier>
+          <Description>Material number in line item 1</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>MaterialNumber_Item1</FieldReference>
+        <ExpectedValue>100-1234</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>Line item 1 shows material "100-1234 - HYDRAULIC PUMP - 2HP"</ExpectedResult>
+      <ScreenshotReference>screenshot_008_material_verified.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_009</StepId>
+      <StepNumber>9</StepNumber>
+      <Description>Verify PO Quantity matches expected quantity</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>id://POQuantity_Item1</Identifier>
+          <Description>PO quantity for line item</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>POQuantity_Item1</FieldReference>
+        <ExpectedValue>5</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>PO quantity correctly shows 5 units</ExpectedResult>
+      <ScreenshotReference>screenshot_009_po_quantity_verified.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_010</StepId>
+      <StepNumber>10</StepNumber>
+      <Description>Enter Goods Receipt Quantity: 5 units (full quantity)</Description>
+      <Action>
+        <Type>INPUT</Type>
+        <Element>
+          <Identifier>id://GRQuantity_Item1</Identifier>
+          <Description>Goods Receipt quantity field</Description>
+        </Element>
+        <Value>5</Value>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>GRQuantity_Item1</FieldReference>
+        <ExpectedValue>5</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>GR quantity set to 5 units (matching PO quantity)</ExpectedResult>
+      <ScreenshotReference>screenshot_010_gr_quantity_5.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_011</StepId>
+      <StepNumber>11</StepNumber>
+      <Description>Select Storage Location: 0010 (Anniston Main Warehouse - must match equipment assignment)</Description>
+      <Action>
+        <Type>SELECT</Type>
+        <Element>
+          <Identifier>id://StorageLocation_Item1</Identifier>
+          <Description>Storage Location dropdown (Anniston constraint: must match equipment assignment)</Description>
+        </Element>
+        <Value>0010</Value>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>StorageLocation_Item1</FieldReference>
+        <ExpectedValue>0010</ExpectedValue>
+      </Assertion>
+      <Assertion>
+        <Type>FIELD_VALIDATION</Type>
+        <FieldReference>StorageLocation_Item1</FieldReference>
+        <ValidationType>STORAGE_LOCATION_MATCHES_EQUIPMENT</ValidationType>
+        <ExpectedValue>0010</ExpectedValue>
+        <Reason>At Anniston, storage location must match the equipment assignment (EQUIP-2024-0847 is assigned to storage area 0010). This is a site-specific validation requirement.</Reason>
+      </Assertion>
+      <ExpectedResult>Storage Location "0010 - Main Warehouse" selected and validated against equipment assignment</ExpectedResult>
+      <ScreenshotReference>screenshot_011_storage_location_validated.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_012</StepId>
+      <StepNumber>12</StepNumber>
+      <Description>Check if material is Class IX (Repair Parts)</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>id://MaterialClass_Item1</Identifier>
+          <Description>Material class indicator</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>MaterialClass_Item1</FieldReference>
+        <ExpectedValue>IX</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>Material 100-1234 is classified as Class IX (Repair Parts)</ExpectedResult>
+      <ScreenshotReference>screenshot_012_material_class_ix.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_013</StepId>
+      <StepNumber>13</StepNumber>
+      <Description>Mandatory Quality Inspection for Class IX materials (Anniston requirement)</Description>
+      <Action>
+        <Type>CLICK</Type>
+        <Element>
+          <Identifier>id://QualityInspectionCheckbox_Item1</Identifier>
+          <Description>Quality Inspection checkbox (mandatory for Class IX at Anniston)</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>QualityInspectionCheckbox_Item1</FieldReference>
+        <ExpectedValue>true</ExpectedValue>
+      </Assertion>
+      <Assertion>
+        <Type>FIELD_REQUIRED</Type>
+        <FieldReference>QualityInspectionCheckbox_Item1</FieldReference>
+        <Reason>Quality Inspection is mandatory for Class IX materials at Anniston Army Depot per depot policy. This is a site-specific process gate override from enterprise default (optional inspection).</Reason>
+      </Assertion>
+      <ExpectedResult>Quality Inspection flagged for this line item (mandatory for Class IX repair parts at Anniston)</ExpectedResult>
+      <ScreenshotReference>screenshot_013_quality_inspection_enabled.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_014</StepId>
+      <StepNumber>14</StepNumber>
+      <Description>Enter Quality Inspection Notes</Description>
+      <Action>
+        <Type>INPUT</Type>
+        <Element>
+          <Identifier>id://InspectionNotes_Item1</Identifier>
+          <Description>Quality inspection notes field</Description>
+        </Element>
+        <Value>Visual inspection passed. All seals intact. Pressure test pending.</Value>
+      </Action>
+      <ExpectedResult>Inspection notes recorded for traceability</ExpectedResult>
+      <ScreenshotReference>screenshot_014_inspection_notes.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_015</StepId>
+      <StepNumber>15</StepNumber>
+      <Description>Verify all mandatory fields for GR completed</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>xpath://form[@id='GR_CREATE_FORM']</Identifier>
+          <Description>Complete GR form</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>MovementType</FieldReference>
+      </Assertion>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>PONumber</FieldReference>
+      </Assertion>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>GRQuantity_Item1</FieldReference>
+      </Assertion>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>StorageLocation_Item1</FieldReference>
+      </Assertion>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>QualityInspectionCheckbox_Item1</FieldReference>
+      </Assertion>
+      <ExpectedResult>All mandatory fields completed and validated</ExpectedResult>
+      <ScreenshotReference>screenshot_015_all_gr_fields_complete.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_016</StepId>
+      <StepNumber>16</StepNumber>
+      <Description>Post Goods Receipt</Description>
+      <Action>
+        <Type>CLICK</Type>
+        <Element>
+          <Identifier>id://PostButton</Identifier>
+          <Description>Post button to finalize goods receipt</Description>
+        </Element>
+      </Action>
+      <ExpectedResult>Goods Receipt posted successfully, system displays confirmation message</ExpectedResult>
+      <ScreenshotReference>screenshot_016_gr_posted.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_017</StepId>
+      <StepNumber>17</StepNumber>
+      <Description>Verify Material Document Number generated</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>id://MaterialDocumentNumber</Identifier>
+          <Description>Material document number confirmation</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_MATCHES_PATTERN</Type>
+        <FieldReference>MaterialDocumentNumber</FieldReference>
+        <Pattern>\d{10}</Pattern>
+        <ExpectedExample>5000123456</ExpectedExample>
+      </Assertion>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>MaterialDocumentNumber</FieldReference>
+      </Assertion>
+      <ExpectedResult>Material document "5000123456" generated for the goods receipt</ExpectedResult>
+      <ScreenshotReference>screenshot_017_material_doc_generated.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_018</StepId>
+      <StepNumber>18</StepNumber>
+      <Description>Verify Material Document Item Number</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>id://MaterialDocumentItem</Identifier>
+          <Description>Material document item number</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>MaterialDocumentItem</FieldReference>
+        <ExpectedValue>001</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>Material document item "001" correctly assigned</ExpectedResult>
+      <ScreenshotReference>screenshot_018_material_doc_item.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_019</StepId>
+      <StepNumber>19</StepNumber>
+      <Description>Navigate to Inventory Management to verify stock update</Description>
+      <Action>
+        <Type>NAVIGATE</Type>
+        <TargetURL>https://sap.anad.army.mil:8443/irj/portal?transaction=MMBE</TargetURL>
+      </Action>
+      <ExpectedResult>Stock Overview (MMBE) transaction opened</ExpectedResult>
+      <ScreenshotReference>screenshot_019_mmbe_opened.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_020</StepId>
+      <StepNumber>20</StepNumber>
+      <Description>Query Material 100-1234 stock in Anniston plant 1000</Description>
+      <Action>
+        <Type>INPUT</Type>
+        <Element>
+          <Identifier>id://MaterialQuery</Identifier>
+          <Description>Material number search field</Description>
+        </Element>
+        <Value>100-1234</Value>
+      </Action>
+      <ExpectedResult>Stock overview displayed for material 100-1234</ExpectedResult>
+      <ScreenshotReference>screenshot_020_material_query.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_021</StepId>
+      <StepNumber>21</StepNumber>
+      <Description>Filter by Plant 1000 (Anniston)</Description>
+      <Action>
+        <Type>SELECT</Type>
+        <Element>
+          <Identifier>id://PlantFilter</Identifier>
+          <Description>Plant filter dropdown</Description>
+        </Element>
+        <Value>1000</Value>
+      </Action>
+      <ExpectedResult>Stock display filtered to Anniston plant 1000</ExpectedResult>
+      <ScreenshotReference>screenshot_021_plant_filter_1000.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_022</StepId>
+      <StepNumber>22</StepNumber>
+      <Description>Filter by Storage Location 0010</Description>
+      <Action>
+        <Type>SELECT</Type>
+        <Element>
+          <Identifier>id://StorageLocationFilter</Identifier>
+          <Description>Storage location filter</Description>
+        </Element>
+        <Value>0010</Value>
+      </Action>
+      <ExpectedResult>Stock filtered to storage location 0010 only</ExpectedResult>
+      <ScreenshotReference>screenshot_022_storage_location_filter.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_023</StepId>
+      <StepNumber>23</StepNumber>
+      <Description>Verify stock quantity updated to 5 units</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>id://StockQuantity</Identifier>
+          <Description>Total stock quantity for material</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>StockQuantity</FieldReference>
+        <ExpectedValue>5</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>Stock quantity updated to 5 units in plant 1000, storage location 0010</ExpectedResult>
+      <ScreenshotReference>screenshot_023_stock_quantity_verified.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_024</StepId>
+      <StepNumber>24</StepNumber>
+      <Description>Verify stock entry timestamp matches GR posting date</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>id://StockEntryTimestamp</Identifier>
+          <Description>Timestamp of last stock movement</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_NOT_EMPTY</Type>
+        <FieldReference>StockEntryTimestamp</FieldReference>
+      </Assertion>
+      <ExpectedResult>Stock entry timestamp shows current date/time of GR posting</ExpectedResult>
+      <ScreenshotReference>screenshot_024_stock_timestamp_verified.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_025</StepId>
+      <StepNumber>25</StepNumber>
+      <Description>Verify Quality Inspection flag in stock record</Description>
+      <Action>
+        <Type>VERIFY</Type>
+        <Element>
+          <Identifier>id://QualityInspectionFlag</Identifier>
+          <Description>Quality inspection status indicator in stock</Description>
+        </Element>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALUE_EQUALS</Type>
+        <FieldReference>QualityInspectionFlag</FieldReference>
+        <ExpectedValue>PENDING</ExpectedValue>
+      </Assertion>
+      <ExpectedResult>Quality Inspection marked as PENDING in stock record (material blocked from consumption until inspection complete)</ExpectedResult>
+      <ScreenshotReference>screenshot_025_qi_flag_pending.png</ScreenshotReference>
+    </Step>
+  </TestSteps>
+
+  <TestData>
+    <DataSet>
+      <DataRow>
+        <FieldName>MovementType</FieldName>
+        <FieldValue>101</FieldValue>
+        <FieldDescription>Goods Receipt for Purchase Order</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>PONumber</FieldName>
+        <FieldValue>4500987654</FieldValue>
+        <FieldDescription>Purchase Order number from PR conversion</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>MaterialNumber</FieldName>
+        <FieldValue>100-1234</FieldValue>
+        <FieldDescription>Hydraulic Pump 2HP</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>MaterialClass</FieldName>
+        <FieldValue>IX</FieldValue>
+        <FieldDescription>Repair Parts classification</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>POQuantity</FieldName>
+        <FieldValue>5</FieldValue>
+        <FieldDescription>Original PO quantity</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>GRQuantity</FieldName>
+        <FieldValue>5</FieldValue>
+        <FieldDescription>Full goods receipt quantity</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>StorageLocation</FieldName>
+        <FieldValue>0010</FieldValue>
+        <FieldDescription>Main Warehouse (matches equipment assignment area)</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>Plant</FieldName>
+        <FieldValue>1000</FieldValue>
+        <FieldDescription>Anniston Army Depot plant</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>QualityInspection</FieldName>
+        <FieldValue>true</FieldValue>
+        <FieldDescription>Mandatory quality inspection for Class IX materials at Anniston</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>InspectionNotes</FieldName>
+        <FieldValue>Visual inspection passed. All seals intact. Pressure test pending.</FieldValue>
+        <FieldDescription>Quality inspection documentation</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>MaterialDocumentNumber</FieldName>
+        <FieldValue>5000123456</FieldValue>
+        <FieldDescription>Generated material document number</FieldDescription>
+      </DataRow>
+    </DataSet>
+  </TestData>
+
+  <Annotations>
+    <Annotation>
+      <Type>ANNISTON_SPECIFIC_CONSTRAINT</Type>
+      <Step>STEP_011</Step>
+      <Description>Storage Location must match equipment assignment. At Anniston, materials linked to equipment (EQUIP-2024-0847) must be received and stored in the designated area (0010). This is a site-specific validation requirement enforced for proper asset tracking.</Description>
+    </Annotation>
+    <Annotation>
+      <Type>ANNISTON_SPECIFIC_CONSTRAINT</Type>
+      <Step>STEP_013</Step>
+      <Description>Quality Inspection is mandatory for Class IX (Repair Parts) materials at Anniston Army Depot. Enterprise default allows optional inspection. This mandatory gate ensures repair parts quality before depot stock integration per Anniston policy.</Description>
+    </Annotation>
+    <Annotation>
+      <Type>STOCK_UPDATE</Type>
+      <Description>Goods receipt posting immediately updates inventory. Material 100-1234 stock in plant 1000, storage location 0010 increases by 5 units. Quality inspection flag set to PENDING prevents material consumption until inspection verified.</Description>
+    </Annotation>
+  </Annotations>
+</TestScript>

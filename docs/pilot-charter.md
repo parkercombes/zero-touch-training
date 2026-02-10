@@ -1,4 +1,4 @@
-# Zero-Touch Training Project — Pilot Charter
+# Zero-Touch Training Project — Proof of Concept Charter
 
 **Document Version:** 1.0
 **Date:** February 2026
@@ -6,9 +6,9 @@
 
 ---
 
-## 1. Pilot Purpose
+## 1. Proof of Concept Purpose
 
-The Zero-Touch Training pilot aims to validate that **AI-generated training can be produced from existing DevSecOps assets (automated test scripts, process models, and UI metadata) faster, cheaper, and more maintainably than traditional manual authoring.**
+The Zero-Touch Training PoC aims to validate that **AI-generated training can be produced from existing DevSecOps assets (automated test scripts, process models, and UI metadata) faster, cheaper, and more maintainably than traditional manual authoring.**
 
 ### What We're Proving
 
@@ -18,13 +18,13 @@ The Zero-Touch Training pilot aims to validate that **AI-generated training can 
 - **Maintainability:** Training updates can be automatically regenerated when underlying test scripts or process models change, enabling true "Training-as-Code" in the DevSecOps pipeline
 - **Economics:** Production cost and effort are demonstrably lower than traditional training authoring
 
-If successful, this pilot creates a scalable foundation for rapid, self-updating ERP training across multiple processes, roles, and sites.
+If successful, this PoC creates a scalable foundation for rapid, self-updating ERP training across multiple processes, roles, and sites.
 
 ---
 
 ## 2. Scope
 
-The pilot is tightly scoped to ensure clear outcomes and controlled complexity.
+The PoC is tightly scoped to ensure clear outcomes and controlled complexity.
 
 ### In Scope
 
@@ -36,7 +36,7 @@ The pilot is tightly scoped to ensure clear outcomes and controlled complexity.
 | **Training Layers** | Layer 1 (navigation walkthrough), Layer 2 (process explainer video), Layer 3 (role-specific job aids), Layer 4 (WalkMe draft—optional) |
 | **System** | SAP/Fiori environment (production or sandbox) |
 | **Duration** | 2 weeks |
-| **Personnel** | 1 pilot lead, 1 SME, 1 sponsor |
+| **Personnel** | 1 PoC lead, 1 SME, 1 sponsor |
 
 ### Out of Scope
 
@@ -44,7 +44,7 @@ The pilot is tightly scoped to ensure clear outcomes and controlled complexity.
 - Other processes or sites
 - Full instructor-led training or virtual classroom design
 - Learning Management System (LMS) integration or deployment
-- Ongoing production support (post-pilot)
+- Ongoing production support (post-PoC)
 
 ### Process Selection Rationale
 
@@ -72,7 +72,7 @@ All metrics are measured at the end of Week 2, before the go/no-go decision.
 
 ## 4. Prerequisites & Dependencies
 
-The pilot cannot start until all prerequisites are confirmed.
+The PoC cannot start until all prerequisites are confirmed.
 
 ### Required Inputs
 
@@ -83,7 +83,7 @@ The pilot cannot start until all prerequisites are confirmed.
 | **SAP/Fiori Access** | Read-only access to sandbox or production Fiori environment; OR high-quality screenshots/recording of the process flow | Basis/System Admin | Before Week 1 kickoff |
 | **AI Tooling Stack** | Selection and provisioning of AI models/APIs (specify LLM, vision models, orchestration framework) | Technical Lead | During Week 1 setup |
 | **SME Availability** | One process owner or power user, ~2–4 hours total (split across Week 2) | HR / Sponsor | Confirmed before kickoff |
-| **Pilot Lead** | 1 dedicated resource, ~30–40 hours over 2 weeks | Sponsor | Confirmed before kickoff |
+| **PoC Lead** | 1 dedicated resource, ~30–40 hours over 2 weeks | Sponsor | Confirmed before kickoff |
 
 ### Infrastructure Assumptions
 
@@ -100,31 +100,31 @@ The pilot cannot start until all prerequisites are confirmed.
 
 | Day | Activity | Deliverable | Owner |
 |-----|----------|-------------|-------|
-| **Monday–Tuesday** | Kick-off meeting; collect Tosca scripts, process model, and UI screenshots | Baseline assets in pilot repository | Pilot Lead, SME |
+| **Monday–Tuesday** | Kick-off meeting; collect Tosca scripts, process model, and UI screenshots | Baseline assets in PoC repository | PoC Lead, SME |
 | **Wednesday** | AI tooling selection and environment setup | Configured pipeline environment, documented tool stack | Technical Lead |
-| **Thursday** | Run initial generation pipeline on collected assets | Draft Layer 1 (walkthrough) + Layer 2 (video script/storyboard) | Pilot Lead |
-| **Friday** | Validation check: do generated outputs match system? Iterate if needed | Refined Layer 1 & 2 outputs ready for SME review | Pilot Lead, Technical Lead |
+| **Thursday** | Run initial generation pipeline on collected assets | Draft Layer 1 (walkthrough) + Layer 2 (video script/storyboard) | PoC Lead |
+| **Friday** | Validation check: do generated outputs match system? Iterate if needed | Refined Layer 1 & 2 outputs ready for SME review | PoC Lead, Technical Lead |
 
 ### Week 2: Refinement & Validation
 
 | Day | Activity | Deliverable | Owner |
 |-----|----------|-------------|-------|
-| **Monday–Tuesday** | Generate Layer 3 (job aids); conduct initial accuracy audit | 3–5 role-specific job aids; accuracy assessment notes | Pilot Lead |
-| **Wednesday** | Optional: draft Layer 4 (WalkMe flow); collate all outputs | Complete training content package | Pilot Lead |
-| **Thursday** | SME review session: walkthrough, Q&A, feedback | SME sign-off form; change/refinement log | SME, Pilot Lead |
-| **Friday** | Incorporate SME feedback; document regeneration process; prepare final report | Final training artifacts; pilot results report; post-pilot recommendations | Pilot Lead, Technical Lead |
+| **Monday–Tuesday** | Generate Layer 3 (job aids); conduct initial accuracy audit | 3–5 role-specific job aids; accuracy assessment notes | PoC Lead |
+| **Wednesday** | Optional: draft Layer 4 (WalkMe flow); collate all outputs | Complete training content package | PoC Lead |
+| **Thursday** | SME review session: walkthrough, Q&A, feedback | SME sign-off form; change/refinement log | SME, PoC Lead |
+| **Friday** | Incorporate SME feedback; document regeneration process; prepare final report | Final training artifacts; PoC results report; post-PoC recommendations | PoC Lead, Technical Lead |
 
 ### Go/No-Go Decision
 
 - **Target Date:** End of Week 2 (Friday EOD)
-- **Decision Forum:** Sponsor + Pilot Lead + SME
+- **Decision Forum:** Sponsor + PoC Lead + SME
 - **Decision Criteria:** All success metrics reviewed; recommend Proceed, Iterate, or Pause
 
 ---
 
 ## 6. Deliverables
 
-All deliverables are stored in `/zero-touch-training/pilot-output/` and version-controlled in Git.
+All deliverables are stored in `/zero-touch-training/poc-output/` and version-controlled in Git.
 
 ### Training Content
 
@@ -135,7 +135,7 @@ All deliverables are stored in `/zero-touch-training/pilot-output/` and version-
 
 ### Documentation & Reports
 
-5. **Pilot Results Report** — Executive summary, success metrics scorecard, lessons learned, recommendations for next phase
+5. **PoC Results Report** — Executive summary, success metrics scorecard, lessons learned, recommendations for next phase
 6. **Regeneration Process Guide** — Step-by-step instructions to regenerate training if test scripts/process model changes; includes pipeline code and maintenance runbook
 7. **Technical Asset Inventory** — Catalog of Tosca test IDs, Signavio model elements, and Fiori UI identifiers used in generation
 
@@ -145,7 +145,7 @@ All deliverables are stored in `/zero-touch-training/pilot-output/` and version-
 
 ### RACI Matrix
 
-| Activity | Pilot Lead | SME | Technical Support | Sponsor |
+| Activity | PoC Lead | SME | Technical Support | Sponsor |
 |----------|------------|-----|-------------------|---------|
 | Asset collection & provisioning | C | R | R | I |
 | Pipeline design & implementation | R | C | R | I |
@@ -158,8 +158,8 @@ All deliverables are stored in `/zero-touch-training/pilot-output/` and version-
 
 ### Detailed Responsibilities
 
-**Pilot Lead (1 FTE, 30–40 hours)**
-- Coordinate all pilot activities and timeline
+**PoC Lead (1 FTE, 30–40 hours)**
+- Coordinate all PoC activities and timeline
 - Manage asset collection and environment setup
 - Execute generation pipeline
 - Conduct validation and quality assurance
@@ -194,11 +194,11 @@ All deliverables are stored in `/zero-touch-training/pilot-output/` and version-
 
 | Risk | Probability | Impact | Mitigation | Owner |
 |------|-------------|--------|-----------|-------|
-| **Insufficient Tosca test coverage** | Medium | High | Audit test scripts early (Week 1, Day 1); identify gaps; supplement with manual UI inspection if needed. Have backup process identified. | QA + Pilot Lead |
-| **System access delays** | Medium | High | Submit access requests 1 week before pilot start. Escalate blockers to Sponsor immediately. Have sandbox credentials pre-staged. | Technical Support |
-| **AI accuracy below 95% threshold** | Medium | Medium | Run small validation sample by Day 4 (Week 1). If accuracy <90%, pivot to manual refinement or tooling adjustment in Week 2. | Pilot Lead + Technical Lead |
+| **Insufficient Tosca test coverage** | Medium | High | Audit test scripts early (Week 1, Day 1); identify gaps; supplement with manual UI inspection if needed. Have backup process identified. | QA + PoC Lead |
+| **System access delays** | Medium | High | Submit access requests 1 week before PoC start. Escalate blockers to Sponsor immediately. Have sandbox credentials pre-staged. | Technical Support |
+| **AI accuracy below 95% threshold** | Medium | Medium | Run small validation sample by Day 4 (Week 1). If accuracy <90%, pivot to manual refinement or tooling adjustment in Week 2. | PoC Lead + Technical Lead |
 | **SME unavailability** | Low | High | Confirm SME commitment and calendar blocks during kick-off. Identify backup SME if needed. Conduct review sessions async if required. | Sponsor |
-| **Scope creep** | Medium | Medium | Document out-of-scope items explicitly in this charter. Pilot Lead enforces change control. Any new requests are logged as "post-pilot considerations." | Pilot Lead |
+| **Scope creep** | Medium | Medium | Document out-of-scope items explicitly in this charter. PoC Lead enforces change control. Any new requests are logged as "post-PoC considerations." | PoC Lead |
 
 ---
 
@@ -206,7 +206,7 @@ All deliverables are stored in `/zero-touch-training/pilot-output/` and version-
 
 ### Exit Criteria & Decision Logic
 
-At the end of Week 2, the Sponsor, Pilot Lead, and SME will evaluate success criteria and decide:
+At the end of Week 2, the Sponsor, PoC Lead, and SME will evaluate success criteria and decide:
 
 #### **GO** — Expand to Production
 - Conditions:
@@ -245,7 +245,7 @@ At the end of Week 2, the Sponsor, Pilot Lead, and SME will evaluate success cri
 
 | Role | Name | Signature | Date |
 |------|------|-----------|------|
-| Pilot Lead | [TBD] | | |
+| PoC Lead | [TBD] | | |
 | SME / Process Owner | [TBD] | | |
 | Technical Support Lead | [TBD] | | |
 | Sponsor / Stakeholder | [TBD] | | |
@@ -303,7 +303,7 @@ At the end of Week 2, the Sponsor, Pilot Lead, and SME will evaluate success cri
 
 ### D. Contacts & Escalation
 
-- **Pilot Lead:** [Name, Email, Phone]
+- **PoC Lead:** [Name, Email, Phone]
 - **Sponsor / Stakeholder:** [Name, Email, Phone]
 - **SME:** [Name, Email, Phone]
 - **Technical Lead:** [Name, Email, Phone]
@@ -312,4 +312,4 @@ For blockers or critical issues, escalate to Sponsor immediately.
 
 ---
 
-**END OF PILOT CHARTER**
+**END OF PROOF OF CONCEPT CHARTER**

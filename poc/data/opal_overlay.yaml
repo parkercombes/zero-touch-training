@@ -1,0 +1,61 @@
+site:
+  name: "Anniston Army Depot"
+  code: "ANAD"
+  system: "SAP ECC 6.0 EHP8"
+  plant: "1000"
+  effective_date: "2024-01-01"
+
+overlays:
+  - process: "Purchase Requisition"
+    transaction: "ME51N"
+    variations:
+      - field: "PurchasingGroup"
+        field_technical: "EKGRP"
+        enterprise_default: "Any valid purchasing group"
+        site_override: "010 (Local) or 020 (Regional) only"
+        type: "validation_constraint"
+        reason: "Anniston procurement restricted to local/regional purchasing groups per depot policy"
+
+      - field: "EquipmentCode"
+        field_technical: "EQUNR"
+        enterprise_default: "Optional"
+        site_override: "Mandatory"
+        type: "field_requirement"
+        reason: "All Anniston purchases must reference equipment for asset tracking per Army depot regulation"
+
+      - step: "Approval"
+        enterprise_default: "2-tier approval for amounts > $100K"
+        site_override: "3-tier approval for amounts > $50K"
+        type: "approval_rule"
+        reason: "Anniston has stricter fiscal controls — Department Manager, Purchasing Manager, and Depot Commander approval required above $50K"
+        tiers:
+          - tier: 1
+            role: "Department Manager"
+            description: "Initial review and approval"
+          - tier: 2
+            role: "Purchasing Manager"
+            description: "Technical review and recommendation"
+          - tier: 3
+            role: "Depot Commander"
+            description: "Final approval for amounts > $50K"
+
+  - process: "Goods Receipt"
+    transaction: "MIGO"
+    variations:
+      - field: "StorageLocation"
+        field_technical: "LGORT"
+        enterprise_default: "Any valid storage location for the plant"
+        site_override: "Must match equipment assignment storage area"
+        type: "validation_constraint"
+        reason: "Equipment-tracked materials must be stored in their assigned areas for proper asset accountability"
+
+      - step: "QualityInspection"
+        enterprise_default: "Optional quality inspection"
+        site_override: "Mandatory quality inspection for Class IX (Repair Parts) materials"
+        type: "process_gate"
+        reason: "Anniston depot policy requires quality inspection for all repair parts before stock integration"
+        condition: "MaterialClass == 'IX'"
+        actions:
+          - "Enable Quality Inspection checkbox"
+          - "Enter inspection notes (required)"
+          - "Material blocked from consumption until inspection verified"

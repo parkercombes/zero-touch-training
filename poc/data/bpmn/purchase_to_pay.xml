@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:ext="http://www.omg.org/spec/BPMN/non-normative/extensions"
+                   id="Purchase_to_Pay_Process_ANAD"
+                   targetNamespace="http://www.anniston-army-depot.mil/bpmn/purchase-to-pay"
+                   exporter="Signavio Process Editor"
+                   exporterVersion="13.1.0">
+
+  <bpmn:documentation>
+    <bpmn:text>Purchase Requisition to Goods Receipt Process for Anniston Army Depot (ANAD)
+
+This process models the procurement workflow from initial requirement identification through goods receipt posting.
+Includes Anniston-specific constraints:
+- Equipment code mandatory for all materials
+- Purchasing group restricted to 010 (Local) or 020 (Regional)
+- 3-tier approval for amounts exceeding $50,000 (stricter than enterprise $100K threshold)
+- Mandatory quality inspection for Class IX repair parts
+- Storage location must match equipment assignment
+- Material document verification at receipt
+    </bpmn:text>
+  </bpmn:documentation>
+
+  <bpmn:process id="Process_Purchase_to_Pay_ANAD" name="Purchase Requisition to Goods Receipt" isExecutable="true">
+
+    <!-- Start Event -->
+    <bpmn:startEvent id="StartEvent_Need_Identified" name="Need Identified">
+      <bpmn:documentation>
+        <bpmn:text>Process initiates when department identifies procurement need (reactive or planned)</bpmn:text>
+      </bpmn:documentation>
+      <bpmn:outgoing>SequenceFlow_001</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- Task: Create Purchase Requisition (Requestor) -->
+    <bpmn:task id="Task_Create_PR" name="Create Purchase Requisition (ME51N)">
+      <bpmn:documentation>
+        <bpmn:text>Requestor creates PR in SAP with:
+        - Material number, quantity, delivery date
+        - Plant, storage location, cost center
+        - MANDATORY: Equipment code (Anniston requirement)
+        - MANDATORY: Purchasing group limited to 010 or 020 (Anniston constraint)
+        - System auto-calculates PR total for routing
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_001</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_002</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Exclusive Gateway: PR Amount Decision -->
+    <bpmn:exclusiveGateway id="Gateway_PR_Amount" name="PR Amount &gt; $50K?" default="SequenceFlow_ApprovalStandard">
+      <bpmn:documentation>
+        <bpmn:text>Anniston decision point for approval routing (threshold: $50,000)
+        - Amounts ≤ $50K: Standard 2-tier approval
+        - Amounts &gt; $50K: 3-tier approval (more restrictive than enterprise $100K)
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_002</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_ApprovalStandard</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_ApprovalThreeTier</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Task: Standard Approval (≤ $50K) -->
+    <bpmn:task id="Task_Standard_Approval" name="Standard Approval (≤ $50K)">
+      <bpmn:documentation>
+        <bpmn:text>Two-tier approval path for PR amounts not exceeding $50,000:
+        1. Department Manager review and approval
+        2. Purchasing Manager verification
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_ApprovalStandard</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_003</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Task: Three-Tier Approval (&gt; $50K, Anniston-specific) -->
+    <bpmn:task id="Task_ThreeTier_Approval" name="Three-Tier Approval (&gt; $50K) - Anniston Policy">
+      <bpmn:documentation>
+        <bpmn:text>Anniston-specific three-tier approval for amounts exceeding $50,000:
+        1. Department Manager review and initial approval
+        2. Purchasing Officer technical review and recommendation
+        3. Depot Commander (or authorized agent) final approval
+
+This stricter approval is driven by Army depot fiscal controls and audit requirements.
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_ApprovalThreeTier</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_004</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Parallel Gateway to merge approval paths -->
+    <bpmn:parallelGateway id="Gateway_MergeApprovals" name="Approvals Merged">
+      <bpmn:incoming>SequenceFlow_003</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_004</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_005</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- Task: Convert PR to Purchase Order (Purchasing Officer) -->
+    <bpmn:task id="Task_Convert_PO" name="Convert PR to Purchase Order (ME51N → ME21N)">
+      <bpmn:documentation>
+        <bpmn:text>Purchasing Officer (Purchasing Group 010/020) converts approved PR to PO:
+        - Negotiates terms with vendor
+        - Finalizes delivery schedule
+        - Ensures equipment assignment carries through
+        - Creates PO document referenced in goods receipt process
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_005</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_006</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Task: Send PO to Vendor (Purchasing Officer) -->
+    <bpmn:task id="Task_Send_PO" name="Send Purchase Order to Vendor">
+      <bpmn:documentation>
+        <bpmn:text>Transmit PO to vendor via:
+        - EDI/XML for major suppliers
+        - Email for routine vendors
+        - Portal for integrated suppliers
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_006</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_007</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Intermediate Event: Goods Delivered -->
+    <bpmn:intermediateThrowEvent id="IntermediateEvent_Goods_Delivered" name="Goods Delivered to Anniston">
+      <bpmn:documentation>
+        <bpmn:text>Goods physically received at Anniston Army Depot receiving dock.
+        Warehouse Clerk notified and initiates goods receipt process.
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_007</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_008</bpmn:outgoing>
+    </bpmn:intermediateThrowEvent>
+
+    <!-- Task: Post Goods Receipt (Warehouse Clerk) -->
+    <bpmn:task id="Task_Post_GR" name="Post Goods Receipt (MIGO - Movement Type 101)">
+      <bpmn:documentation>
+        <bpmn:text>Warehouse Clerk posts goods receipt in SAP:
+        - References PO number
+        - Verifies line item quantities match delivery
+        - Assigns storage location (MUST match equipment assignment - Anniston constraint)
+        - Flags for mandatory quality inspection if Class IX material
+        - Generates material document number
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_008</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_009</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Task: Verify Stock Update (Warehouse Clerk) -->
+    <bpmn:task id="Task_Verify_Stock" name="Verify Stock Update in Inventory">
+      <bpmn:documentation>
+        <bpmn:text>Confirm inventory system properly updated:
+        - Check material document in MMBE
+        - Verify quantity received in correct storage location
+        - Confirm quality inspection flag set (if applicable)
+        - Reconcile with physical inventory
+        </bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_009</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_010</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- End Event: Process Complete -->
+    <bpmn:endEvent id="EndEvent_Process_Complete" name="Process Complete">
+      <bpmn:documentation>
+        <bpmn:text>Procurement cycle complete. Material integrated into Anniston inventory and available for consumption per equipment assignment.</bpmn:text>
+      </bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_010</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="SequenceFlow_001" name="" sourceRef="StartEvent_Need_Identified" targetRef="Task_Create_PR"/>
+    <bpmn:sequenceFlow id="SequenceFlow_002" name="" sourceRef="Task_Create_PR" targetRef="Gateway_PR_Amount"/>
+    <bpmn:sequenceFlow id="SequenceFlow_ApprovalStandard" name="&lt;= $50K" sourceRef="Gateway_PR_Amount" targetRef="Task_Standard_Approval"/>
+    <bpmn:sequenceFlow id="SequenceFlow_ApprovalThreeTier" name="&gt; $50K (Anniston)" sourceRef="Gateway_PR_Amount" targetRef="Task_ThreeTier_Approval"/>
+    <bpmn:sequenceFlow id="SequenceFlow_003" name="" sourceRef="Task_Standard_Approval" targetRef="Gateway_MergeApprovals"/>
+    <bpmn:sequenceFlow id="SequenceFlow_004" name="" sourceRef="Task_ThreeTier_Approval" targetRef="Gateway_MergeApprovals"/>
+    <bpmn:sequenceFlow id="SequenceFlow_005" name="" sourceRef="Gateway_MergeApprovals" targetRef="Task_Convert_PO"/>
+    <bpmn:sequenceFlow id="SequenceFlow_006" name="" sourceRef="Task_Convert_PO" targetRef="Task_Send_PO"/>
+    <bpmn:sequenceFlow id="SequenceFlow_007" name="" sourceRef="Task_Send_PO" targetRef="IntermediateEvent_Goods_Delivered"/>
+    <bpmn:sequenceFlow id="SequenceFlow_008" name="" sourceRef="IntermediateEvent_Goods_Delivered" targetRef="Task_Post_GR"/>
+    <bpmn:sequenceFlow id="SequenceFlow_009" name="" sourceRef="Task_Post_GR" targetRef="Task_Verify_Stock"/>
+    <bpmn:sequenceFlow id="SequenceFlow_010" name="" sourceRef="Task_Verify_Stock" targetRef="EndEvent_Process_Complete"/>
+
+  </bpmn:process>
+
+  <!-- Collaboration with Swimlanes (Participants) -->
+  <bpmn:collaboration id="Collaboration_Purchase_to_Pay_ANAD">
+    <bpmn:participant id="Participant_Requestor" name="Requestor" processRef="Process_Purchase_to_Pay_ANAD"/>
+    <bpmn:participant id="Participant_PurchasingOfficer" name="Purchasing Officer" processRef="Process_Purchase_to_Pay_ANAD"/>
+    <bpmn:participant id="Participant_Approver" name="Approver (Department/Depot)" processRef="Process_Purchase_to_Pay_ANAD"/>
+    <bpmn:participant id="Participant_WarehouseClerk" name="Warehouse Clerk" processRef="Process_Purchase_to_Pay_ANAD"/>
+    <bpmn:participant id="Participant_Vendor" name="Vendor/Supplier" processRef="Process_Purchase_to_Pay_ANAD"/>
+
+    <!-- Message Flows Between Participants -->
+    <bpmn:messageFlow id="MessageFlow_SendPO" name="Send PO" sourceRef="Task_Send_PO" targetRef="Participant_Vendor"/>
+    <bpmn:messageFlow id="MessageFlow_DeliverGoods" name="Deliver Goods" sourceRef="Participant_Vendor" targetRef="Task_Post_GR"/>
+    <bpmn:messageFlow id="MessageFlow_ApprovalRequest" name="Approval Required" sourceRef="Task_Create_PR" targetRef="Task_Standard_Approval"/>
+    <bpmn:messageFlow id="MessageFlow_ThreeTierApprovalRequest" name="3-Tier Approval Required" sourceRef="Task_Create_PR" targetRef="Task_ThreeTier_Approval"/>
+  </bpmn:collaboration>
+
+  <!-- Data Objects for Key Documents -->
+  <bpmn:itemDefinition id="ItemDef_PR" structureRef="xsd:string" isCollection="false">
+    <bpmn:documentation>
+      <bpmn:text>Purchase Requisition document containing:
+      - PR number (auto-generated)
+      - Requestor information
+      - Material details
+      - Quantity, delivery date, cost center
+      - Equipment code (mandatory at Anniston)
+      - Status (draft, submitted, approved, converted)
+      </bpmn:text>
+    </bpmn:documentation>
+  </bpmn:itemDefinition>
+
+  <bpmn:itemDefinition id="ItemDef_PO" structureRef="xsd:string" isCollection="false">
+    <bpmn:documentation>
+      <bpmn:text>Purchase Order document containing:
+      - PO number (auto-generated from PR)
+      - Vendor information
+      - Line items from PR
+      - Negotiated terms
+      - Delivery schedule
+      - Equipment assignment carried through
+      - Status (draft, sent, received, invoiced)
+      </bpmn:text>
+    </bpmn:documentation>
+  </bpmn:itemDefinition>
+
+  <bpmn:itemDefinition id="ItemDef_GR" structureRef="xsd:string" isCollection="false">
+    <bpmn:documentation>
+      <bpmn:text>Goods Receipt document containing:
+      - Movement type 101 specification
+      - PO reference
+      - Quantities received
+      - Storage location assigned
+      - Quality inspection flags
+      - Material document number (generated)
+      - Status (posted, verified, invoiced)
+      </bpmn:text>
+    </bpmn:documentation>
+  </bpmn:itemDefinition>
+
+  <bpmn:itemDefinition id="ItemDef_MatDoc" structureRef="xsd:string" isCollection="false">
+    <bpmn:documentation>
+      <bpmn:text>Material Document (inventory posting):
+      - Document number (10-digit)
+      - Material number
+      - Plant and storage location
+      - Quantity posted
+      - Movement type 101 indicator
+      - Equipment assignment reference
+      - Quality inspection status flag
+      - Posted timestamp
+      </bpmn:text>
+    </bpmn:documentation>
+  </bpmn:itemDefinition>
+
+  <!-- BPMN Diagram Information -->
+  <bpmndi:BPMNDiagram id="Diagram_Purchase_to_Pay_ANAD" name="Purchase to Pay Process - Anniston Army Depot">
+    <bpmndi:BPMNPlane id="Plane_Process_Purchase_to_Pay_ANAD" bpmnElement="Process_Purchase_to_Pay_ANAD">
+      <!-- Start Event -->
+      <bpmndi:BPMNShape id="Shape_StartEvent_Need_Identified" bpmnElement="StartEvent_Need_Identified">
+        <dc:Bounds x="50" y="200" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Create PR -->
+      <bpmndi:BPMNShape id="Shape_Task_Create_PR" bpmnElement="Task_Create_PR">
+        <dc:Bounds x="130" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Gateway: PR Amount Decision -->
+      <bpmndi:BPMNShape id="Shape_Gateway_PR_Amount" bpmnElement="Gateway_PR_Amount">
+        <dc:Bounds x="280" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Standard Approval -->
+      <bpmndi:BPMNShape id="Shape_Task_Standard_Approval" bpmnElement="Task_Standard_Approval">
+        <dc:Bounds x="380" y="80" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Three-Tier Approval -->
+      <bpmndi:BPMNShape id="Shape_Task_ThreeTier_Approval" bpmnElement="Task_ThreeTier_Approval">
+        <dc:Bounds x="380" y="280" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Gateway: Merge Approvals -->
+      <bpmndi:BPMNShape id="Shape_Gateway_MergeApprovals" bpmnElement="Gateway_MergeApprovals">
+        <dc:Bounds x="530" y="195" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Convert PO -->
+      <bpmndi:BPMNShape id="Shape_Task_Convert_PO" bpmnElement="Task_Convert_PO">
+        <dc:Bounds x="630" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Send PO -->
+      <bpmndi:BPMNShape id="Shape_Task_Send_PO" bpmnElement="Task_Send_PO">
+        <dc:Bounds x="780" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Intermediate Event: Goods Delivered -->
+      <bpmndi:BPMNShape id="Shape_IntermediateEvent_Goods_Delivered" bpmnElement="IntermediateEvent_Goods_Delivered">
+        <dc:Bounds x="930" y="200" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Post GR -->
+      <bpmndi:BPMNShape id="Shape_Task_Post_GR" bpmnElement="Task_Post_GR">
+        <dc:Bounds x="1010" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Task: Verify Stock -->
+      <bpmndi:BPMNShape id="Shape_Task_Verify_Stock" bpmnElement="Task_Verify_Stock">
+        <dc:Bounds x="1160" y="180" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <!-- End Event -->
+      <bpmndi:BPMNShape id="Shape_EndEvent_Process_Complete" bpmnElement="EndEvent_Process_Complete">
+        <dc:Bounds x="1310" y="200" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Sequence Flow Connectors -->
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_001" bpmnElement="SequenceFlow_001">
+        <di:waypoint x="86" y="218"/>
+        <di:waypoint x="130" y="220"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_002" bpmnElement="SequenceFlow_002">
+        <di:waypoint x="230" y="220"/>
+        <di:waypoint x="280" y="220"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_ApprovalStandard" bpmnElement="SequenceFlow_ApprovalStandard">
+        <di:waypoint x="305" y="195"/>
+        <di:waypoint x="305" y="120"/>
+        <di:waypoint x="380" y="120"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_ApprovalThreeTier" bpmnElement="SequenceFlow_ApprovalThreeTier">
+        <di:waypoint x="305" y="245"/>
+        <di:waypoint x="305" y="320"/>
+        <di:waypoint x="380" y="320"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_003" bpmnElement="SequenceFlow_003">
+        <di:waypoint x="480" y="120"/>
+        <di:waypoint x="555" y="195"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_004" bpmnElement="SequenceFlow_004">
+        <di:waypoint x="480" y="320"/>
+        <di:waypoint x="555" y="245"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_005" bpmnElement="SequenceFlow_005">
+        <di:waypoint x="580" y="220"/>
+        <di:waypoint x="630" y="220"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_006" bpmnElement="SequenceFlow_006">
+        <di:waypoint x="730" y="220"/>
+        <di:waypoint x="780" y="220"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_007" bpmnElement="SequenceFlow_007">
+        <di:waypoint x="880" y="220"/>
+        <di:waypoint x="930" y="218"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_008" bpmnElement="SequenceFlow_008">
+        <di:waypoint x="966" y="218"/>
+        <di:waypoint x="1010" y="220"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_009" bpmnElement="SequenceFlow_009">
+        <di:waypoint x="1110" y="220"/>
+        <di:waypoint x="1160" y="220"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Edge_SequenceFlow_010" bpmnElement="SequenceFlow_010">
+        <di:waypoint x="1260" y="220"/>
+        <di:waypoint x="1310" y="218"/>
+      </bpmndi:BPMNEdge>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>
