@@ -2,14 +2,17 @@
 Base Generator
 
 Shared logic for all AI content generators:
-- Claude API interaction
+- Claude API interaction (via urllib — no SDK dependency needed)
 - Prompt template loading and rendering
 - Output file writing
 - Error handling and retries
 """
 
+import json
 import os
 import time
+import urllib.request
+import urllib.error
 from pathlib import Path
 
 
@@ -20,6 +23,9 @@ class BaseGenerator:
     PROMPT_TEMPLATE: str = ""  # filename in prompts/ dir
     OUTPUT_SUBDIR: str = ""    # subdirectory under output/
     OUTPUT_EXT: str = ".md"    # output file extension
+
+    API_URL = "https://api.anthropic.com/v1/messages"
+    API_VERSION = "2023-06-01"
 
     def __init__(self, config: dict, output_dir: str = "output"):
         """
@@ -34,19 +40,12 @@ class BaseGenerator:
         self.output_dir = Path(output_dir)
         self.prompts_dir = Path(__file__).parent.parent / "prompts"
 
-        # Initialize Anthropic client (lazy import — not needed for dry-run)
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
+        # Get API key
+        self.api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not self.api_key:
             raise EnvironmentError(
                 "ANTHROPIC_API_KEY not set. Copy .env.example to .env and add your key."
             )
-        try:
-            from anthropic import Anthropic
-        except ImportError:
-            raise ImportError(
-                "anthropic package not installed. Run: pip install anthropic"
-            )
-        self.client = Anthropic(api_key=api_key)
         self.model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
 
     def load_template(self) -> str:
@@ -71,25 +70,60 @@ class BaseGenerator:
 
     def call_claude(self, prompt: str, max_tokens: int = 4096) -> str:
         """
-        Send a prompt to Claude and return the response text.
+        Send a prompt to Claude via the REST API and return the response text.
 
+        Uses urllib directly so there's no dependency on the anthropic SDK.
         Includes retry logic for transient API errors.
         """
+        payload = json.dumps({
+            "model": self.model,
+            "max_tokens": max_tokens,
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+        }).encode("utf-8")
+
+        headers = {
+            "x-api-key": self.api_key,
+            "anthropic-version": self.API_VERSION,
+            "content-type": "application/json",
+        }
+
         for attempt in range(3):
             try:
-                response = self.client.messages.create(
-                    model=self.model,
-                    max_tokens=max_tokens,
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ],
+                req = urllib.request.Request(
+                    self.API_URL,
+                    method="POST",
+                    headers=headers,
+                    data=payload,
                 )
-                # Extract text from response
+                resp = urllib.request.urlopen(req, timeout=120)
+                body = json.loads(resp.read().decode("utf-8"))
+
+                # Extract text from response content blocks
                 text_parts = []
-                for block in response.content:
-                    if block.type == "text":
-                        text_parts.append(block.text)
+                for block in body.get("content", []):
+                    if block.get("type") == "text":
+                        text_parts.append(block["text"])
                 return "\n".join(text_parts)
+
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode("utf-8", errors="replace")
+                try:
+                    error_data = json.loads(error_body)
+                    error_msg = error_data.get("error", {}).get("message", error_body)
+                except json.JSONDecodeError:
+                    error_msg = error_body
+
+                if attempt < 2 and e.code in (429, 500, 502, 503, 529):
+                    wait = 2 ** attempt
+                    print(f"  ⚠️  API error {e.code} (attempt {attempt + 1}/3): {error_msg}")
+                    print(f"  Retrying in {wait}s...")
+                    time.sleep(wait)
+                else:
+                    raise RuntimeError(
+                        f"Claude API call failed (HTTP {e.code}): {error_msg}"
+                    )
 
             except Exception as e:
                 if attempt < 2:

@@ -9,7 +9,7 @@ Output: Markdown video script document
 """
 
 from pathlib import Path
-from ..parsers.bpmn_parser import Task, Gateway, Event
+from parsers.bpmn_parser import Task, Gateway, Event
 from .base import BaseGenerator
 
 

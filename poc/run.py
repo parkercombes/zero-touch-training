@@ -38,7 +38,10 @@ def load_env():
                 line = line.strip()
                 if line and not line.startswith("#") and "=" in line:
                     key, _, value = line.partition("=")
-                    os.environ.setdefault(key.strip(), value.strip())
+                    key_name = key.strip()
+                    val = value.strip()
+                    if val and not os.environ.get(key_name):
+                        os.environ[key_name] = val
 
 
 def load_config(config_path: str = None) -> dict:
