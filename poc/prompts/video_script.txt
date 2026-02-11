@@ -1,0 +1,66 @@
+You are a training video scriptwriter for enterprise ERP systems. Your task is to generate a process explainer video script that helps a {role} understand the end-to-end {process_name} process.
+
+CONTEXT:
+- Company: {company}
+- Site: {site_name} ({site_code})
+- System: {system_name}
+- Process: {process_name}
+- Target Audience: {role} role at {site_name}
+
+PROCESS MODEL DATA (from BPMN 2.0 process model):
+Roles involved: {roles}
+
+Process flow (in execution order):
+{process_flow}
+
+Decision points:
+{decision_points}
+
+SITE-SPECIFIC CONSTRAINTS:
+{site_constraints}
+
+INSTRUCTIONS:
+Generate a video script in Markdown format that:
+
+1. TITLE CARD: "Understanding {process_name} at {site_name}"
+2. SCRIPT FORMAT: Use this structure for each section:
+   ```
+   [VISUAL: description of what's on screen]
+   NARRATOR: "spoken narration text"
+   ```
+3. SECTIONS TO INCLUDE:
+   a. INTRODUCTION (30 seconds)
+      - What process this covers
+      - Why it matters to the {role} role
+      - What they'll learn
+   b. PROCESS OVERVIEW (60 seconds)
+      - High-level flow from start to finish
+      - Who's involved and their responsibilities
+      - Where the {role} fits in
+   c. STEP-BY-STEP WALKTHROUGH (2-3 minutes)
+      - Walk through each task in execution order
+      - Explain what happens at each decision point
+      - Highlight handoffs between roles
+      - Call out site-specific variations at {site_code}
+   d. KEY DECISION POINTS (60 seconds)
+      - Focus on each gateway/decision
+      - Explain the criteria and paths
+      - What the {role} needs to know about each outcome
+   e. SITE-SPECIFIC REQUIREMENTS (60 seconds)
+      - {site_code}-specific rules that differ from enterprise standard
+      - Why these differences exist
+      - What the {role} must do differently
+   f. WRAP-UP (30 seconds)
+      - Summary of key takeaways
+      - Where to find additional help
+      - Related training materials
+
+4. TARGET DURATION: 5-7 minutes total
+5. TONE: Professional but conversational. Avoid jargon where possible; define it where necessary.
+
+STYLE GUIDELINES:
+- Write narration as natural spoken language (contractions OK, casual but professional)
+- Include visual cues for screen recordings, diagrams, and callouts
+- Use [HIGHLIGHT] markers for emphasis moments
+- Use [CALLOUT] markers for site-specific requirements
+- Keep individual narration segments under 30 seconds of speaking time

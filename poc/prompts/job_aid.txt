@@ -1,0 +1,77 @@
+You are a technical training writer for enterprise ERP systems. Your task is to generate a concise, printable job aid for a {role} performing the {process_name} process using transaction {transaction_code}.
+
+CONTEXT:
+- Company: {company}
+- Site: {site_name} ({site_code})
+- System: {system_name}
+- Process: {process_name}
+- Transaction: {transaction_code}
+- Role: {role}
+
+SITE-SPECIFIC CONSTRAINTS:
+{site_constraints}
+
+SOURCE DATA (from automated test script "{script_name}"):
+{steps_data}
+
+TEST DATA (reference values):
+{test_data}
+
+PROCESS CONTEXT (from BPMN model):
+{process_context}
+
+INSTRUCTIONS:
+Generate a structured job aid in Markdown format designed to be converted to a Word document. The job aid should fit on 1-2 printed pages and serve as a quick reference while the user is working.
+
+REQUIRED SECTIONS:
+
+1. HEADER
+   - Title: "{process_name} — Quick Reference for {role}"
+   - Site: {site_name} ({site_code})
+   - Transaction: {transaction_code}
+   - Last Updated: {date}
+
+2. WHEN TO USE THIS
+   - 1-2 sentences: When does the {role} need to do this?
+   - Trigger event (what prompts this action)
+
+3. BEFORE YOU START (Prerequisites)
+   - Bullet list of what you need before beginning
+   - Required access/roles
+   - Information you should have ready
+
+4. KEY FIELDS REFERENCE TABLE
+   Generate a table with columns:
+   | Field | Where to Find It | What to Enter | Site Rule |
+   Include all fields from the test steps that require user input.
+   Mark site-specific fields with ⚠️.
+
+5. STEP-BY-STEP (Condensed)
+   - Numbered steps, max 2 lines each
+   - Focus on the action: what to click/enter
+   - Skip obvious navigation (focus on decision points)
+
+6. SITE-SPECIFIC RULES ({site_code})
+   - Boxed callout section
+   - List each {site_code} variation that differs from enterprise standard
+   - Format: "Enterprise: X → {site_code}: Y — Reason"
+
+7. VERIFICATION CHECKLIST
+   - Checkbox list of what to confirm before submitting
+   - Derived from the VERIFY steps in the test script
+
+8. COMMON ERRORS & FIXES
+   - Table: | Error | Cause | Fix |
+   - 3-4 most common issues derived from assertions/validations
+
+9. NEED HELP?
+   - Where to find detailed walkthrough
+   - Who to contact
+   - Related transactions
+
+STYLE GUIDELINES:
+- Dense but readable — this is a desk reference, not a tutorial
+- Use tables over paragraphs where possible
+- Bold critical values and field names
+- Use ⚠️ for site-specific items
+- Keep total content to approximately 800-1200 words

@@ -27,30 +27,43 @@ Commercial retail distribution center ERP users (starting at GlobalMart Southeas
 ```
 zero-touch-training/
 ├── README.md
+├── DEVELOPER_SUMMARY.md         # This file
 ├── docs/
-│   ├── concept.md              # Full project concept
-│   ├── architecture.md         # System design, data flows, AI pipeline
-│   ├── pilot-charter.md        # PoC charter (SE-DC, one process, two weeks)
-│   ├── roadmap.md              # Four-phase plan: PoC → Expansion → Multi-site → Operationalize
-│   ├── tooling.md              # Full solution vs PoC tool stacks
-│   └── layers/                 # Detailed spec per training layer (5 docs)
-└── poc/                        # Proof of Concept (in progress)
-    ├── config.yaml             # PoC scope config
-    ├── requirements.txt        # Python deps: lxml, PyYAML, anthropic, python-docx, Pillow
+│   ├── concept.md               # Full project concept
+│   ├── architecture.md          # System design, data flows, AI pipeline
+│   ├── pilot-charter.md         # PoC charter (SE-DC, one process, two weeks)
+│   ├── roadmap.md               # Four-phase plan: PoC → Expansion → Multi-site → Operationalize
+│   ├── tooling.md               # Full solution vs PoC tool stacks
+│   └── layers/                  # Detailed spec per training layer (5 docs)
+└── poc/                         # Proof of Concept
+    ├── config.yaml              # PoC scope config (company, site, role, sources)
+    ├── requirements.txt         # Python deps: lxml, PyYAML, anthropic, python-docx, Pillow
+    ├── run.py                   # Pipeline orchestrator — single entry point
+    ├── .env.example             # API key template
     ├── data/
-    │   ├── tosca/              # Sample Tosca test scripts (XML)
-    │   │   ├── purchase_requisition.xml   (22 steps, ME51N)
-    │   │   └── goods_receipt.xml          (25 steps, MIGO)
+    │   ├── tosca/               # Sample Tosca test scripts (XML)
+    │   │   ├── purchase_requisition.xml   (24 steps, ME51N)
+    │   │   └── goods_receipt.xml          (28 steps, MIGO)
     │   ├── bpmn/
     │   │   └── purchase_to_pay.xml        (BPMN 2.0, 5 roles, 7 tasks)
-    │   └── opal_overlay.yaml              (SE-DC site-specific variations)
-    ├── parsers/                 # ✅ BUILT & TESTED
-    │   ├── tosca_parser.py     # Tosca XML → structured steps, assertions, annotations
-    │   └── bpmn_parser.py      # BPMN 2.0 XML → process graph with execution order
-    ├── generators/             # 🔜 NEXT: AI content generation
-    ├── prompts/                # 🔜 NEXT: LLM prompt templates
-    ├── assembler/              # 🔜 NEXT: Opal overlay assembly
-    └── output/                 # Generated training materials land here
+    │   └── opal_overlay.yaml              (SE-DC site-specific variations, 6 rules)
+    ├── parsers/                  # ✅ BUILT & TESTED
+    │   ├── tosca_parser.py      # Tosca XML → structured steps, assertions, annotations
+    │   └── bpmn_parser.py       # BPMN 2.0 XML → process graph with execution order
+    ├── generators/               # ✅ BUILT — AI content generation layer
+    │   ├── base.py              # Shared: Claude API client, prompt rendering, output writing
+    │   ├── walkthrough.py       # Layer 1: Tosca steps → navigation walkthroughs (Markdown)
+    │   ├── video_script.py      # Layer 2: BPMN process → explainer video scripts (Markdown)
+    │   ├── job_aid.py           # Layer 3: Tosca + BPMN → role-specific job aids (Markdown)
+    │   └── walkme_draft.py      # Layer 4: Tosca UI elements → WalkMe flow defs (JSON)
+    ├── prompts/                  # ✅ BUILT — LLM prompt templates
+    │   ├── walkthrough.txt      # Prompt: step-by-step navigation walkthrough
+    │   ├── video_script.txt     # Prompt: process explainer video script
+    │   ├── job_aid.txt          # Prompt: condensed desk-reference job aid
+    │   └── walkme.txt           # Prompt: WalkMe Smart Walk-Thru JSON definition
+    ├── assembler/                # ✅ BUILT — Opal overlay assembly
+    │   └── overlay.py           # Loads YAML overlays, resolves per-transaction constraints
+    └── output/                   # Generated training materials land here
 ```
 
 ## What's Built
@@ -58,19 +71,53 @@ zero-touch-training/
 **Documentation (complete):**
 - Full concept doc, system architecture, PoC charter, 4-phase roadmap, tooling analysis, and detailed specs for all 5 training layers.
 
-**PoC — Phase 1 (in progress):**
+**PoC — Full Pipeline (Steps 1–4):**
 
 | Component | Status | Notes |
 |---|---|---|
 | Sample Tosca test scripts | ✅ Done | Realistic XML with SAP field refs, SE-DC constraints, assertions |
 | Sample BPMN process model | ✅ Done | Valid BPMN 2.0 with swimlanes, gateways, message flows |
-| Opal overlay config | ✅ Done | YAML with 5 site-specific variations (field requirements, approval rules, process gates) |
+| Opal overlay config | ✅ Done | YAML with 6 site-specific variations (field constraints, approval rules, process gates, cold chain) |
 | Tosca parser | ✅ Done | Extracts steps, actions, UI elements, site-specific flags. Handles namespaced and plain XML |
 | BPMN parser | ✅ Done | Extracts tasks, gateways, events, builds execution-order traversal via BFS |
-| AI content generators | 🔜 Next | Will use Claude API to transform parsed data into training content |
-| Prompt templates | 🔜 Next | Structured prompts for walkthroughs, video scripts, job aids, WalkMe flows |
-| Overlay assembler | 🔜 Next | Applies SE-DC site-specific variations to generated content |
-| Pipeline orchestrator | 🔜 Next | `run.py` — single script that runs the full pipeline end-to-end |
+| Prompt templates | ✅ Done | 4 structured prompt files for walkthroughs, video scripts, job aids, WalkMe flows |
+| AI content generators | ✅ Done | 4 generator modules + base class with Claude API integration, retry logic, output writing |
+| Overlay assembler | ✅ Done | Loads Opal YAML, resolves per-transaction constraints, provides to generators |
+| Pipeline orchestrator | ✅ Done | `run.py` — single script: parse → overlay → generate → write. Supports `--dry-run`, `--layer` filtering |
+
+## Pipeline Architecture
+
+```
+┌─────────────┐    ┌──────────────┐    ┌───────────────┐    ┌───────────────┐
+│  Source Data │ →  │   Parsers    │ →  │   Assembler   │ →  │  Generators   │
+│             │    │              │    │               │    │               │
+│ Tosca XML   │    │ tosca_parser │    │ overlay.py    │    │ walkthrough   │
+│ BPMN XML    │    │ bpmn_parser  │    │ (Opal rules)  │    │ video_script  │
+│ Opal YAML   │    │              │    │               │    │ job_aid       │
+│             │    │              │    │               │    │ walkme_draft   │
+└─────────────┘    └──────────────┘    └───────────────┘    └──────┬────────┘
+                                                                    │
+                                                          ┌─────────▼────────┐
+                                                          │  Claude API      │
+                                                          │  (content gen)   │
+                                                          └─────────┬────────┘
+                                                                    │
+                                                          ┌─────────▼────────┐
+                                                          │   output/        │
+                                                          │  walkthroughs/   │
+                                                          │  video_scripts/  │
+                                                          │  job_aids/       │
+                                                          │  walkme_flows/   │
+                                                          └──────────────────┘
+```
+
+## How the Opal Overlay Pattern Works
+
+Enterprise baseline + Site overlay + Role context = Delivered training
+
+The overlay assembler loads `opal_overlay.yaml` which defines how SE-DC differs from GlobalMart enterprise standards. Generators inject these constraints into prompts so the AI produces site-accurate training — not generic docs.
+
+Example: *Enterprise says "any purchasing group." SE-DC overlay says "R-SE or R-NAT only, because regional supplier programs." The walkthrough generator tells the user exactly which group to select and why.*
 
 ## PoC Scope
 
@@ -80,25 +127,45 @@ zero-touch-training/
 - **Key SE-DC constraints baked into sample data:**
   - Lot/batch tracking mandatory for perishables (enterprise default: optional)
   - Purchasing group restricted to R-SE / R-NAT
-  - 3-tier approval for amounts > $25K for perishable categories (enterprise: 2-tier > $100K)
+  - 3-tier approval for amounts > $25K for perishable categories (enterprise: 2-tier > $50K)
   - Temperature zone must match product category (Zone-F/Zone-R/Zone-A)
   - Mandatory quality inspection for perishable and private-label goods
+  - Cold chain verification with temperature recording at receiving dock
 
 ## Tech Stack (PoC)
 
 - Python 3.10+
 - `lxml` — XML parsing for Tosca and BPMN
 - `PyYAML` — Opal overlay config
-- `anthropic` — Claude API for content generation (next step)
-- `python-docx` — Formatted Word doc job aids (next step)
+- `anthropic` — Claude API for content generation
+- `python-docx` — Formatted Word doc job aids (future)
+- `Pillow` — Image processing for screenshots (future)
 
 ## Getting Started
 
 ```bash
 cd poc/
+
+# Install dependencies
 pip install -r requirements.txt
 
-# Test parsers
+# Set up API key
+cp .env.example .env
+# Edit .env and add your Anthropic API key
+
+# Dry run (parse + overlay, no AI calls)
+python run.py --dry-run
+
+# Full pipeline
+python run.py
+
+# Single layer only
+python run.py --layer walkthrough
+python run.py --layer video_script
+python run.py --layer job_aid
+python run.py --layer walkme
+
+# Test parsers directly
 python parsers/tosca_parser.py data/tosca/purchase_requisition.xml
 python parsers/bpmn_parser.py data/bpmn/purchase_to_pay.xml
 ```

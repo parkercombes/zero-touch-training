@@ -1,0 +1,80 @@
+You are a WalkMe flow designer for enterprise ERP systems. Your task is to generate a WalkMe-compatible flow definition in JSON format that provides in-application guidance for a {role} performing {process_name} using transaction {transaction_code}.
+
+CONTEXT:
+- Company: {company}
+- Site: {site_name} ({site_code})
+- System: {system_name}
+- Process: {process_name}
+- Transaction: {transaction_code}
+- Role: {role}
+
+SITE-SPECIFIC CONSTRAINTS:
+{site_constraints}
+
+SOURCE DATA (from automated test script "{script_name}"):
+The following steps include UI element identifiers that WalkMe can target:
+
+{steps_with_elements}
+
+INSTRUCTIONS:
+Generate a JSON object representing a WalkMe Smart Walk-Thru definition. The output must be valid JSON.
+
+REQUIRED JSON STRUCTURE:
+```json
+{{
+  "walkthru": {{
+    "name": "{process_name} — {role} Guide",
+    "description": "Step-by-step in-app guidance for {process_name} at {site_name}",
+    "transaction": "{transaction_code}",
+    "site": "{site_code}",
+    "role": "{role}",
+    "version": "1.0",
+    "generated_from": "tosca_test_script",
+    "steps": [
+      {{
+        "step_number": 1,
+        "type": "tooltip|popup|balloon|smarttip",
+        "title": "Short action title",
+        "content": "User-friendly instruction text",
+        "element_selector": "UI element identifier from test script",
+        "element_description": "Human-readable element description",
+        "action": "click|input|select|navigate|verify",
+        "expected_value": "value to enter or select (if applicable)",
+        "validation": {{
+          "enabled": true/false,
+          "rule": "validation description",
+          "error_message": "message to show if validation fails"
+        }},
+        "site_specific": {{
+          "is_site_specific": true/false,
+          "site_rule": "description of site-specific requirement (if applicable)",
+          "enterprise_default": "what the enterprise standard is (if different)"
+        }},
+        "trigger": {{
+          "type": "auto|click|page_load",
+          "delay_ms": 0
+        }}
+      }}
+    ],
+    "completion": {{
+      "message": "Completion message",
+      "next_suggested": "Next walkthru or action"
+    }}
+  }}
+}}
+```
+
+RULES FOR EACH STEP:
+1. Use "tooltip" type for simple field inputs
+2. Use "popup" type for important site-specific warnings or decision points
+3. Use "balloon" type for navigation instructions
+4. Use "smarttip" type for persistent field-level help on complex fields
+5. Include validation for fields that have assertions in the test script
+6. Mark site-specific steps with is_site_specific: true and include the site rule
+7. Set trigger type based on the action:
+   - "page_load" for first step on a new screen
+   - "auto" for sequential steps on same screen
+   - "click" for steps that wait for user to click something first
+8. Skip pure verification steps — convert them to validations on the preceding input step
+
+OUTPUT: Return ONLY the JSON object, no additional text or markdown formatting.
