@@ -184,7 +184,7 @@ When a source asset changes, determine which training is affected:
 
 **Rule 4: Site-Specific Staleness Independence**
 - If enterprise-level configuration changes, all sites are affected
-- If site-specific configuration changes (e.g., Anniston role changes), only that site's training is stale
+- If site-specific configuration changes (e.g., SE-DC role changes), only that site's training is stale
 - Allow enterprise and site-specific staleness to be tracked independently
 
 ### Notification System
@@ -453,7 +453,7 @@ A key part of Layer 5 is visibility into training currency. The dashboard shows:
 ```
 TRAINING CURRENCY DASHBOARD
 
-Project: Zero-Touch Training - Army Depots
+Project: Zero-Touch Training - GlobalMart DCs
 Last Updated: 2024-01-20 14:32 UTC
 Analysis Scope: All sites, all training materials
 
@@ -531,8 +531,8 @@ Date/Time           Change Type     Source Asset        Reason          Status  
 2024-01-19 16:45   MODIFIED        BPMN Process v3.4   New approval    REVIEWING   automation
 2024-01-18 10:15   MODIFIED        Fiori App Catalog   Reorganization  FAILED      automation
 2024-01-15 14:22   NEW             Tosca/Reject_PR     New function    PUBLISHED   automation
-2024-01-12 08:30   MODIFIED        SAP Config (Rome)   Override rules  PUBLISHED   SME-Rome
-2024-01-10 16:45   MODIFIED        UI/Anniston layout  Field order     PUBLISHED   automation
+2024-01-12 08:30   MODIFIED        SAP Config (MidWest-DC)   Override rules  PUBLISHED   SME-MidWest-DC
+2024-01-10 16:45   MODIFIED        UI/SE-DC layout  Field order     PUBLISHED   automation
 2024-01-08 09:00   DELETED         Tosca/Legacy_PR     Function retired PUBLISHED  automation
 [... more history ...]
 
@@ -547,7 +547,7 @@ Legend:
 ```
 TRAINING STATUS BY SITE
 
-Anniston Depot:
+SE-DC Depot:
   Total Materials: 120
   Current: 119 (99%)
   Stale: 1 (Tosca update for Create_PR)
@@ -556,7 +556,7 @@ Anniston Depot:
   Average Age: 3.2 days
   Last Change: 2024-01-20 09:30
 
-Rome Depot:
+MidWest-DC Depot:
   Total Materials: 120
   Current: 119 (99%)
   Stale: 1 (BPMN process update affecting approval flow)
@@ -592,7 +592,7 @@ CRITICAL ALERTS
    Link: [View Details] [Notify SME]
 
 ℹ️ [INFO] Layer 3 Job Aid - Approved and Published
-   Training: Creating a Purchase Requisition at Anniston
+   Training: Creating a Purchase Requisition at SE-DC
    Status: PUBLISHED
    Source: Tosca v2.1 step selector change
    Publication Time: 2024-01-20 14:22 UTC
@@ -646,7 +646,7 @@ Staleness is tracked at two levels:
 - Affect all sites
 
 **Site Level:**
-- Site-specific role assignments (Anniston's approval chain differs from Rome's)
+- Site-specific role assignments (SE-DC's approval chain differs from MidWest-DC's)
 - Site-specific field defaults
 - Site-specific approval thresholds
 - Site-specific integration requirements
@@ -661,17 +661,17 @@ Base Version: v1.0
   Applies To: All sites (enterprise standard)
   Status: CURRENT ✓
 
-Site Overlay - Anniston v1.0:
-  Source: Opal/Anniston Config v3.2
-  Changes: Plant field auto-defaults to Anniston_Main
-  Applies To: Anniston site only
+Site Overlay - SE-DC v1.0:
+  Source: Opal/SE-DC Config v3.2
+  Changes: Plant field auto-defaults to SE-DC_Main
+  Applies To: SE-DC site only
   Status: CURRENT ✓
 
-Site Overlay - Rome v1.2:
-  Source: Opal/Rome Config v4.1
+Site Overlay - MidWest-DC v1.2:
+  Source: Opal/MidWest-DC Config v4.1
   Changes: Approval chain includes Finance Committee for >$50K
   Previous State: v1.1 (changed 2024-01-19)
-  Applies To: Rome site only
+  Applies To: MidWest-DC site only
   Status: REGENERATING (awaiting SME approval) ⏳
 ```
 
@@ -693,13 +693,13 @@ Change Detected: 2024-01-20 09:30
 
 Action for Each Site:
 
-  Anniston:
+  SE-DC:
     Base Training: Stale (Tosca changed)
     Site Overlay: Stale (depends on base)
     Regenerate: Base + overlay
     Status: REGENERATING
 
-  Rome:
+  MidWest-DC:
     Base Training: Stale (Tosca changed)
     Site Overlay: Stale (depends on base)
     Regenerate: Base + overlay (includes Finance Committee override)

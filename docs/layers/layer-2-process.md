@@ -29,7 +29,7 @@ Layer 2 training is automatically generated from the following sources:
 
 ### Organizational Data
 - Department structures and reporting relationships
-- Inter-site handoff patterns (e.g., Anniston requisitions require Rome approval)
+- Inter-site handoff patterns (e.g., SE-DC requisitions require MidWest-DC approval)
 - Business unit-specific variations in process flow
 - Escalation paths and exceptions handling
 
@@ -210,17 +210,17 @@ Business processes often have site-specific variations. The generation system mu
 
 ### Role Assignment Variations
 - Some sites may have different role structures (e.g., at one site, "Materials Planner" and "Purchasing Officer" are the same person; at another, they are separate)
-- Some approval hierarchies vary by location (e.g., Rome requires 3-level approval for high-value PRs, Anniston requires only 2-level)
-- Solution: Generate base process model from enterprise BPMN, then overlay site-specific role assignments with clear annotations (e.g., "At Anniston, the Materials Manager approves directly; at other sites, this step goes through the Procurement Manager")
+- Some approval hierarchies vary by location (e.g., MidWest-DC requires 3-level approval for high-value PRs, SE-DC requires only 2-level)
+- Solution: Generate base process model from enterprise BPMN, then overlay site-specific role assignments with clear annotations (e.g., "At SE-DC, the Materials Manager approves directly; at other sites, this step goes through the Procurement Manager")
 
 ### Process Flow Variations
 - Some sites may have additional approval gates or compliance checks not required at other locations
-- Escalation paths may differ (e.g., "Contracts with Military Affairs" may only apply at Anniston)
+- Escalation paths may differ (e.g., "Contracts with Military Affairs" may only apply at SE-DC)
 - Some decision branches may not be applicable at all sites
 - Solution: Include conditional process paths in BPMN and visually indicate which paths apply at which sites
 
 ### Timing and SLA Differences
-- Service level agreements may be site-specific (e.g., "3-day approval SLA at Rome, 5-day SLA at Anniston")
+- Service level agreements may be site-specific (e.g., "3-day approval SLA at MidWest-DC, 5-day SLA at SE-DC")
 - Process durations may differ based on site-specific system performance or staffing
 - Solution: Document site-specific SLAs in narrative text and timeline graphics with callouts
 

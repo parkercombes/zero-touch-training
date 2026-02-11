@@ -108,7 +108,7 @@ Field: Material ID
     - Some materials require special approval if you are not the material owner
     - Hazardous materials trigger additional compliance questions
 
-  Variation - Anniston site: At Anniston, the Material ID field auto-populates
+  Variation - SE-DC site: At SE-DC, the Material ID field auto-populates
     if you enter the material name instead. At other sites, you must know the ID.
 ```
 
@@ -125,14 +125,14 @@ Use test data from Tosca to create realistic examples:
 ### Step 5: Apply Opal Overlays for Site-Specific Variations
 Integrate site-specific variations identified by Opal metadata:
 - Check if any Tosca test variants exist for different sites
-  - If Rome has different validation rules than Anniston, Tosca may have separate test scripts
+  - If MidWest-DC has different validation rules than SE-DC, Tosca may have separate test scripts
   - If field defaults differ by site, extract both configurations
 - For each site, document:
   - Enterprise baseline (standard field requirements, validation, behavior)
   - Site-specific overlay (what changes at this site and why)
 - Explicitly flag overlays in the generated job aid
-  - "At Anniston, step 5 differs from the enterprise standard..."
-  - "This field is required at all sites except Rome..."
+  - "At SE-DC, step 5 differs from the enterprise standard..."
+  - "This field is required at all sites except MidWest-DC..."
 
 ### Step 6: Structure as Short Job Aids (1-2 Pages)
 Create focused guides organized by task:
@@ -282,11 +282,11 @@ When significant site-specific variations exist, create separate job aids:
 **Approach 1: Single Guide with Opal Overlay**
 - Write a single guide using enterprise standard as baseline
 - Use callout boxes to show site-specific variations
-- Example: "At Anniston, the Plant field defaults to 'Anniston_Main'; at Rome, you must manually select 'Rome_Central'"
+- Example: "At SE-DC, the Plant field defaults to 'SE-DC_Main'; at MidWest-DC, you must manually select 'MidWest-DC_Central'"
 
 **Approach 2: Separate Guides per Site**
 - If variations are extensive, create separate guides per site
-- Title includes site name: "Creating a Purchase Requisition at Anniston"
+- Title includes site name: "Creating a Purchase Requisition at SE-DC"
 - Reduces cognitive load by not mixing multiple variations
 - Use when variations affect multiple steps
 
@@ -295,7 +295,7 @@ When significant site-specific variations exist, create separate job aids:
 ### Field Configuration Variations
 - Some fields are required at all sites; others are optional at some sites
 - Default values differ by site (e.g., "Plant" field auto-populates with site's plant code)
-- Dropdown options vary by site (e.g., Cost Centers available at Rome differ from Anniston)
+- Dropdown options vary by site (e.g., Cost Centers available at MidWest-DC differ from SE-DC)
 - Solution: Document enterprise baseline, then overlay site-specific requirements with clear visual distinction
 
 ### Approval Workflow Variations
@@ -305,7 +305,7 @@ When significant site-specific variations exist, create separate job aids:
 - Solution: Create separate job aids for each approval scenario, clearly labeled with site applicability
 
 ### Integration Differences
-- Some sites may integrate with external systems (e.g., "At Rome, approved PRs automatically sync to the vendor portal")
+- Some sites may integrate with external systems (e.g., "At MidWest-DC, approved PRs automatically sync to the vendor portal")
 - Different sites may use different payment terms or shipping providers
 - Some sites have additional compliance requirements
 - Solution: Document integration steps in site-specific job aids
@@ -313,7 +313,7 @@ When significant site-specific variations exist, create separate job aids:
 ### Validation Rule Variations
 - Some sites have stricter quantity limits or budget caps
 - Some sites require additional data fields for compliance
-- Delivery date rules may vary (e.g., Rome requires 10-day lead time minimum, Anniston 5 days)
+- Delivery date rules may vary (e.g., MidWest-DC requires 10-day lead time minimum, SE-DC 5 days)
 - Solution: Call out validation rules in step-by-step instructions with site context
 
 ### User Experience Variations
@@ -365,7 +365,7 @@ All execution training must meet these standards:
 - Text must be large enough to read (10pt minimum for printed guides)
 - Tables and lists must be clearly structured for screen reader compatibility
 
-## Example: "Creating a Purchase Requisition — Anniston"
+## Example: "Creating a Purchase Requisition — SE-DC"
 
 ### Generated Job Aid Structure
 
@@ -427,12 +427,12 @@ Expected result: The system accepts the number and moves to the next field. You 
 
 **Step 4: Select the Plant**
 1. Click in the "Plant" field
-2. At Anniston: The Plant field automatically shows "Anniston_Main" and you cannot change it
+2. At SE-DC: The Plant field automatically shows "SE-DC_Main" and you cannot change it
 3. At other sites: The field is empty; click the dropdown arrow and select your plant from the list
 
 [Screenshot: Plant field dropdown open, showing available plants]
 
-Expected result: You see your plant name selected in the Plant field. The system prevents selection of other plants (at Anniston) or allows any plant (at other sites).
+Expected result: You see your plant name selected in the Plant field. The system prevents selection of other plants (at SE-DC) or allows any plant (at other sites).
 
 **Step 5: Enter the Delivery Date**
 1. Click in the "Delivery Date" field
@@ -503,7 +503,7 @@ If unsure, create a Purchase Requisition. It's the standard path and ensures pro
 |---|---|---|---|
 | Material ID | 18-digit code from parts catalog | Determines price, availability, lead time | Error: System prevents submission |
 | Quantity | Number of units needed | Determines order size and shipping | Error: System prevents submission |
-| Plant | Location that will receive the material | Ensures delivery to correct warehouse | At Anniston: Auto-filled with Anniston_Main; At other sites: Error |
+| Plant | Location that will receive the material | Ensures delivery to correct warehouse | At SE-DC: Auto-filled with SE-DC_Main; At other sites: Error |
 | Delivery Date | When you need the material | Affects supplier selection and lead time | Error: System prevents submission |
 | Cost Center | 6-digit internal cost code | Allocates cost to correct department | Optional; if blank, defaults to requester's default cost center |
 | Expedite | Check box if urgent | Triggers fast-track approval and may add cost | Optional; if unchecked, normal lead time applies |
@@ -526,7 +526,7 @@ A: The delivery date you requested is sooner than the supplier can typically del
 A: You have ordered more than 999,999 units, which is unusual. If this is intentional, add an explanation in the Special Instructions field (e.g., "Annual stocking order"). If this is a mistake, reduce the quantity and verify the number needed.
 
 **Q: My Plant field is locked and shows a different plant than I want**
-A: At Anniston, the Plant field is automatically set to "Anniston_Main" and cannot be changed. If you actually need materials sent to a different location, contact your supervisor. At other sites, the Plant field is editable; click the dropdown and select the correct plant.
+A: At SE-DC, the Plant field is automatically set to "SE-DC_Main" and cannot be changed. If you actually need materials sent to a different location, contact your supervisor. At other sites, the Plant field is editable; click the dropdown and select the correct plant.
 
 ---
 
@@ -534,8 +534,8 @@ A: At Anniston, the Plant field is automatically set to "Anniston_Main" and cann
 - Layer 2: Understanding the Purchase Requisition Process (context and workflow)
 - Layer 3: Approving a Purchase Requisition (if you are an approver)
 - Layer 4: In-App Help While Creating a Requisition
-- Tosca Test Script Source: `Create_Purchase_Requisition_Standard_Anniston_v2.1`
-- Generated: 2024-01-15 from BPMN v3.4, Tosca v2.1, Anniston Site Configuration v1.8
+- Tosca Test Script Source: `Create_Purchase_Requisition_Standard_SE-DC_v2.1`
+- Generated: 2024-01-15 from BPMN v3.4, Tosca v2.1, SE-DC Site Configuration v1.8
 
 ---
 
@@ -581,7 +581,7 @@ A: At Anniston, the Plant field is automatically set to "Anniston_Main" and cann
 - Stale training triggers automatic regeneration (see Layer 5)
 
 ### Scale Considerations
-- For an enterprise like Army depots, potentially hundreds of job aids (one per role-task combination)
+- For a retail enterprise like GlobalMart, potentially hundreds of job aids (one per role-task combination)
 - Pre-generate all job aids at build time, not on-demand
 - Organize job aids in a searchable repository with filtering by role, business process, and site
 - Package job aids as PDF for offline access and printing

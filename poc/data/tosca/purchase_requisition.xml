@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestScript xmlns="http://www.tricentis.com/tosca/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Metadata>
-    <TestScriptId>TS_ME51N_CREATE_PR_001</TestScriptId>
-    <Name>Create Purchase Requisition in SAP Fiori - Anniston Army Depot</Name>
-    <Description>Test script for creating a Purchase Requisition (ME51N) at Anniston Army Depot (ANAD). Validates Anniston-specific constraints: equipment code requirement, purchasing group restriction (010/020), and 3-tier approval for amounts &gt; $50K.</Description>
+    <TestScriptId>TS_ME51N_CREATE_PR_002</TestScriptId>
+    <Name>Create Purchase Requisition in SAP Fiori - GlobalMart Southeast Distribution Center</Name>
+    <Description>Test script for creating a Purchase Requisition (ME51N) at GlobalMart Southeast Distribution Center (SE-DC) in Atlanta, GA. Validates SE DC-specific constraints: lot/batch tracking requirement for perishables, purchasing group restriction (R-SE/R-NAT), refrigerated storage zone assignment, and 2-tier approval for amounts under $25K.</Description>
     <Version>1.0</Version>
-    <CreatedDate>2024-01-15T10:30:00Z</CreatedDate>
-    <LastExecutedDate>2024-02-08T14:22:15Z</LastExecutedDate>
-    <LastModifiedDate>2024-02-08T14:22:15Z</LastModifiedDate>
+    <CreatedDate>2026-01-10T09:15:00Z</CreatedDate>
+    <LastExecutedDate>2026-02-11T11:45:30Z</LastExecutedDate>
+    <LastModifiedDate>2026-02-11T11:45:30Z</LastModifiedDate>
     <ExecutionStatus>PASSED</ExecutionStatus>
-    <ExecutionCount>47</ExecutionCount>
-    <PassCount>47</PassCount>
+    <ExecutionCount>52</ExecutionCount>
+    <PassCount>52</PassCount>
     <FailCount>0</FailCount>
-    <AverageExecutionTime>156</AverageExecutionTime>
+    <AverageExecutionTime>163</AverageExecutionTime>
   </Metadata>
 
   <TestEnvironment>
-    <SystemName>SAP ECC 6.0 EHP8</SystemName>
-    <SiteCode>ANAD</SiteCode>
-    <SiteName>Anniston Army Depot</SiteName>
-    <URL>https://sap.anad.army.mil:8443/irj/portal</URL>
+    <SystemName>SAP S/4HANA 2023</SystemName>
+    <SiteCode>SE-DC</SiteCode>
+    <SiteName>GlobalMart Southeast Distribution Center</SiteName>
+    <URL>https://sap.globalmart.com/fiori</URL>
     <Client>100</Client>
     <Language>EN</Language>
   </TestEnvironment>
@@ -31,9 +31,9 @@
       <Description>Open SAP Fiori Launchpad</Description>
       <Action>
         <Type>NAVIGATE</Type>
-        <TargetURL>https://sap.anad.army.mil:8443/irj/portal</TargetURL>
+        <TargetURL>https://sap.globalmart.com/fiori</TargetURL>
       </Action>
-      <ExpectedResult>SAP Fiori Launchpad homepage displayed with user authenticated as ANAD_REQUISITIONER</ExpectedResult>
+      <ExpectedResult>SAP Fiori Launchpad homepage displayed with user authenticated as SE_DC_BUYER</ExpectedResult>
       <ScreenshotReference>screenshot_001_fiori_launchpad.png</ScreenshotReference>
     </Step>
 
@@ -122,49 +122,49 @@
     <Step>
       <StepId>STEP_007</StepId>
       <StepNumber>7</StepNumber>
-      <Description>Select Purchasing Group: 010 (Anniston Local - required constraint)</Description>
+      <Description>Select Purchasing Group: R-SE (Regional Southeast - required constraint)</Description>
       <Action>
         <Type>SELECT</Type>
         <Element>
           <Identifier>id://PurchasingGroup</Identifier>
-          <Description>Purchasing Group dropdown (Anniston constraint: 010 or 020 only)</Description>
+          <Description>Purchasing Group dropdown (SE DC constraint: R-SE or R-NAT only)</Description>
         </Element>
-        <Value>010</Value>
+        <Value>R-SE</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>PurchasingGroup</FieldReference>
-        <ExpectedValue>010</ExpectedValue>
+        <ExpectedValue>R-SE</ExpectedValue>
       </Assertion>
       <Assertion>
         <Type>ALLOWED_VALUES</Type>
         <FieldReference>PurchasingGroup</FieldReference>
-        <AllowedValues>010,020</AllowedValues>
-        <Reason>Anniston Army Depot procurement restricted to local (010) or regional (020) purchasing groups per site policy</Reason>
+        <AllowedValues>R-SE,R-NAT</AllowedValues>
+        <Reason>SE DC procurement restricted to Regional Southeast (R-SE) or National (R-NAT) purchasing groups per site policy</Reason>
       </Assertion>
-      <ExpectedResult>Purchasing Group set to "010 - Anniston Local Procurement"</ExpectedResult>
-      <ScreenshotReference>screenshot_007_purchasing_group_010.png</ScreenshotReference>
+      <ExpectedResult>Purchasing Group set to "R-SE - Regional Southeast"</ExpectedResult>
+      <ScreenshotReference>screenshot_007_purchasing_group_rse.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_008</StepId>
       <StepNumber>8</StepNumber>
-      <Description>Select Purchasing Organization: 1000 (Anniston)</Description>
+      <Description>Select Purchasing Organization: 2000 (GlobalMart Procurement - Southeast Region)</Description>
       <Action>
         <Type>SELECT</Type>
         <Element>
           <Identifier>id://PurchasingOrganization</Identifier>
           <Description>Purchasing Organization dropdown</Description>
         </Element>
-        <Value>1000</Value>
+        <Value>2000</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>PurchasingOrganization</FieldReference>
-        <ExpectedValue>1000</ExpectedValue>
+        <ExpectedValue>2000</ExpectedValue>
       </Assertion>
-      <ExpectedResult>Purchasing Organization set to "1000 - Anniston Army Depot"</ExpectedResult>
-      <ScreenshotReference>screenshot_008_purchasing_org_1000.png</ScreenshotReference>
+      <ExpectedResult>Purchasing Organization set to "2000 - GlobalMart Procurement - Southeast Region"</ExpectedResult>
+      <ScreenshotReference>screenshot_008_purchasing_org_2000.png</ScreenshotReference>
     </Step>
 
     <Step>
@@ -177,9 +177,9 @@
           <Identifier>id://MaterialNumber_Item1</Identifier>
           <Description>Material Number field for line item 1</Description>
         </Element>
-        <Value>100-1234</Value>
+        <Value>SKU-DRY-78432</Value>
       </Action>
-      <ExpectedResult>Material number "100-1234" entered</ExpectedResult>
+      <ExpectedResult>Material number "SKU-DRY-78432" entered</ExpectedResult>
       <ScreenshotReference>screenshot_009_material_number.png</ScreenshotReference>
     </Step>
 
@@ -201,159 +201,180 @@
       <Assertion>
         <Type>FIELD_CONTAINS</Type>
         <FieldReference>MaterialDescription_Item1</FieldReference>
-        <ExpectedValue>HYDRAULIC PUMP</ExpectedValue>
-        <Reason>Material lookup returned correct description for material 100-1234</Reason>
+        <ExpectedValue>Organic Whole Milk</ExpectedValue>
+        <Reason>Material lookup returned correct description for material SKU-DRY-78432</Reason>
       </Assertion>
-      <ExpectedResult>Material description "HYDRAULIC PUMP - 2HP" auto-populated from material master</ExpectedResult>
+      <ExpectedResult>Material description "Organic Whole Milk 1 Gal - Store Brand" auto-populated from material master</ExpectedResult>
       <ScreenshotReference>screenshot_010_material_desc_auto.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_011</StepId>
       <StepNumber>11</StepNumber>
-      <Description>Enter Quantity: 5 units</Description>
+      <Description>Enter Quantity: 500 cases</Description>
       <Action>
         <Type>INPUT</Type>
         <Element>
           <Identifier>id://Quantity_Item1</Identifier>
           <Description>Quantity field</Description>
         </Element>
-        <Value>5</Value>
+        <Value>500</Value>
       </Action>
-      <ExpectedResult>Quantity set to 5</ExpectedResult>
-      <ScreenshotReference>screenshot_011_quantity_5.png</ScreenshotReference>
+      <ExpectedResult>Quantity set to 500</ExpectedResult>
+      <ScreenshotReference>screenshot_011_quantity_500.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_012</StepId>
       <StepNumber>12</StepNumber>
-      <Description>Select Unit of Measure: EA (Each)</Description>
+      <Description>Select Unit of Measure: CS (Case)</Description>
       <Action>
         <Type>SELECT</Type>
         <Element>
           <Identifier>id://UnitOfMeasure_Item1</Identifier>
           <Description>Unit of Measure dropdown</Description>
         </Element>
-        <Value>EA</Value>
+        <Value>CS</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>UnitOfMeasure_Item1</FieldReference>
-        <ExpectedValue>EA</ExpectedValue>
+        <ExpectedValue>CS</ExpectedValue>
       </Assertion>
-      <ExpectedResult>Unit of Measure set to "EA - Each"</ExpectedResult>
-      <ScreenshotReference>screenshot_012_unit_ea.png</ScreenshotReference>
+      <ExpectedResult>Unit of Measure set to "CS - Case"</ExpectedResult>
+      <ScreenshotReference>screenshot_012_unit_cs.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_013</StepId>
       <StepNumber>13</StepNumber>
-      <Description>Select Delivery Date: 30 days from today</Description>
+      <Description>Select Delivery Date: 7 days from today (perishable lead time constraint)</Description>
       <Action>
         <Type>INPUT</Type>
         <Element>
           <Identifier>id://DeliveryDate_Item1</Identifier>
           <Description>Requested Delivery Date field</Description>
         </Element>
-        <Value>2024-03-10</Value>
+        <Value>2026-02-18</Value>
       </Action>
-      <ExpectedResult>Delivery date set to 30 days in future</ExpectedResult>
+      <ExpectedResult>Delivery date set to 7 days in future to comply with perishable lead time requirement</ExpectedResult>
       <ScreenshotReference>screenshot_013_delivery_date.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_014</StepId>
       <StepNumber>14</StepNumber>
-      <Description>Enter Plant: 1000 (Anniston)</Description>
+      <Description>Enter Plant: SE-DC (Southeast Distribution Center)</Description>
       <Action>
         <Type>SELECT</Type>
         <Element>
           <Identifier>id://Plant_Item1</Identifier>
           <Description>Plant dropdown</Description>
         </Element>
-        <Value>1000</Value>
+        <Value>SE-DC</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>Plant_Item1</FieldReference>
-        <ExpectedValue>1000</ExpectedValue>
+        <ExpectedValue>SE-DC</ExpectedValue>
       </Assertion>
-      <ExpectedResult>Plant set to "1000 - Anniston Army Depot"</ExpectedResult>
-      <ScreenshotReference>screenshot_014_plant_1000.png</ScreenshotReference>
+      <ExpectedResult>Plant set to "SE-DC - Southeast Distribution Center (Atlanta, GA)"</ExpectedResult>
+      <ScreenshotReference>screenshot_014_plant_sedc.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_015</StepId>
       <StepNumber>15</StepNumber>
-      <Description>Select Storage Location: 0010 (Main Warehouse)</Description>
+      <Description>Select Storage Location: Zone-R (Refrigerated Zone)</Description>
       <Action>
         <Type>SELECT</Type>
         <Element>
           <Identifier>id://StorageLocation_Item1</Identifier>
-          <Description>Storage Location dropdown</Description>
+          <Description>Storage Location dropdown for perishables</Description>
         </Element>
-        <Value>0010</Value>
+        <Value>Zone-R</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>StorageLocation_Item1</FieldReference>
-        <ExpectedValue>0010</ExpectedValue>
+        <ExpectedValue>Zone-R</ExpectedValue>
       </Assertion>
-      <ExpectedResult>Storage Location set to "0010 - Main Warehouse"</ExpectedResult>
-      <ScreenshotReference>screenshot_015_storage_location_0010.png</ScreenshotReference>
+      <ExpectedResult>Storage Location set to "Zone-R - Refrigerated Zone (38°F)"</ExpectedResult>
+      <ScreenshotReference>screenshot_015_storage_location_zoner.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_016</StepId>
       <StepNumber>16</StepNumber>
-      <Description>Enter Account Assignment - Cost Center: 4100-010 (Maintenance)</Description>
+      <Description>Enter Account Assignment - Cost Center: CC-SEDC-4200 (SE DC Operations - Perishables)</Description>
       <Action>
         <Type>INPUT</Type>
         <Element>
           <Identifier>id://CostCenter_Item1</Identifier>
           <Description>Cost Center field for account assignment</Description>
         </Element>
-        <Value>4100-010</Value>
+        <Value>CC-SEDC-4200</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALIDATION</Type>
         <FieldReference>CostCenter_Item1</FieldReference>
         <ValidationType>COST_CENTER_EXISTS</ValidationType>
       </Assertion>
-      <ExpectedResult>Cost Center "4100-010 - Maintenance Operations" assigned to line item</ExpectedResult>
-      <ScreenshotReference>screenshot_016_cost_center_4100.png</ScreenshotReference>
+      <ExpectedResult>Cost Center "CC-SEDC-4200 - SE DC Operations - Perishables" assigned to line item</ExpectedResult>
+      <ScreenshotReference>screenshot_016_cost_center_ccsedc.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_017</StepId>
       <StepNumber>17</StepNumber>
-      <Description>Enter Equipment Code: EQUIP-2024-0847 (Anniston mandatory field)</Description>
+      <Description>Enter Lot/Batch Number: LOT-2026-0215-MK (SE DC mandatory field for perishables)</Description>
       <Action>
         <Type>INPUT</Type>
         <Element>
-          <Identifier>id://EquipmentCode_Item1</Identifier>
-          <Description>Equipment Code field (Anniston mandatory requirement)</Description>
+          <Identifier>id://LotBatchNumber_Item1</Identifier>
+          <Description>Lot/Batch Number field (SE DC mandatory requirement for perishables). Technical name: CHARG</Description>
         </Element>
-        <Value>EQUIP-2024-0847</Value>
+        <Value>LOT-2026-0215-MK</Value>
       </Action>
       <Assertion>
         <Type>FIELD_REQUIRED</Type>
-        <FieldReference>EquipmentCode_Item1</FieldReference>
-        <Reason>Equipment Code is mandatory at Anniston Army Depot for asset tracking. This is a site-specific override to enterprise default (optional).</Reason>
+        <FieldReference>LotBatchNumber_Item1</FieldReference>
+        <Reason>Lot/Batch Number is mandatory at SE DC for all perishable category items. This is a site-specific override to enterprise default (optional). Required for food safety traceability per GlobalMart cold chain policy.</Reason>
       </Assertion>
       <Assertion>
         <Type>FIELD_VALIDATION</Type>
-        <FieldReference>EquipmentCode_Item1</FieldReference>
-        <ValidationType>EQUIPMENT_EXISTS</ValidationType>
-        <ExpectedValue>EQUIP-2024-0847</ExpectedValue>
+        <FieldReference>LotBatchNumber_Item1</FieldReference>
+        <ValidationType>LOT_FORMAT_VALID</ValidationType>
+        <ExpectedValue>LOT-2026-0215-MK</ExpectedValue>
       </Assertion>
-      <ExpectedResult>Equipment Code "EQUIP-2024-0847" entered and validated against equipment master</ExpectedResult>
-      <ScreenshotReference>screenshot_017_equipment_code.png</ScreenshotReference>
+      <ExpectedResult>Lot/Batch Number "LOT-2026-0215-MK" entered and validated for traceability</ExpectedResult>
+      <ScreenshotReference>screenshot_017_lot_batch_number.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_018</StepId>
       <StepNumber>18</StepNumber>
+      <Description>Enter GL Account: 510200 (Inventory - Refrigerated Goods)</Description>
+      <Action>
+        <Type>INPUT</Type>
+        <Element>
+          <Identifier>id://GLAccount_Item1</Identifier>
+          <Description>GL Account field for accounting assignment</Description>
+        </Element>
+        <Value>510200</Value>
+      </Action>
+      <Assertion>
+        <Type>FIELD_VALIDATION</Type>
+        <FieldReference>GLAccount_Item1</FieldReference>
+        <ValidationType>GL_ACCOUNT_EXISTS</ValidationType>
+      </Assertion>
+      <ExpectedResult>GL Account "510200 - Inventory - Refrigerated Goods" assigned</ExpectedResult>
+      <ScreenshotReference>screenshot_018_gl_account.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_019</StepId>
+      <StepNumber>19</StepNumber>
       <Description>Verify all mandatory fields completed</Description>
       <Action>
         <Type>VERIFY</Type>
@@ -384,31 +405,31 @@
       </Assertion>
       <Assertion>
         <Type>FIELD_NOT_EMPTY</Type>
-        <FieldReference>EquipmentCode_Item1</FieldReference>
+        <FieldReference>LotBatchNumber_Item1</FieldReference>
       </Assertion>
       <ExpectedResult>All mandatory fields completed successfully</ExpectedResult>
-      <ScreenshotReference>screenshot_018_all_fields_complete.png</ScreenshotReference>
-    </Step>
-
-    <Step>
-      <StepId>STEP_019</StepId>
-      <StepNumber>19</StepNumber>
-      <Description>Calculate PR total amount for approval routing</Description>
-      <Action>
-        <Type>CALCULATE</Type>
-        <Formula>Quantity * EstimatedPrice</Formula>
-        <Parameters>
-          <Quantity>5</Quantity>
-          <EstimatedPrice>2500.00</EstimatedPrice>
-        </Parameters>
-      </Action>
-      <ExpectedResult>PR total estimated at $12,500.00 (exceeds Anniston $50K 2-tier threshold but under 3-tier threshold)</ExpectedResult>
-      <ScreenshotReference>screenshot_019_pr_total_calculated.png</ScreenshotReference>
+      <ScreenshotReference>screenshot_019_all_fields_complete.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_020</StepId>
       <StepNumber>20</StepNumber>
+      <Description>Calculate PR total amount for approval routing</Description>
+      <Action>
+        <Type>CALCULATE</Type>
+        <Formula>Quantity * EstimatedPrice</Formula>
+        <Parameters>
+          <Quantity>500</Quantity>
+          <EstimatedPrice>48.00</EstimatedPrice>
+        </Parameters>
+      </Action>
+      <ExpectedResult>PR total estimated at $24,000.00 (under SE DC $25K threshold for 2-tier approval)</ExpectedResult>
+      <ScreenshotReference>screenshot_020_pr_total_calculated.png</ScreenshotReference>
+    </Step>
+
+    <Step>
+      <StepId>STEP_021</StepId>
+      <StepNumber>21</StepNumber>
       <Description>Save Purchase Requisition</Description>
       <Action>
         <Type>CLICK</Type>
@@ -418,52 +439,37 @@
         </Element>
       </Action>
       <ExpectedResult>PR saved successfully, system displays PR number confirmation</ExpectedResult>
-      <ScreenshotReference>screenshot_020_pr_saved.png</ScreenshotReference>
+      <ScreenshotReference>screenshot_021_pr_saved.png</ScreenshotReference>
     </Step>
 
     <Step>
-      <StepId>STEP_021</StepId>
-      <StepNumber>21</StepNumber>
-      <Description>Verify PR Number generated</Description>
+      <StepId>STEP_022</StepId>
+      <StepNumber>22</StepNumber>
+      <Description>Verify PR Number generated and initial approval status</Description>
       <Action>
         <Type>VERIFY</Type>
         <Element>
           <Identifier>id://PRNumberConfirmation</Identifier>
-          <Description>PR number confirmation message</Description>
+          <Description>PR number confirmation message and approval status</Description>
         </Element>
       </Action>
       <Assertion>
         <Type>FIELD_MATCHES_PATTERN</Type>
         <FieldReference>PRNumberConfirmation</FieldReference>
         <Pattern>PR\d{10}</Pattern>
-        <ExpectedExample>PR0000123456</ExpectedExample>
+        <ExpectedExample>PR0000654321</ExpectedExample>
       </Assertion>
       <Assertion>
         <Type>FIELD_NOT_EMPTY</Type>
         <FieldReference>PRNumberConfirmation</FieldReference>
       </Assertion>
-      <ExpectedResult>PR number "PR0000987654" generated and displayed in confirmation message</ExpectedResult>
-      <ScreenshotReference>screenshot_021_pr_number_confirmed.png</ScreenshotReference>
-    </Step>
-
-    <Step>
-      <StepId>STEP_022</StepId>
-      <StepNumber>22</StepNumber>
-      <Description>Verify PR status set to initial approval queue</Description>
-      <Action>
-        <Type>VERIFY</Type>
-        <Element>
-          <Identifier>id://PRStatus</Identifier>
-          <Description>PR status field</Description>
-        </Element>
-      </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>PRStatus</FieldReference>
         <ExpectedValue>Waiting for Approval</ExpectedValue>
       </Assertion>
-      <ExpectedResult>PR Status correctly set to "Waiting for Approval" pending approval workflow</ExpectedResult>
-      <ScreenshotReference>screenshot_022_pr_status_approval.png</ScreenshotReference>
+      <ExpectedResult>PR number "PR0000654321" generated. PR Status correctly set to "Waiting for Approval" pending Category Manager review (first of 2-tier approval chain)</ExpectedResult>
+      <ScreenshotReference>screenshot_022_pr_confirmation_status.png</ScreenshotReference>
     </Step>
   </TestSteps>
 
@@ -476,81 +482,86 @@
       </DataRow>
       <DataRow>
         <FieldName>PurchasingGroup</FieldName>
-        <FieldValue>010</FieldValue>
-        <FieldDescription>Anniston Local Procurement Group</FieldDescription>
+        <FieldValue>R-SE</FieldValue>
+        <FieldDescription>Regional Southeast Procurement Group (SE DC approved supplier program)</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>PurchasingOrganization</FieldName>
-        <FieldValue>1000</FieldValue>
-        <FieldDescription>Anniston Army Depot</FieldDescription>
+        <FieldValue>2000</FieldValue>
+        <FieldDescription>GlobalMart Procurement - Southeast Region</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>MaterialNumber</FieldName>
-        <FieldValue>100-1234</FieldValue>
-        <FieldDescription>Hydraulic Pump 2HP</FieldDescription>
+        <FieldValue>SKU-DRY-78432</FieldValue>
+        <FieldDescription>Organic Whole Milk, 1 Gallon</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>Quantity</FieldName>
-        <FieldValue>5</FieldValue>
-        <FieldDescription>Requested quantity</FieldDescription>
+        <FieldValue>500</FieldValue>
+        <FieldDescription>Requested quantity in cases</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>UnitOfMeasure</FieldName>
-        <FieldValue>EA</FieldValue>
-        <FieldDescription>Each</FieldDescription>
+        <FieldValue>CS</FieldValue>
+        <FieldDescription>Case</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>DeliveryDate</FieldName>
-        <FieldValue>2024-03-10</FieldValue>
-        <FieldDescription>Requested delivery date</FieldDescription>
+        <FieldValue>2026-02-18</FieldValue>
+        <FieldDescription>Requested delivery date (within 7-day perishable lead time)</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>Plant</FieldName>
-        <FieldValue>1000</FieldValue>
-        <FieldDescription>Anniston Army Depot plant</FieldDescription>
+        <FieldValue>SE-DC</FieldValue>
+        <FieldDescription>Southeast Distribution Center (Atlanta, GA)</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>StorageLocation</FieldName>
-        <FieldValue>0010</FieldValue>
-        <FieldDescription>Main Warehouse</FieldDescription>
+        <FieldValue>Zone-R</FieldValue>
+        <FieldDescription>Refrigerated Zone (38°F temperature maintained)</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>CostCenter</FieldName>
-        <FieldValue>4100-010</FieldValue>
-        <FieldDescription>Maintenance Operations</FieldDescription>
+        <FieldValue>CC-SEDC-4200</FieldValue>
+        <FieldDescription>SE DC Operations - Perishables</FieldDescription>
       </DataRow>
       <DataRow>
-        <FieldName>EquipmentCode</FieldName>
-        <FieldValue>EQUIP-2024-0847</FieldValue>
-        <FieldDescription>Asset tracking equipment code (Anniston mandatory)</FieldDescription>
+        <FieldName>LotBatchNumber</FieldName>
+        <FieldValue>LOT-2026-0215-MK</FieldValue>
+        <FieldDescription>Lot/Batch tracking for perishable item (SE DC mandatory, field name CHARG)</FieldDescription>
+      </DataRow>
+      <DataRow>
+        <FieldName>GLAccount</FieldName>
+        <FieldValue>510200</FieldValue>
+        <FieldDescription>Inventory - Refrigerated Goods</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>EstimatedPrice</FieldName>
-        <FieldValue>2500.00</FieldValue>
-        <FieldDescription>Per-unit estimated price</FieldDescription>
+        <FieldValue>48.00</FieldValue>
+        <FieldDescription>Per-case estimated price</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>PRTotal</FieldName>
-        <FieldValue>12500.00</FieldValue>
-        <FieldDescription>Total PR amount (5 × $2500)</FieldDescription>
+        <FieldValue>24000.00</FieldValue>
+        <FieldDescription>Total PR amount (500 cases × $48.00)</FieldDescription>
       </DataRow>
     </DataSet>
   </TestData>
 
   <Annotations>
     <Annotation>
-      <Type>ANNISTON_SPECIFIC_CONSTRAINT</Type>
+      <Type>SEDC_SPECIFIC_CONSTRAINT</Type>
       <Step>STEP_007</Step>
-      <Description>Purchasing Group restricted to 010 (Anniston Local) or 020 (Regional) only. Enterprise default allows any valid purchasing group. This is a site-level override.</Description>
+      <Description>SE DC restricted to regional (R-SE) or national (R-NAT) supplier programs. Enterprise default allows any valid purchasing group. This is a site-level override ensuring compliance with regional supplier agreements and GlobalMart procurement policy.</Description>
     </Annotation>
     <Annotation>
-      <Type>ANNISTON_SPECIFIC_CONSTRAINT</Type>
+      <Type>SEDC_SPECIFIC_CONSTRAINT</Type>
       <Step>STEP_017</Step>
-      <Description>Equipment Code is mandatory at Anniston Army Depot for all materials requiring asset tracking. Enterprise-wide default is optional. This mandatory requirement ensures proper equipment accountability per Army depot policy.</Description>
+      <Description>Lot/batch tracking is mandatory at SE DC for all perishable category items. Enterprise default is optional. Required for food safety traceability per GlobalMart cold chain policy. Technical field name: CHARG. Format: LOT-YYYY-MMDD-XX where XX identifies the milk processing facility.</Description>
     </Annotation>
     <Annotation>
       <Type>APPROVAL_ROUTING</Type>
-      <Description>PR total of $12,500 triggers Anniston 3-tier approval process (different from enterprise 2-tier for amounts &gt; $100K). Approval routing will require signatures from Requestor Department, Purchasing Manager, and Depot Commander per Anniston policy (effective for amounts &gt; $50K).</Description>
+      <Description>PR total of $24,000 is under the SE DC $25K threshold for 3-tier approval. Standard 2-tier approval applies (Category Manager + Procurement Lead). Amounts greater than $25K for perishables require VP Supply Chain sign-off. This PR qualifies for expedited 2-tier chain due to 7-day perishable lead time requirement.</Description>
     </Annotation>
   </Annotations>
 </TestScript>

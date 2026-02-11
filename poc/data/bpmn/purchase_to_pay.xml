@@ -5,43 +5,46 @@
                    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xmlns:ext="http://www.omg.org/spec/BPMN/non-normative/extensions"
-                   id="Purchase_to_Pay_Process_ANAD"
-                   targetNamespace="http://www.anniston-army-depot.mil/bpmn/purchase-to-pay"
+                   id="Purchase_to_Pay_Process_GlobalMart"
+                   targetNamespace="http://www.globalmart.com/bpmn/purchase-to-pay"
                    exporter="Signavio Process Editor"
                    exporterVersion="13.1.0">
 
   <bpmn:documentation>
-    <bpmn:text>Purchase Requisition to Goods Receipt Process for Anniston Army Depot (ANAD)
+    <bpmn:text>Purchase Requisition to Goods Receipt Process for GlobalMart Southeast Distribution Center (SE-DC)
 
-This process models the procurement workflow from initial requirement identification through goods receipt posting.
-Includes Anniston-specific constraints:
-- Equipment code mandatory for all materials
-- Purchasing group restricted to 010 (Local) or 020 (Regional)
-- 3-tier approval for amounts exceeding $50,000 (stricter than enterprise $100K threshold)
-- Mandatory quality inspection for Class IX repair parts
-- Storage location must match equipment assignment
+This process models the procurement workflow from initial requirement identification through goods receipt posting for perishable goods at the Southeast Distribution Center in Atlanta, GA.
+Includes SE-DC-specific constraints for SAP S/4HANA 2023:
+- Material SKU, quantity in cases, delivery date within 7-day perishable window
+- Purchasing group restricted to R-SE or R-NAT (SE-DC constraint)
+- Mandatory lot/batch tracking for perishables (SE-DC requirement)
+- Temperature zone assignment (Zone-F/Zone-R/Zone-A)
+- 3-tier approval for amounts exceeding $25,000 (perishables threshold, lower than enterprise $50K)
+- Mandatory quality inspection for perishables and private-label items
+- Cold chain verification at receiving dock
 - Material document verification at receipt
     </bpmn:text>
   </bpmn:documentation>
 
-  <bpmn:process id="Process_Purchase_to_Pay_ANAD" name="Purchase Requisition to Goods Receipt" isExecutable="true">
+  <bpmn:process id="Process_Purchase_to_Pay_GlobalMart" name="Purchase Requisition to Goods Receipt" isExecutable="true">
 
     <!-- Start Event -->
-    <bpmn:startEvent id="StartEvent_Need_Identified" name="Need Identified">
+    <bpmn:startEvent id="StartEvent_Need_Identified" name="Inventory Need Identified">
       <bpmn:documentation>
-        <bpmn:text>Process initiates when department identifies procurement need (reactive or planned)</bpmn:text>
+        <bpmn:text>Process initiates when store manager or department head identifies inventory replenishment need for perishable or high-velocity items</bpmn:text>
       </bpmn:documentation>
       <bpmn:outgoing>SequenceFlow_001</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <!-- Task: Create Purchase Requisition (Requestor) -->
+    <!-- Task: Create Purchase Requisition (Store/Department Requestor) -->
     <bpmn:task id="Task_Create_PR" name="Create Purchase Requisition (ME51N)">
       <bpmn:documentation>
-        <bpmn:text>Requestor creates PR in SAP with:
-        - Material number, quantity, delivery date
-        - Plant, storage location, cost center
-        - MANDATORY: Equipment code (Anniston requirement)
-        - MANDATORY: Purchasing group limited to 010 or 020 (Anniston constraint)
+        <bpmn:text>Store/Department Requestor creates PR in SAP S/4HANA with:
+        - Material (SKU), quantity in cases, delivery date within 7-day perishable window
+        - Plant: SE-DC, Storage location, cost center
+        - Temperature zone assignment (Zone-F/Zone-R/Zone-A)
+        - MANDATORY: Lot/batch tracking for perishables (SE-DC requirement, enterprise default optional)
+        - MANDATORY: Purchasing group limited to R-SE or R-NAT (SE-DC constraint)
         - System auto-calculates PR total for routing
         </bpmn:text>
       </bpmn:documentation>
@@ -50,11 +53,11 @@ Includes Anniston-specific constraints:
     </bpmn:task>
 
     <!-- Exclusive Gateway: PR Amount Decision -->
-    <bpmn:exclusiveGateway id="Gateway_PR_Amount" name="PR Amount &gt; $50K?" default="SequenceFlow_ApprovalStandard">
+    <bpmn:exclusiveGateway id="Gateway_PR_Amount" name="PR Amount &gt; $25K?" default="SequenceFlow_ApprovalStandard">
       <bpmn:documentation>
-        <bpmn:text>Anniston decision point for approval routing (threshold: $50,000)
-        - Amounts ≤ $50K: Standard 2-tier approval
-        - Amounts &gt; $50K: 3-tier approval (more restrictive than enterprise $100K)
+        <bpmn:text>SE-DC decision point for approval routing (perishables threshold: $25,000)
+        - Amounts ≤ $25K: Standard 2-tier approval (Category Manager + Procurement Lead)
+        - Amounts &gt; $25K: 3-tier approval including VP Supply Chain (more restrictive than enterprise $50K for perishables)
         </bpmn:text>
       </bpmn:documentation>
       <bpmn:incoming>SequenceFlow_002</bpmn:incoming>
@@ -62,27 +65,27 @@ Includes Anniston-specific constraints:
       <bpmn:outgoing>SequenceFlow_ApprovalThreeTier</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <!-- Task: Standard Approval (≤ $50K) -->
-    <bpmn:task id="Task_Standard_Approval" name="Standard Approval (≤ $50K)">
+    <!-- Task: Standard Approval (≤ $25K) -->
+    <bpmn:task id="Task_Standard_Approval" name="Standard Approval (≤ $25K)">
       <bpmn:documentation>
-        <bpmn:text>Two-tier approval path for PR amounts not exceeding $50,000:
-        1. Department Manager review and approval
-        2. Purchasing Manager verification
+        <bpmn:text>Two-tier approval path for PR amounts not exceeding $25,000:
+        1. Category Manager review and approval
+        2. Procurement Lead verification
         </bpmn:text>
       </bpmn:documentation>
       <bpmn:incoming>SequenceFlow_ApprovalStandard</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_003</bpmn:outgoing>
     </bpmn:task>
 
-    <!-- Task: Three-Tier Approval (&gt; $50K, Anniston-specific) -->
-    <bpmn:task id="Task_ThreeTier_Approval" name="Three-Tier Approval (&gt; $50K) - Anniston Policy">
+    <!-- Task: Three-Tier Approval (&gt; $25K, SE-DC Perishables Policy) -->
+    <bpmn:task id="Task_ThreeTier_Approval" name="Three-Tier Approval (&gt; $25K) - SE-DC Perishables Policy">
       <bpmn:documentation>
-        <bpmn:text>Anniston-specific three-tier approval for amounts exceeding $50,000:
-        1. Department Manager review and initial approval
-        2. Purchasing Officer technical review and recommendation
-        3. Depot Commander (or authorized agent) final approval
+        <bpmn:text>SE-DC-specific three-tier approval for amounts exceeding $25,000:
+        1. Category Manager review and initial approval
+        2. Buyer (Procurement) technical review and negotiation authority confirmation
+        3. VP Supply Chain final approval
 
-This stricter approval is driven by Army depot fiscal controls and audit requirements.
+This stricter approval is driven by perishable goods spoilage risk and cold chain compliance requirements specific to the SE-DC operation.
         </bpmn:text>
       </bpmn:documentation>
       <bpmn:incoming>SequenceFlow_ApprovalThreeTier</bpmn:incoming>
@@ -96,13 +99,14 @@ This stricter approval is driven by Army depot fiscal controls and audit require
       <bpmn:outgoing>SequenceFlow_005</bpmn:outgoing>
     </bpmn:parallelGateway>
 
-    <!-- Task: Convert PR to Purchase Order (Purchasing Officer) -->
-    <bpmn:task id="Task_Convert_PO" name="Convert PR to Purchase Order (ME51N → ME21N)">
+    <!-- Task: Convert PR to Purchase Order (Buyer) -->
+    <bpmn:task id="Task_Convert_PO" name="Convert PR to Purchase Order (ME21N)">
       <bpmn:documentation>
-        <bpmn:text>Purchasing Officer (Purchasing Group 010/020) converts approved PR to PO:
-        - Negotiates terms with vendor
-        - Finalizes delivery schedule
-        - Ensures equipment assignment carries through
+        <bpmn:text>GlobalMart Buyer (Purchasing Group R-SE or R-NAT) converts approved PR to PO:
+        - Negotiates terms with supplier
+        - Verifies regional supplier program compliance
+        - Finalizes delivery schedule within 7-day perishable window
+        - Ensures temperature zone and lot tracking requirements carry through
         - Creates PO document referenced in goods receipt process
         </bpmn:text>
       </bpmn:documentation>
@@ -110,13 +114,13 @@ This stricter approval is driven by Army depot fiscal controls and audit require
       <bpmn:outgoing>SequenceFlow_006</bpmn:outgoing>
     </bpmn:task>
 
-    <!-- Task: Send PO to Vendor (Purchasing Officer) -->
-    <bpmn:task id="Task_Send_PO" name="Send Purchase Order to Vendor">
+    <!-- Task: Send PO to Supplier (Buyer) -->
+    <bpmn:task id="Task_Send_PO" name="Send Purchase Order to Supplier">
       <bpmn:documentation>
-        <bpmn:text>Transmit PO to vendor via:
-        - EDI/XML for major suppliers
-        - Email for routine vendors
-        - Portal for integrated suppliers
+        <bpmn:text>Transmit PO to supplier via:
+        - EDI/XML for major regional suppliers
+        - Email for routine suppliers
+        - Supplier portal for integrated partners
         </bpmn:text>
       </bpmn:documentation>
       <bpmn:incoming>SequenceFlow_006</bpmn:incoming>
@@ -124,24 +128,26 @@ This stricter approval is driven by Army depot fiscal controls and audit require
     </bpmn:task>
 
     <!-- Intermediate Event: Goods Delivered -->
-    <bpmn:intermediateThrowEvent id="IntermediateEvent_Goods_Delivered" name="Goods Delivered to Anniston">
+    <bpmn:intermediateThrowEvent id="IntermediateEvent_Goods_Delivered" name="Goods Delivered to SE-DC">
       <bpmn:documentation>
-        <bpmn:text>Goods physically received at Anniston Army Depot receiving dock.
-        Warehouse Clerk notified and initiates goods receipt process.
+        <bpmn:text>Goods physically received at Southeast Distribution Center receiving dock in Atlanta.
+        Receiving Clerk notified and initiates goods receipt process.
         </bpmn:text>
       </bpmn:documentation>
       <bpmn:incoming>SequenceFlow_007</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_008</bpmn:outgoing>
     </bpmn:intermediateThrowEvent>
 
-    <!-- Task: Post Goods Receipt (Warehouse Clerk) -->
+    <!-- Task: Post Goods Receipt (Receiving Clerk) -->
     <bpmn:task id="Task_Post_GR" name="Post Goods Receipt (MIGO - Movement Type 101)">
       <bpmn:documentation>
-        <bpmn:text>Warehouse Clerk posts goods receipt in SAP:
+        <bpmn:text>SE-DC Receiving Clerk posts goods receipt in SAP S/4HANA:
         - References PO number
-        - Verifies line item quantities match delivery
-        - Assigns storage location (MUST match equipment assignment - Anniston constraint)
-        - Flags for mandatory quality inspection if Class IX material
+        - Verifies quantities match PO (in cases)
+        - Assigns temperature zone (Zone-F/Zone-R/Zone-A, MUST match product category)
+        - Conducts cold chain verification (temperature check at receiving dock)
+        - Flags for mandatory quality inspection if perishable or private-label
+        - Records lot/batch numbers for perishable tracking (SE-DC requirement)
         - Generates material document number
         </bpmn:text>
       </bpmn:documentation>
@@ -149,14 +155,15 @@ This stricter approval is driven by Army depot fiscal controls and audit require
       <bpmn:outgoing>SequenceFlow_009</bpmn:outgoing>
     </bpmn:task>
 
-    <!-- Task: Verify Stock Update (Warehouse Clerk) -->
+    <!-- Task: Verify Stock Update (Receiving Clerk) -->
     <bpmn:task id="Task_Verify_Stock" name="Verify Stock Update in Inventory">
       <bpmn:documentation>
-        <bpmn:text>Confirm inventory system properly updated:
+        <bpmn:text>SE-DC Receiving Clerk confirms inventory system properly updated:
         - Check material document in MMBE
-        - Verify quantity received in correct storage location
-        - Confirm quality inspection flag set (if applicable)
-        - Reconcile with physical inventory
+        - Verify quantity received in correct temperature zone
+        - Confirm quality inspection flag set (if perishable/private-label)
+        - Verify lot/batch tracking recorded in system
+        - Reconcile with physical inventory in zone
         </bpmn:text>
       </bpmn:documentation>
       <bpmn:incoming>SequenceFlow_009</bpmn:incoming>
@@ -166,7 +173,7 @@ This stricter approval is driven by Army depot fiscal controls and audit require
     <!-- End Event: Process Complete -->
     <bpmn:endEvent id="EndEvent_Process_Complete" name="Process Complete">
       <bpmn:documentation>
-        <bpmn:text>Procurement cycle complete. Material integrated into Anniston inventory and available for consumption per equipment assignment.</bpmn:text>
+        <bpmn:text>Procurement cycle complete. Perishable goods integrated into SE-DC inventory in appropriate temperature zone and available for store distribution.</bpmn:text>
       </bpmn:documentation>
       <bpmn:incoming>SequenceFlow_010</bpmn:incoming>
     </bpmn:endEvent>
@@ -174,8 +181,8 @@ This stricter approval is driven by Army depot fiscal controls and audit require
     <!-- Sequence Flows -->
     <bpmn:sequenceFlow id="SequenceFlow_001" name="" sourceRef="StartEvent_Need_Identified" targetRef="Task_Create_PR"/>
     <bpmn:sequenceFlow id="SequenceFlow_002" name="" sourceRef="Task_Create_PR" targetRef="Gateway_PR_Amount"/>
-    <bpmn:sequenceFlow id="SequenceFlow_ApprovalStandard" name="&lt;= $50K" sourceRef="Gateway_PR_Amount" targetRef="Task_Standard_Approval"/>
-    <bpmn:sequenceFlow id="SequenceFlow_ApprovalThreeTier" name="&gt; $50K (Anniston)" sourceRef="Gateway_PR_Amount" targetRef="Task_ThreeTier_Approval"/>
+    <bpmn:sequenceFlow id="SequenceFlow_ApprovalStandard" name="&lt;= $25K" sourceRef="Gateway_PR_Amount" targetRef="Task_Standard_Approval"/>
+    <bpmn:sequenceFlow id="SequenceFlow_ApprovalThreeTier" name="&gt; $25K (SE-DC Perishables)" sourceRef="Gateway_PR_Amount" targetRef="Task_ThreeTier_Approval"/>
     <bpmn:sequenceFlow id="SequenceFlow_003" name="" sourceRef="Task_Standard_Approval" targetRef="Gateway_MergeApprovals"/>
     <bpmn:sequenceFlow id="SequenceFlow_004" name="" sourceRef="Task_ThreeTier_Approval" targetRef="Gateway_MergeApprovals"/>
     <bpmn:sequenceFlow id="SequenceFlow_005" name="" sourceRef="Gateway_MergeApprovals" targetRef="Task_Convert_PO"/>
@@ -188,12 +195,12 @@ This stricter approval is driven by Army depot fiscal controls and audit require
   </bpmn:process>
 
   <!-- Collaboration with Swimlanes (Participants) -->
-  <bpmn:collaboration id="Collaboration_Purchase_to_Pay_ANAD">
-    <bpmn:participant id="Participant_Requestor" name="Requestor" processRef="Process_Purchase_to_Pay_ANAD"/>
-    <bpmn:participant id="Participant_PurchasingOfficer" name="Purchasing Officer" processRef="Process_Purchase_to_Pay_ANAD"/>
-    <bpmn:participant id="Participant_Approver" name="Approver (Department/Depot)" processRef="Process_Purchase_to_Pay_ANAD"/>
-    <bpmn:participant id="Participant_WarehouseClerk" name="Warehouse Clerk" processRef="Process_Purchase_to_Pay_ANAD"/>
-    <bpmn:participant id="Participant_Vendor" name="Vendor/Supplier" processRef="Process_Purchase_to_Pay_ANAD"/>
+  <bpmn:collaboration id="Collaboration_Purchase_to_Pay_GlobalMart">
+    <bpmn:participant id="Participant_Requestor" name="Store/Department Requestor" processRef="Process_Purchase_to_Pay_GlobalMart"/>
+    <bpmn:participant id="Participant_PurchasingOfficer" name="Buyer" processRef="Process_Purchase_to_Pay_GlobalMart"/>
+    <bpmn:participant id="Participant_Approver" name="Category Manager / VP Supply Chain" processRef="Process_Purchase_to_Pay_GlobalMart"/>
+    <bpmn:participant id="Participant_WarehouseClerk" name="Receiving Clerk" processRef="Process_Purchase_to_Pay_GlobalMart"/>
+    <bpmn:participant id="Participant_Vendor" name="Supplier" processRef="Process_Purchase_to_Pay_GlobalMart"/>
 
     <!-- Message Flows Between Participants -->
     <bpmn:messageFlow id="MessageFlow_SendPO" name="Send PO" sourceRef="Task_Send_PO" targetRef="Participant_Vendor"/>
@@ -207,10 +214,14 @@ This stricter approval is driven by Army depot fiscal controls and audit require
     <bpmn:documentation>
       <bpmn:text>Purchase Requisition document containing:
       - PR number (auto-generated)
-      - Requestor information
-      - Material details
-      - Quantity, delivery date, cost center
-      - Equipment code (mandatory at Anniston)
+      - Store/Department Requestor information
+      - Material (SKU) details
+      - Quantity in cases, delivery date within 7-day perishable window
+      - Temperature zone assignment (Zone-F/Zone-R/Zone-A)
+      - Plant: SE-DC
+      - Lot/batch tracking requirement (mandatory for perishables at SE-DC)
+      - Purchasing group (R-SE or R-NAT only)
+      - Cost center
       - Status (draft, submitted, approved, converted)
       </bpmn:text>
     </bpmn:documentation>
@@ -220,11 +231,12 @@ This stricter approval is driven by Army depot fiscal controls and audit require
     <bpmn:documentation>
       <bpmn:text>Purchase Order document containing:
       - PO number (auto-generated from PR)
-      - Vendor information
-      - Line items from PR
+      - Supplier information and regional program compliance verification
+      - Line items from PR (SKUs and case quantities)
       - Negotiated terms
-      - Delivery schedule
-      - Equipment assignment carried through
+      - Delivery schedule (within 7-day perishable window)
+      - Temperature zone and lot tracking requirements carried through
+      - Perishable goods handling specifications
       - Status (draft, sent, received, invoiced)
       </bpmn:text>
     </bpmn:documentation>
@@ -235,9 +247,11 @@ This stricter approval is driven by Army depot fiscal controls and audit require
       <bpmn:text>Goods Receipt document containing:
       - Movement type 101 specification
       - PO reference
-      - Quantities received
-      - Storage location assigned
-      - Quality inspection flags
+      - Quantities received (in cases)
+      - Temperature zone assigned (Zone-F/Zone-R/Zone-A)
+      - Cold chain verification (temperature readings at dock)
+      - Lot/batch numbers recorded for perishables
+      - Quality inspection flags for perishables/private-label
       - Material document number (generated)
       - Status (posted, verified, invoiced)
       </bpmn:text>
@@ -248,20 +262,21 @@ This stricter approval is driven by Army depot fiscal controls and audit require
     <bpmn:documentation>
       <bpmn:text>Material Document (inventory posting):
       - Document number (10-digit)
-      - Material number
-      - Plant and storage location
-      - Quantity posted
+      - Material number (SKU)
+      - Plant: SE-DC, temperature zone, storage location
+      - Quantity posted (in cases)
       - Movement type 101 indicator
-      - Equipment assignment reference
-      - Quality inspection status flag
+      - Lot/batch reference (for perishables)
+      - Quality inspection status flag (perishable/private-label indicator)
+      - Cold chain verification record
       - Posted timestamp
       </bpmn:text>
     </bpmn:documentation>
   </bpmn:itemDefinition>
 
   <!-- BPMN Diagram Information -->
-  <bpmndi:BPMNDiagram id="Diagram_Purchase_to_Pay_ANAD" name="Purchase to Pay Process - Anniston Army Depot">
-    <bpmndi:BPMNPlane id="Plane_Process_Purchase_to_Pay_ANAD" bpmnElement="Process_Purchase_to_Pay_ANAD">
+  <bpmndi:BPMNDiagram id="Diagram_Purchase_to_Pay_GlobalMart" name="Purchase to Pay Process - GlobalMart SE-DC">
+    <bpmndi:BPMNPlane id="Plane_Process_Purchase_to_Pay_GlobalMart" bpmnElement="Process_Purchase_to_Pay_GlobalMart">
       <!-- Start Event -->
       <bpmndi:BPMNShape id="Shape_StartEvent_Need_Identified" bpmnElement="StartEvent_Need_Identified">
         <dc:Bounds x="50" y="200" width="36" height="36"/>

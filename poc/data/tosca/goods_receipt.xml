@@ -2,8 +2,8 @@
 <TestScript xmlns="http://www.tricentis.com/tosca/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Metadata>
     <TestScriptId>TS_MIGO_POST_GR_001</TestScriptId>
-    <Name>Post Goods Receipt in SAP Fiori - Anniston Army Depot</Name>
-    <Description>Test script for posting Goods Receipt (MIGO - Movement Type 101) at Anniston Army Depot. Validates Anniston-specific constraints: storage location must match equipment assignment, mandatory quality inspection for Class IX materials, and stock update verification.</Description>
+    <Name>Post Goods Receipt in SAP Fiori - GlobalMart Southeast Distribution Center</Name>
+    <Description>Test script for posting Goods Receipt (MIGO - Movement Type 101) at GlobalMart Southeast Distribution Center (Atlanta, GA). Validates SE-DC-specific constraints: storage location must match temperature zone requirements, mandatory quality inspection for perishable and private-label goods, cold chain verification, and stock update verification.</Description>
     <Version>1.0</Version>
     <CreatedDate>2024-01-20T09:15:00Z</CreatedDate>
     <LastExecutedDate>2024-02-08T15:45:30Z</LastExecutedDate>
@@ -16,10 +16,10 @@
   </Metadata>
 
   <TestEnvironment>
-    <SystemName>SAP ECC 6.0 EHP8</SystemName>
-    <SiteCode>ANAD</SiteCode>
-    <SiteName>Anniston Army Depot</SiteName>
-    <URL>https://sap.anad.army.mil:8443/irj/portal</URL>
+    <SystemName>SAP S/4HANA 2023</SystemName>
+    <SiteCode>SE-DC</SiteCode>
+    <SiteName>GlobalMart Southeast Distribution Center</SiteName>
+    <URL>https://sap.globalmart.com/fiori</URL>
     <Client>100</Client>
     <Language>EN</Language>
   </TestEnvironment>
@@ -28,12 +28,12 @@
     <Step>
       <StepId>STEP_001</StepId>
       <StepNumber>1</StepNumber>
-      <Description>Open SAP Fiori Launchpad for Warehouse Clerk</Description>
+      <Description>Open SAP Fiori Launchpad for Receiving Clerk</Description>
       <Action>
         <Type>NAVIGATE</Type>
-        <TargetURL>https://sap.anad.army.mil:8443/irj/portal</TargetURL>
+        <TargetURL>https://sap.globalmart.com/fiori</TargetURL>
       </Action>
-      <ExpectedResult>SAP Fiori Launchpad displayed, user authenticated as ANAD_WAREHOUSE_CLERK</ExpectedResult>
+      <ExpectedResult>SAP Fiori Launchpad displayed, user authenticated as SE_DC_RECEIVING_CLERK</ExpectedResult>
       <ScreenshotReference>screenshot_001_gr_fiori_launchpad.png</ScreenshotReference>
     </Step>
 
@@ -118,14 +118,14 @@
           <Identifier>id://PONumber</Identifier>
           <Description>Purchase Order Number field</Description>
         </Element>
-        <Value>4500987654</Value>
+        <Value>4500234567</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>PONumber</FieldReference>
-        <ExpectedValue>4500987654</ExpectedValue>
+        <ExpectedValue>4500234567</ExpectedValue>
       </Assertion>
-      <ExpectedResult>PO number "4500987654" entered</ExpectedResult>
+      <ExpectedResult>PO number "4500234567" entered</ExpectedResult>
       <ScreenshotReference>screenshot_006_po_number_entered.png</ScreenshotReference>
     </Step>
 
@@ -149,7 +149,7 @@
         <FieldReference>POLineItemsTable</FieldReference>
         <Value>0</Value>
       </Assertion>
-      <ExpectedResult>Line items table displays 1 line item from PO 4500987654</ExpectedResult>
+      <ExpectedResult>Line items table displays 1 line item from PO 4500234567</ExpectedResult>
       <ScreenshotReference>screenshot_007_line_items_populated.png</ScreenshotReference>
     </Step>
 
@@ -167,9 +167,9 @@
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>MaterialNumber_Item1</FieldReference>
-        <ExpectedValue>100-1234</ExpectedValue>
+        <ExpectedValue>SKU-DRY-78432</ExpectedValue>
       </Assertion>
-      <ExpectedResult>Line item 1 shows material "100-1234 - HYDRAULIC PUMP - 2HP"</ExpectedResult>
+      <ExpectedResult>Line item 1 shows material "SKU-DRY-78432 - Organic Whole Milk 1 Gal - Store Brand"</ExpectedResult>
       <ScreenshotReference>screenshot_008_material_verified.png</ScreenshotReference>
     </Step>
 
@@ -187,90 +187,90 @@
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>POQuantity_Item1</FieldReference>
-        <ExpectedValue>5</ExpectedValue>
+        <ExpectedValue>500</ExpectedValue>
       </Assertion>
-      <ExpectedResult>PO quantity correctly shows 5 units</ExpectedResult>
+      <ExpectedResult>PO quantity correctly shows 500 cases (CS)</ExpectedResult>
       <ScreenshotReference>screenshot_009_po_quantity_verified.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_010</StepId>
       <StepNumber>10</StepNumber>
-      <Description>Enter Goods Receipt Quantity: 5 units (full quantity)</Description>
+      <Description>Enter Goods Receipt Quantity: 500 cases (full quantity)</Description>
       <Action>
         <Type>INPUT</Type>
         <Element>
           <Identifier>id://GRQuantity_Item1</Identifier>
           <Description>Goods Receipt quantity field</Description>
         </Element>
-        <Value>5</Value>
+        <Value>500</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>GRQuantity_Item1</FieldReference>
-        <ExpectedValue>5</ExpectedValue>
+        <ExpectedValue>500</ExpectedValue>
       </Assertion>
-      <ExpectedResult>GR quantity set to 5 units (matching PO quantity)</ExpectedResult>
-      <ScreenshotReference>screenshot_010_gr_quantity_5.png</ScreenshotReference>
+      <ExpectedResult>GR quantity set to 500 CS (cases, matching PO quantity)</ExpectedResult>
+      <ScreenshotReference>screenshot_010_gr_quantity_500.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_011</StepId>
       <StepNumber>11</StepNumber>
-      <Description>Select Storage Location: 0010 (Anniston Main Warehouse - must match equipment assignment)</Description>
+      <Description>Select Storage Location: Zone-R (Refrigerated Zone - must match temperature zone for perishables)</Description>
       <Action>
         <Type>SELECT</Type>
         <Element>
           <Identifier>id://StorageLocation_Item1</Identifier>
-          <Description>Storage Location dropdown (Anniston constraint: must match equipment assignment)</Description>
+          <Description>Storage Location dropdown (SE-DC constraint: must match temperature zone for perishables)</Description>
         </Element>
-        <Value>0010</Value>
+        <Value>Zone-R</Value>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>StorageLocation_Item1</FieldReference>
-        <ExpectedValue>0010</ExpectedValue>
+        <ExpectedValue>Zone-R</ExpectedValue>
       </Assertion>
       <Assertion>
         <Type>FIELD_VALIDATION</Type>
         <FieldReference>StorageLocation_Item1</FieldReference>
-        <ValidationType>STORAGE_LOCATION_MATCHES_EQUIPMENT</ValidationType>
-        <ExpectedValue>0010</ExpectedValue>
-        <Reason>At Anniston, storage location must match the equipment assignment (EQUIP-2024-0847 is assigned to storage area 0010). This is a site-specific validation requirement.</Reason>
+        <ValidationType>TEMPERATURE_ZONE_MATCHES_PRODUCT</ValidationType>
+        <ExpectedValue>Zone-R</ExpectedValue>
+        <Reason>At SE-DC, perishable dairy items must be received and stored in the Refrigerated Zone (Zone-R, maintained at 38°F). This is a site-specific validation requirement for cold chain integrity.</Reason>
       </Assertion>
-      <ExpectedResult>Storage Location "0010 - Main Warehouse" selected and validated against equipment assignment</ExpectedResult>
+      <ExpectedResult>Storage Location "Zone-R - Refrigerated Zone (38°F)" selected and validated against product category requirements</ExpectedResult>
       <ScreenshotReference>screenshot_011_storage_location_validated.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_012</StepId>
       <StepNumber>12</StepNumber>
-      <Description>Check if material is Class IX (Repair Parts)</Description>
+      <Description>Check if material is PERISHABLE-DAIRY category (requires quality inspection)</Description>
       <Action>
         <Type>VERIFY</Type>
         <Element>
           <Identifier>id://MaterialClass_Item1</Identifier>
-          <Description>Material class indicator</Description>
+          <Description>Product category indicator</Description>
         </Element>
       </Action>
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>MaterialClass_Item1</FieldReference>
-        <ExpectedValue>IX</ExpectedValue>
+        <ExpectedValue>PERISHABLE-DAIRY</ExpectedValue>
       </Assertion>
-      <ExpectedResult>Material 100-1234 is classified as Class IX (Repair Parts)</ExpectedResult>
-      <ScreenshotReference>screenshot_012_material_class_ix.png</ScreenshotReference>
+      <ExpectedResult>Material SKU-DRY-78432 is classified as PERISHABLE-DAIRY (mandatory quality inspection required)</ExpectedResult>
+      <ScreenshotReference>screenshot_012_material_class_perishable.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_013</StepId>
       <StepNumber>13</StepNumber>
-      <Description>Mandatory Quality Inspection for Class IX materials (Anniston requirement)</Description>
+      <Description>Mandatory Quality Inspection for perishable and private-label goods (SE-DC requirement)</Description>
       <Action>
         <Type>CLICK</Type>
         <Element>
           <Identifier>id://QualityInspectionCheckbox_Item1</Identifier>
-          <Description>Quality Inspection checkbox (mandatory for Class IX at Anniston)</Description>
+          <Description>Quality Inspection checkbox (mandatory for perishables and private-label at SE-DC)</Description>
         </Element>
       </Action>
       <Assertion>
@@ -281,25 +281,25 @@
       <Assertion>
         <Type>FIELD_REQUIRED</Type>
         <FieldReference>QualityInspectionCheckbox_Item1</FieldReference>
-        <Reason>Quality Inspection is mandatory for Class IX materials at Anniston Army Depot per depot policy. This is a site-specific process gate override from enterprise default (optional inspection).</Reason>
+        <Reason>Quality Inspection is mandatory for perishable and private-label goods at SE-DC per distribution center policy. This is a site-specific process gate override from enterprise default (optional inspection).</Reason>
       </Assertion>
-      <ExpectedResult>Quality Inspection flagged for this line item (mandatory for Class IX repair parts at Anniston)</ExpectedResult>
+      <ExpectedResult>Quality Inspection flagged for this line item (mandatory for perishable dairy at SE-DC)</ExpectedResult>
       <ScreenshotReference>screenshot_013_quality_inspection_enabled.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_014</StepId>
       <StepNumber>14</StepNumber>
-      <Description>Enter Quality Inspection Notes</Description>
+      <Description>Enter Quality Inspection Notes (temperature, packaging, expiry)</Description>
       <Action>
         <Type>INPUT</Type>
         <Element>
           <Identifier>id://InspectionNotes_Item1</Identifier>
           <Description>Quality inspection notes field</Description>
         </Element>
-        <Value>Visual inspection passed. All seals intact. Pressure test pending.</Value>
+        <Value>Temperature at receiving: 36°F (within 33-40°F range). Packaging intact. Expiry date: 2026-03-01. Lot LOT-2026-0215-MK verified.</Value>
       </Action>
-      <ExpectedResult>Inspection notes recorded for traceability</ExpectedResult>
+      <ExpectedResult>Inspection notes recorded for cold chain traceability and compliance verification</ExpectedResult>
       <ScreenshotReference>screenshot_014_inspection_notes.png</ScreenshotReference>
     </Step>
 
@@ -404,7 +404,7 @@
       <Description>Navigate to Inventory Management to verify stock update</Description>
       <Action>
         <Type>NAVIGATE</Type>
-        <TargetURL>https://sap.anad.army.mil:8443/irj/portal?transaction=MMBE</TargetURL>
+        <TargetURL>https://sap.globalmart.com/fiori?transaction=MMBE</TargetURL>
       </Action>
       <ExpectedResult>Stock Overview (MMBE) transaction opened</ExpectedResult>
       <ScreenshotReference>screenshot_019_mmbe_opened.png</ScreenshotReference>
@@ -413,55 +413,55 @@
     <Step>
       <StepId>STEP_020</StepId>
       <StepNumber>20</StepNumber>
-      <Description>Query Material 100-1234 stock in Anniston plant 1000</Description>
+      <Description>Query Material SKU-DRY-78432 stock in SE-DC plant</Description>
       <Action>
         <Type>INPUT</Type>
         <Element>
           <Identifier>id://MaterialQuery</Identifier>
           <Description>Material number search field</Description>
         </Element>
-        <Value>100-1234</Value>
+        <Value>SKU-DRY-78432</Value>
       </Action>
-      <ExpectedResult>Stock overview displayed for material 100-1234</ExpectedResult>
+      <ExpectedResult>Stock overview displayed for material SKU-DRY-78432 (Organic Whole Milk 1 Gal)</ExpectedResult>
       <ScreenshotReference>screenshot_020_material_query.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_021</StepId>
       <StepNumber>21</StepNumber>
-      <Description>Filter by Plant 1000 (Anniston)</Description>
+      <Description>Filter by Plant SE-DC (GlobalMart Southeast DC)</Description>
       <Action>
         <Type>SELECT</Type>
         <Element>
           <Identifier>id://PlantFilter</Identifier>
           <Description>Plant filter dropdown</Description>
         </Element>
-        <Value>1000</Value>
+        <Value>SE-DC</Value>
       </Action>
-      <ExpectedResult>Stock display filtered to Anniston plant 1000</ExpectedResult>
-      <ScreenshotReference>screenshot_021_plant_filter_1000.png</ScreenshotReference>
+      <ExpectedResult>Stock display filtered to SE-DC plant (Southeast Distribution Center)</ExpectedResult>
+      <ScreenshotReference>screenshot_021_plant_filter_sedc.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_022</StepId>
       <StepNumber>22</StepNumber>
-      <Description>Filter by Storage Location 0010</Description>
+      <Description>Filter by Storage Location Zone-R (Refrigerated)</Description>
       <Action>
         <Type>SELECT</Type>
         <Element>
           <Identifier>id://StorageLocationFilter</Identifier>
           <Description>Storage location filter</Description>
         </Element>
-        <Value>0010</Value>
+        <Value>Zone-R</Value>
       </Action>
-      <ExpectedResult>Stock filtered to storage location 0010 only</ExpectedResult>
+      <ExpectedResult>Stock filtered to Zone-R (Refrigerated Zone) only</ExpectedResult>
       <ScreenshotReference>screenshot_022_storage_location_filter.png</ScreenshotReference>
     </Step>
 
     <Step>
       <StepId>STEP_023</StepId>
       <StepNumber>23</StepNumber>
-      <Description>Verify stock quantity updated to 5 units</Description>
+      <Description>Verify stock quantity updated to 500 cases</Description>
       <Action>
         <Type>VERIFY</Type>
         <Element>
@@ -472,9 +472,9 @@
       <Assertion>
         <Type>FIELD_VALUE_EQUALS</Type>
         <FieldReference>StockQuantity</FieldReference>
-        <ExpectedValue>5</ExpectedValue>
+        <ExpectedValue>500</ExpectedValue>
       </Assertion>
-      <ExpectedResult>Stock quantity updated to 5 units in plant 1000, storage location 0010</ExpectedResult>
+      <ExpectedResult>Stock quantity updated to 500 CS (cases) in plant SE-DC, storage location Zone-R</ExpectedResult>
       <ScreenshotReference>screenshot_023_stock_quantity_verified.png</ScreenshotReference>
     </Step>
 
@@ -527,48 +527,48 @@
       </DataRow>
       <DataRow>
         <FieldName>PONumber</FieldName>
-        <FieldValue>4500987654</FieldValue>
-        <FieldDescription>Purchase Order number from PR conversion</FieldDescription>
+        <FieldValue>4500234567</FieldValue>
+        <FieldDescription>Purchase Order number for perishable dairy goods</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>MaterialNumber</FieldName>
-        <FieldValue>100-1234</FieldValue>
-        <FieldDescription>Hydraulic Pump 2HP</FieldDescription>
+        <FieldValue>SKU-DRY-78432</FieldValue>
+        <FieldDescription>Organic Whole Milk 1 Gal - Store Brand</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>MaterialClass</FieldName>
-        <FieldValue>IX</FieldValue>
-        <FieldDescription>Repair Parts classification</FieldDescription>
+        <FieldValue>PERISHABLE-DAIRY</FieldValue>
+        <FieldDescription>Perishable dairy product classification</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>POQuantity</FieldName>
-        <FieldValue>5</FieldValue>
-        <FieldDescription>Original PO quantity</FieldDescription>
+        <FieldValue>500</FieldValue>
+        <FieldDescription>Original PO quantity in cases</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>GRQuantity</FieldName>
-        <FieldValue>5</FieldValue>
-        <FieldDescription>Full goods receipt quantity</FieldDescription>
+        <FieldValue>500</FieldValue>
+        <FieldDescription>Full goods receipt quantity in cases</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>StorageLocation</FieldName>
-        <FieldValue>0010</FieldValue>
-        <FieldDescription>Main Warehouse (matches equipment assignment area)</FieldDescription>
+        <FieldValue>Zone-R</FieldValue>
+        <FieldDescription>Refrigerated Zone at SE-DC (38°F maintained)</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>Plant</FieldName>
-        <FieldValue>1000</FieldValue>
-        <FieldDescription>Anniston Army Depot plant</FieldDescription>
+        <FieldValue>SE-DC</FieldValue>
+        <FieldDescription>GlobalMart Southeast Distribution Center</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>QualityInspection</FieldName>
         <FieldValue>true</FieldValue>
-        <FieldDescription>Mandatory quality inspection for Class IX materials at Anniston</FieldDescription>
+        <FieldDescription>Mandatory quality inspection for perishable and private-label goods at SE-DC</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>InspectionNotes</FieldName>
-        <FieldValue>Visual inspection passed. All seals intact. Pressure test pending.</FieldValue>
-        <FieldDescription>Quality inspection documentation</FieldDescription>
+        <FieldValue>Temperature at receiving: 36°F (within 33-40°F range). Packaging intact. Expiry date: 2026-03-01. Lot LOT-2026-0215-MK verified.</FieldValue>
+        <FieldDescription>Quality inspection documentation for cold chain verification</FieldDescription>
       </DataRow>
       <DataRow>
         <FieldName>MaterialDocumentNumber</FieldName>
@@ -580,18 +580,23 @@
 
   <Annotations>
     <Annotation>
-      <Type>ANNISTON_SPECIFIC_CONSTRAINT</Type>
+      <Type>SEDC_SPECIFIC_CONSTRAINT</Type>
       <Step>STEP_011</Step>
-      <Description>Storage Location must match equipment assignment. At Anniston, materials linked to equipment (EQUIP-2024-0847) must be received and stored in the designated area (0010). This is a site-specific validation requirement enforced for proper asset tracking.</Description>
+      <Description>Storage Location must match temperature zone requirements. At SE-DC, perishable dairy items must be received and stored in Zone-R (Refrigerated, 38°F maintained). This is a site-specific validation requirement enforced for cold chain integrity and food safety compliance.</Description>
     </Annotation>
     <Annotation>
-      <Type>ANNISTON_SPECIFIC_CONSTRAINT</Type>
+      <Type>SEDC_SPECIFIC_CONSTRAINT</Type>
       <Step>STEP_013</Step>
-      <Description>Quality Inspection is mandatory for Class IX (Repair Parts) materials at Anniston Army Depot. Enterprise default allows optional inspection. This mandatory gate ensures repair parts quality before depot stock integration per Anniston policy.</Description>
+      <Description>Quality Inspection is mandatory for perishable and private-label goods at GlobalMart SE-DC. Enterprise default allows optional inspection. This mandatory gate ensures product quality, cold chain integrity, expiry date verification, and packaging condition before stock integration per SE-DC policy.</Description>
+    </Annotation>
+    <Annotation>
+      <Type>COLD_CHAIN_VERIFICATION</Type>
+      <Step>STEP_014</Step>
+      <Description>Temperature verification at receiving is critical for perishable goods. Inspection notes document that received temperature (36°F) is within acceptable range (33-40°F for dairy), confirming cold chain integrity from supplier to distribution center.</Description>
     </Annotation>
     <Annotation>
       <Type>STOCK_UPDATE</Type>
-      <Description>Goods receipt posting immediately updates inventory. Material 100-1234 stock in plant 1000, storage location 0010 increases by 5 units. Quality inspection flag set to PENDING prevents material consumption until inspection verified.</Description>
+      <Description>Goods receipt posting immediately updates inventory. Material SKU-DRY-78432 stock in plant SE-DC, storage location Zone-R increases by 500 cases. Quality inspection flag set to PENDING prevents material consumption until cold chain verification is complete.</Description>
     </Annotation>
   </Annotations>
 </TestScript>

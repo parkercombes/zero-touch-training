@@ -30,11 +30,11 @@ The PoC is tightly scoped to ensure clear outcomes and controlled complexity.
 
 | Dimension | Definition |
 |-----------|-----------|
-| **Site** | Anniston Army Depot |
+| **Site** | GlobalMart Southeast Distribution Center (Atlanta, GA) |
 | **Process** | Purchase Requisition to Goods Receipt (MM-PUR end-to-end slice) |
-| **Role** | Purchasing Officer / Requisitioner |
+| **Role** | Buyer / Requisitioner |
 | **Training Layers** | Layer 1 (navigation walkthrough), Layer 2 (process explainer video), Layer 3 (role-specific job aids), Layer 4 (WalkMe draft—optional) |
-| **System** | SAP/Fiori environment (production or sandbox) |
+| **System** | SAP S/4HANA 2023 (Fiori environment, production or sandbox) |
 | **Duration** | 2 weeks |
 | **Personnel** | 1 PoC lead, 1 SME, 1 sponsor |
 
@@ -79,7 +79,7 @@ The PoC cannot start until all prerequisites are confirmed.
 | Item | Status | Owner | Due Date |
 |------|--------|-------|----------|
 | **Tosca Test Scripts** | Access to current, updated test scripts for Purchase Req→GR process | QA/Testing Team | Before Week 1 kickoff |
-| **Signavio Process Model** | Current process model for ANAD site configuration | Process Owner | Before Week 1 kickoff |
+| **Signavio Process Model** | Current process model for SE-DC site configuration | Process Owner | Before Week 1 kickoff |
 | **SAP/Fiori Access** | Read-only access to sandbox or production Fiori environment; OR high-quality screenshots/recording of the process flow | Basis/System Admin | Before Week 1 kickoff |
 | **AI Tooling Stack** | Selection and provisioning of AI models/APIs (specify LLM, vision models, orchestration framework) | Technical Lead | During Week 1 setup |
 | **SME Availability** | One process owner or power user, ~2–4 hours total (split across Week 2) | HR / Sponsor | Confirmed before kickoff |

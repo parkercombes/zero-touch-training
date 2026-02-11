@@ -4,7 +4,7 @@
 
 ERP training today is expensive to create, slow to update, quickly outdated, and detached from how the system actually changes.
 
-At Anniston (and other depots), this is amplified by:
+At GlobalMart distribution centers (and other retail operations), this is amplified by:
 
 - Site-specific processes (Opal overlays)
 - Multiple UI layers (SAP, Fiori, Appian, etc.)
@@ -98,7 +98,7 @@ The difference is governance, security, and accuracy — not core capability.
 
 - One role
 - One end-to-end process slice
-- One site (Anniston)
+- One site (GlobalMart SE-DC, Atlanta, GA)
 - One person, ~1–2 weeks
 
 **Outputs:**

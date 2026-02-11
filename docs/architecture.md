@@ -235,9 +235,9 @@ Delivered Training = Enterprise Baseline
 
 **Example:** A Purchase Requisition creation process:
 - **Enterprise Baseline:** Standard PR creation in SAP, approval workflow
-- **Anniston Site Overlay:** Uses different cost center validation, mandatory equipment code, three-tier approval for amounts > $50K
+- **SE-DC Site Overlay:** Uses different cost center validation, mandatory lot/batch tracking for perishables, three-tier approval for amounts > $25K
 - **Buyer Role Filter:** Hide Accounts Payable steps, emphasize cost center selection, show vendor preference rules
-- **Result:** Anniston Buyer role receives a PR creation guide with Anniston-specific validations and Buyer-relevant information
+- **Result:** SE-DC Buyer role receives a PR creation guide with SE-DC-specific validations and Buyer-relevant information
 
 ### 3.4 Validation Stage
 
@@ -497,33 +497,33 @@ An Opal overlay is a specification of site-specific variations to enterprise sta
 
 ```yaml
 Overlay:
-  Site: "Anniston"
+  Site: "SE-DC"
   Process: "Purchase-to-Pay"
   Effective_Date: "2024-01-15"
   Variations:
     - Field: "PurchasingGroup"
       Enterprise: "any value"
-      Site_Override: "010 or 020 only"
+      Site_Override: "R-SE or R-NAT only"
       Type: "validation_constraint"
-      Description: "Anniston uses only local purchasing groups"
+      Description: "SE-DC uses only regional Southeast and National purchasing groups"
 
-    - Field: "EquipmentCode"
+    - Field: "LotBatchTracking"
       Enterprise: "optional"
       Site_Override: "mandatory"
       Type: "field_requirement"
-      Description: "Anniston requires equipment code for all POs"
+      Description: "SE-DC requires lot/batch tracking for all perishable items"
 
-    - Field: "CostCenterApprovalThreshold"
+    - Field: "TemperatureZoneApprovalThreshold"
       Enterprise: "2-tier for > $100K"
-      Site_Override: "3-tier for > $50K"
+      Site_Override: "3-tier for > $25K"
       Type: "approval_rule"
-      Description: "Anniston has stricter approval controls"
+      Description: "SE-DC has stricter approval controls for perishable categories"
 
     - Task: "VendorApproval"
       Enterprise: "optional for vendors in vendor master"
-      Site_Override: "required for all new vendors at Anniston"
+      Site_Override: "required for all new vendors at SE-DC"
       Type: "process_gate"
-      Description: "Anniston enforces local vendor review"
+      Description: "SE-DC enforces regional vendor review and food safety compliance"
 ```
 
 ### 6.3 Assembly Logic
@@ -539,7 +539,7 @@ FOR EACH training artifact IN enterprise_baseline:
     IF artifact matches overlay process AND
        artifact location within affected transaction path THEN
       REPLACE/MERGE: enterprise step with overlay variation
-      ANNOTATE: "[Anniston]" markers on modified steps
+      ANNOTATE: "[SE-DC]" markers on modified steps
     END IF
 
   APPLY ROLE FILTER:
@@ -549,50 +549,50 @@ FOR EACH training artifact IN enterprise_baseline:
   PACKAGE: Create delivery artifact with base + overlays + role context
 ```
 
-### 6.4 Example: Purchase Requisition at Anniston
+### 6.4 Example: Purchase Requisition at SE-DC
 
 **Enterprise Standard Walkthrough:**
 ```
 Step 1: Navigate to ME51N (Create PR)
 Step 2: Enter PR Type (NB)
 Step 3: Enter Purchasing Group
-Step 4: Enter Plant
+Step 4: Enter Distribution Center
 Step 5: Add material lines
 Step 6: Save
 ```
 
-**Anniston Overlay Modifications:**
+**SE-DC Overlay Modifications:**
 ```
 Step 3: MODIFIED - Purchasing Group
-  Add constraint: "Select only 010 (Local) or 020 (Regional)"
+  Add constraint: "Select only R-SE (Regional Southeast) or R-NAT (National)"
 
-Step 4.5: NEW STEP - Equipment Code (inserted before Plant)
-  "Equipment code is mandatory at Anniston"
-  Show dropdown of valid equipment codes
+Step 4.5: NEW STEP - Temperature Zone (inserted before Distribution Center)
+  "Temperature zone is mandatory at SE-DC for perishables"
+  Show dropdown of valid temperature zones (Zone-F/Zone-R/Zone-A)
 
 Step 5: MODIFIED - Add material lines
-  Add validation rule: "All materials must be pre-approved in equipment list"
+  Add validation rule: "All perishable materials must have lot/batch tracking enabled"
 ```
 
-**Anniston Buyer Training Output:**
+**SE-DC Buyer Training Output:**
 ```
 Step 1: Navigate to ME51N (Create PR)
 Step 2: Enter PR Type (NB)
-Step 3: Enter Purchasing Group [Anniston: Select 010 or 020]
-Step 4: Enter Equipment Code [Anniston REQUIRED]
-Step 5: Enter Plant
-Step 6: Add material lines [Anniston: Pre-approved equipment only]
+Step 3: Enter Purchasing Group [SE-DC: Select R-SE or R-NAT]
+Step 4: Enter Temperature Zone [SE-DC REQUIRED for perishables]
+Step 5: Enter Distribution Center
+Step 6: Add material lines [SE-DC: Enable lot/batch tracking for perishables]
 Step 7: Save
 ```
 
-**Anniston Manager Training Output (Process Explainer):**
+**SE-DC Manager Training Output (Process Explainer):**
 ```
 Video includes:
 - Standard PR process flow
-- Anniston-specific approval gates:
-  * 3-tier approval for POs > $50K (vs. enterprise > $100K)
-  * Mandatory new vendor review
-  * Equipment code validation
+- SE-DC-specific approval gates:
+  * 3-tier approval for perishable purchases > $25K (vs. enterprise > $100K)
+  * Mandatory new vendor food safety review
+  * Temperature zone and batch tracking validation
 ```
 
 ---

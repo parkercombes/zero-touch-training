@@ -6,7 +6,7 @@ Zero-Touch Training replaces manual course authoring with an automated pipeline 
 
 ## The Problem
 
-ERP training today is expensive to create, slow to update, quickly outdated, and detached from how the system actually changes. At sites like Anniston, this is amplified by site-specific processes (Opal overlays), multiple UI layers (SAP, Fiori, Appian), and high personnel turnover.
+ERP training today is expensive to create, slow to update, quickly outdated, and detached from how the system actually changes. At commercial distribution centers like GlobalMart SE-DC, this is amplified by site-specific processes (Opal overlays), multiple UI layers (SAP, Fiori, Appian), and high personnel turnover.
 
 ## The Approach
 
@@ -16,6 +16,6 @@ See [`docs/concept.md`](docs/concept.md) for the full concept and layered traini
 
 ## Pilot
 
-- One role, one end-to-end process, one site (Anniston)
+- One role, one end-to-end process, one site (GlobalMart SE-DC, Atlanta, GA)
 - ~1–2 weeks, one person
 - Outputs: AI-generated process explainer video, role-specific job aids, optional WalkMe draft

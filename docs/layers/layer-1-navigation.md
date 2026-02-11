@@ -104,13 +104,13 @@ Parse all source systems to build a complete navigation graph:
 
 ## Site-Specific Considerations
 
-Navigation configurations often vary across Army depot sites. The generation process must handle:
+Navigation configurations often vary across distribution center sites. The generation process must handle:
 
 ### Menu Configuration Variations
 - Some sites may have restricted menu items based on local business rules
 - Custom menu additions or reorganizations per site
 - Transaction code availability varies by site authorization matrix
-- Solution: Generate base navigation guides from enterprise configuration, then overlay site-specific differences with clear visual indicators (e.g., "At Anniston, this menu is organized differently")
+- Solution: Generate base navigation guides from enterprise configuration, then overlay site-specific differences with clear visual indicators (e.g., "At SE-DC, this menu is organized differently")
 
 ### Restricted Transaction Codes
 - Certain transaction codes may be disabled at specific sites
@@ -188,7 +188,7 @@ All navigation training must meet these verification standards before publicatio
 - *Action:* Within the Procurement section, locate the tile labeled "Create Purchase Requisition"
 - *Expected Screen:* This tile is typically teal/green colored
 - *Screenshot:* [Close-up annotated screenshot of the Create Purchase Requisition tile]
-- *Variation at Anniston:* This app tile may be in a custom "Quick Actions" section at the top due to local configuration
+- *Variation at SE-DC:* This app tile may be in a custom "Quick Actions" section at the top due to local configuration
 
 **Step 4: Click the App Tile**
 - *Action:* Click the "Create Purchase Requisition" tile

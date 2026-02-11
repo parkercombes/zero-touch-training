@@ -4,7 +4,7 @@
 
 The Zero-Touch Training system is an AI-generated ERP training platform designed to automatically produce accurate, role-specific training content from existing organizational assets. By synthesizing automated test scripts (Tosca), process models (SAP/Signavio), and UI metadata, the system eliminates manual training authoring and enables continuous updates as systems evolve.
 
-This roadmap outlines a 24-week journey from proof-of-concept to operational capability, beginning with a focused pilot at Anniston Army Depot and scaling to multi-site production deployment with automated change detection and governance.
+This roadmap outlines a 24-week journey from proof-of-concept to operational capability, beginning with a focused pilot at GlobalMart Southeast Distribution Center and scaling to multi-site production deployment with automated change detection and governance.
 
 ---
 
@@ -27,8 +27,8 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ### Scope
 - **Single Process**: Purchase Requisition → Goods Receipt workflow
-- **Single Role**: Procurement Specialist (Anniston)
-- **Single Location**: Anniston Army Depot
+- **Single Role**: Buyer (GlobalMart SE-DC)
+- **Single Location**: GlobalMart Southeast Distribution Center (Atlanta, GA)
 
 ### Goals
 - Prove the concept works end-to-end with real organizational assets
@@ -79,8 +79,8 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ### Scope
 - **3-5 Processes**: Expand from single process to multiple, including variations (e.g., standard PO, direct invoice, returns)
-- **Multiple Roles**: Procurement Specialist, Receiving Clerk, Finance Analyst
-- **Single Location**: Anniston Army Depot (focus on deepening capability, not breadth)
+- **Multiple Roles**: Buyer, Receiving Clerk, Category Manager
+- **Single Location**: GlobalMart Southeast Distribution Center (focus on deepening capability, not breadth)
 
 ### Goals
 - Prove the approach scales consistently across different processes and roles
@@ -115,14 +115,14 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 5. **Establish Opal Overlay Pattern**
    - Define overlay abstraction layer (configuration-driven approach)
-   - Map Anniston-specific system configurations to overlay parameters
+   - Map SE-DC site-specific system configurations to overlay parameters
    - Validate overlay model against real site data (Opal objects, field mappings)
    - Create overlay specification documentation
 
 ### Exit Criteria
 - Content quality remains ≥95% accurate across all expanded processes
 - Pipeline execution is repeatable and documented (not one-off manual steps)
-- Opal overlay pattern validated and documented with Anniston-specific examples
+- Opal overlay pattern validated and documented with SE-DC-specific examples
 - WalkMe integration design completed and prototyped
 - Team can execute pipeline for new processes with minimal rework
 
@@ -139,7 +139,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 ## Phase 3: Multi-Site & Integration (Weeks 9-16)
 
 ### Scope
-- **1-2 Additional Depot Sites**: E.g., Red River or Tobyhanna (different Opal configurations)
+- **1-2 Additional Distribution Center Sites**: E.g., other GlobalMart regional DCs (different Opal configurations)
 - **Change Detection & Automation**: Automated monitoring of Tosca regression tests, SAP transports, UI changes
 - **All Covered Processes**: 3-5 processes from Phase 2, adapted for each site
 
@@ -151,7 +151,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ### Key Activities
 
-1. **Onboard New Depot Sites**
+1. **Onboard New Distribution Center Sites**
    - Analyze each new site's Opal configuration (objects, fields, roles, customizations)
    - Create site-specific overlay configurations
    - Adapt training generation pipeline for site differences
@@ -266,7 +266,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 |------|--------|-----------|
 | Pipeline breaks when scaling to new processes | Content generation fails or produces inconsistent quality | Build automation and testing early; create process abstraction layer; test with diverse process types |
 | WalkMe integration more complex than anticipated | Timeline slips; team lacks WalkMe expertise | Secure WalkMe SME early; prototype integration in parallel; plan for vendor support engagement |
-| Opal overlay pattern doesn't generalize to other sites | Multi-site strategy fails; must redesign approach | Validate overlay abstraction with real Anniston data; document assumptions; plan for iteration |
+| Opal overlay pattern doesn't generalize to other sites | Multi-site strategy fails; must redesign approach | Validate overlay abstraction with real SE-DC data; document assumptions; plan for iteration |
 | Team bandwidth insufficient for process onboarding | Processes queue up; expansion stalls | Hire or allocate additional resources; create templated onboarding workflow; establish process intake SLA |
 
 ### Phase 3: Multi-Site & Integration
@@ -302,7 +302,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 - ✓ Team resources for process onboarding and prompt refinement
 - ✓ Additional processes identified and prioritized (3-5 candidates)
 - ✓ WalkMe environment and API access provisioned
-- ✓ Anniston Opal configuration documented and accessible
+- ✓ SE-DC Opal configuration documented and accessible
 - ✓ Budget and approval for expanded content generation (higher LLM costs, WalkMe licensing)
 
 ### Phase 3 Dependencies
@@ -327,11 +327,11 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ## Beyond Phase 4: Future Expansion
 
-### Additional Depot Sites
-The overlay pattern establishes a foundation for replicating training automation across Army depot network. Future phases can add:
-- Fort Lee (Finance processes)
-- Fort Bragg (Human Resources and Logistics)
-- Additional CONUS and overseas locations
+### Additional Distribution Center Sites
+The overlay pattern establishes a foundation for replicating training automation across GlobalMart's distribution center network. Future phases can add:
+- West Coast Regional Distribution Center (California)
+- Midwest Regional Distribution Center (Illinois)
+- Additional regional distribution centers
 - Minimal incremental cost per new site (primarily effort for site-specific overlay configuration)
 
 ### Additional ERP Modules
@@ -350,16 +350,16 @@ Each module requires:
 ### LMS Integration
 Current delivery channels: WalkMe (in-app), documentation portal, static job aids.
 Expansion opportunities:
-- SCORM integration with Army's Learning Management System (LMS)
+- SCORM integration with corporate Learning Management System (LMS)
 - Automated course enrollment based on role
 - Tracking and compliance reporting
 - Microlearning modules and adaptive sequencing
 
 ### Open-Source Pipeline
-The Zero-Touch Training approach—synthesizing Tosca, process models, and UI metadata for AI-driven content generation—has value beyond Army depots. Future phases could:
+The Zero-Touch Training approach—synthesizing Tosca, process models, and UI metadata for AI-driven content generation—has value beyond retail enterprises. Future phases could:
 - Extract and generalize pipeline components
 - Create open-source framework for process-to-training generation
-- Enable broad adoption across DoD, Federal Government, and industry ERP environments
+- Enable broad adoption across supply chain, logistics, and industry ERP environments
 - Build community of contributors for prompt templates, validation patterns, overlay examples
 
 ---
@@ -376,7 +376,7 @@ The Zero-Touch Training approach—synthesizing Tosca, process models, and UI me
 - Content quality consistency: ≥95% across all processes
 - Pipeline repeatability: Zero manual rework for new processes (target: <2 hours overhead per process)
 - WalkMe integration: Prototype complete, design validated
-- Overlay model: Anniston configuration fully documented, reusable for other sites
+- Overlay model: SE-DC configuration fully documented, reusable for other sites
 
 ### Phase 3
 - Multi-site capability: Training generated for ≥2 new sites without rework
@@ -418,7 +418,7 @@ The Zero-Touch Training approach—synthesizing Tosca, process models, and UI me
 | Project Lead | | | |
 | Product Owner | | | |
 | Technical Lead | | | |
-| Army Depot Command | | | |
+| VP Supply Chain (GlobalMart) | | | |
 | Chief Information Officer | | | |
 
 ---

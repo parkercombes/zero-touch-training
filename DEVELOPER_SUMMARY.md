@@ -10,7 +10,7 @@ The tagline: *"We're not building training. We're compiling it from the same ass
 
 ## Who It's For
 
-Army depot ERP users (starting at Anniston Army Depot). The system sits on top of SAP, Fiori, and Appian, with site-specific process overlays.
+Commercial retail distribution center ERP users (starting at GlobalMart Southeast Distribution Center). The system sits on top of SAP S/4HANA 2023, Fiori, and Appian, with site-specific process overlays.
 
 ## Five Training Layers
 
@@ -30,7 +30,7 @@ zero-touch-training/
 ├── docs/
 │   ├── concept.md              # Full project concept
 │   ├── architecture.md         # System design, data flows, AI pipeline
-│   ├── pilot-charter.md        # PoC charter (Anniston, one process, two weeks)
+│   ├── pilot-charter.md        # PoC charter (SE-DC, one process, two weeks)
 │   ├── roadmap.md              # Four-phase plan: PoC → Expansion → Multi-site → Operationalize
 │   ├── tooling.md              # Full solution vs PoC tool stacks
 │   └── layers/                 # Detailed spec per training layer (5 docs)
@@ -43,7 +43,7 @@ zero-touch-training/
     │   │   └── goods_receipt.xml          (25 steps, MIGO)
     │   ├── bpmn/
     │   │   └── purchase_to_pay.xml        (BPMN 2.0, 5 roles, 7 tasks)
-    │   └── opal_overlay.yaml              (Anniston site-specific variations)
+    │   └── opal_overlay.yaml              (SE-DC site-specific variations)
     ├── parsers/                 # ✅ BUILT & TESTED
     │   ├── tosca_parser.py     # Tosca XML → structured steps, assertions, annotations
     │   └── bpmn_parser.py      # BPMN 2.0 XML → process graph with execution order
@@ -62,27 +62,27 @@ zero-touch-training/
 
 | Component | Status | Notes |
 |---|---|---|
-| Sample Tosca test scripts | ✅ Done | Realistic XML with SAP field refs, Anniston constraints, assertions |
+| Sample Tosca test scripts | ✅ Done | Realistic XML with SAP field refs, SE-DC constraints, assertions |
 | Sample BPMN process model | ✅ Done | Valid BPMN 2.0 with swimlanes, gateways, message flows |
 | Opal overlay config | ✅ Done | YAML with 5 site-specific variations (field requirements, approval rules, process gates) |
 | Tosca parser | ✅ Done | Extracts steps, actions, UI elements, site-specific flags. Handles namespaced and plain XML |
 | BPMN parser | ✅ Done | Extracts tasks, gateways, events, builds execution-order traversal via BFS |
 | AI content generators | 🔜 Next | Will use Claude API to transform parsed data into training content |
 | Prompt templates | 🔜 Next | Structured prompts for walkthroughs, video scripts, job aids, WalkMe flows |
-| Overlay assembler | 🔜 Next | Applies Anniston-specific variations to generated content |
+| Overlay assembler | 🔜 Next | Applies SE-DC site-specific variations to generated content |
 | Pipeline orchestrator | 🔜 Next | `run.py` — single script that runs the full pipeline end-to-end |
 
 ## PoC Scope
 
 - **Process:** Purchase Requisition → Goods Receipt
-- **Role:** Purchasing Officer
-- **Site:** Anniston Army Depot
-- **Key Anniston constraints baked into sample data:**
-  - Equipment code mandatory (enterprise default: optional)
-  - Purchasing group restricted to 010/020
-  - 3-tier approval for amounts > $50K (enterprise: 2-tier > $100K)
-  - Storage location must match equipment assignment
-  - Mandatory quality inspection for Class IX materials
+- **Role:** Buyer
+- **Site:** GlobalMart Southeast Distribution Center (Atlanta, GA)
+- **Key SE-DC constraints baked into sample data:**
+  - Lot/batch tracking mandatory for perishables (enterprise default: optional)
+  - Purchasing group restricted to R-SE / R-NAT
+  - 3-tier approval for amounts > $25K for perishable categories (enterprise: 2-tier > $100K)
+  - Temperature zone must match product category (Zone-F/Zone-R/Zone-A)
+  - Mandatory quality inspection for perishable and private-label goods
 
 ## Tech Stack (PoC)
 

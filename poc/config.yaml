@@ -1,12 +1,15 @@
 poc:
   name: "Zero-Touch Training PoC"
-  version: "0.1.0"
+  version: "0.2.0"
 
 scope:
-  site: "Anniston Army Depot"
-  site_code: "ANAD"
+  company: "GlobalMart"
+  site: "Southeast Distribution Center"
+  site_code: "SE-DC"
+  location: "Atlanta, GA"
+  system: "SAP S/4HANA 2023"
   process: "Purchase Requisition to Goods Receipt"
-  role: "Purchasing Officer"
+  role: "Buyer"
 
 sources:
   tosca:

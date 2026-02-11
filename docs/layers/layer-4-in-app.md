@@ -181,15 +181,15 @@ WalkMe flow is typically expressed as JSON or XML defining:
       "elementSelector": "select#plant_field",
       "tooltip": {
         "title": "Select Plant",
-        "body": "Choose the warehouse that will receive this material. At Anniston, this field auto-selects 'Anniston_Main'.",
+        "body": "Choose the warehouse that will receive this material. At SE-DC, this field auto-selects 'SE-DC_Main'.",
         "position": "right"
       },
       "siteSpecific": {
-        "Anniston": {
+        "SE-DC": {
           "tooltip": {
-            "body": "The Plant field is automatically set to 'Anniston_Main' and cannot be changed."
+            "body": "The Plant field is automatically set to 'SE-DC_Main' and cannot be changed."
           },
-          "completionCondition": "field displays 'Anniston_Main'"
+          "completionCondition": "field displays 'SE-DC_Main'"
         }
       }
     },
@@ -384,8 +384,8 @@ For in-app guidance, site-specific variations are embedded in the flow definitio
   "tooltip": {
     "default": "Select the warehouse that will receive this material.",
     "siteSpecific": {
-      "Anniston": "The Plant field is automatically set to 'Anniston_Main' and cannot be changed.",
-      "Rome": "Select your plant from the dropdown. Options: Rome_Central, Rome_North, Rome_South."
+      "SE-DC": "The Plant field is automatically set to 'SE-DC_Main' and cannot be changed.",
+      "MidWest-DC": "Select your plant from the dropdown. Options: MidWest-DC_Central, MidWest-DC_North, MidWest-DC_South."
     }
   }
 }
@@ -430,7 +430,7 @@ For each input field, encode what the system accepts and what error messages app
 ### UI Configuration Variations
 Different sites may have different Fiori configurations or SAP GUI menu layouts. The in-app guidance must handle:
 
-- **Different element IDs:** If Anniston configures a button with ID "btn_submit_anniston" and Rome uses "btn_submit_rome"
+- **Different element IDs:** If SE-DC configures a button with ID "btn_submit_anniston" and MidWest-DC uses "btn_submit_rome"
   - Solution: Use fallback selectors that work regardless of specific IDs
   - Solution: Maintain site-specific selector mappings
 
@@ -438,7 +438,7 @@ Different sites may have different Fiori configurations or SAP GUI menu layouts.
   - Solution: Embed visibility checks in flow definitions
   - Solution: Different flow variants per site if variations are extensive
 
-- **Different field defaults:** Material ID might be pre-populated at Anniston but blank at Rome
+- **Different field defaults:** Material ID might be pre-populated at SE-DC but blank at MidWest-DC
   - Solution: Document default behavior in tooltip
   - Solution: Adjust completion criteria per site
 
@@ -448,12 +448,12 @@ Different approval requirements at different sites require different guidance se
 ```
 Create PR with amount $25,000:
 
-At Anniston:
-  Requisition → Anniston_Manager → Procurement_Manager → Auto-approve
+At SE-DC:
+  Requisition → SE-DC_Manager → Procurement_Manager → Auto-approve
   Guidance: "Route to your manager for approval"
 
-At Rome:
-  Requisition → Rome_Supervisor → Rome_Manager → Finance_Approval
+At MidWest-DC:
+  Requisition → MidWest-DC_Supervisor → MidWest-DC_Manager → Finance_Approval
   Guidance: "Route to your supervisor, who will forward to the manager"
 ```
 
@@ -513,7 +513,7 @@ All in-app guidance must meet these standards:
 
 **Flow Name:** Create Purchase Requisition
 **Description:** Step-by-step in-app guidance for creating a purchase requisition
-**Versions:** Enterprise standard (all sites), Anniston overlay, Rome overlay
+**Versions:** Enterprise standard (all sites), SE-DC overlay, MidWest-DC overlay
 
 **Trigger:** Page contains "Create Purchase Requisition" title OR URL contains "/create-pr"
 
@@ -552,8 +552,8 @@ All in-app guidance must meet these standards:
    - Type: Highlight + Conditional Tooltip
    - Element: select#plant_field
    - Tooltip (Enterprise): "Select the plant/warehouse that will receive this material."
-   - Tooltip (Anniston Site): "Your plant is automatically set to 'Anniston_Main'."
-   - Tooltip (Rome Site): "Select your plant from the dropdown."
+   - Tooltip (SE-DC Site): "Your plant is automatically set to 'SE-DC_Main'."
+   - Tooltip (MidWest-DC Site): "Select your plant from the dropdown."
    - Completion: Field contains valid plant selection
 
 6. **Delivery Date Field**

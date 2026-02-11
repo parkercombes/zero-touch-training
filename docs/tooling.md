@@ -76,8 +76,8 @@ No production infrastructure. No enterprise integrations. Just the core transfor
 ### Scope
 
 - One process: Purchase Requisition → Goods Receipt
-- One role: Purchasing Officer
-- One site: Anniston
+- One role: Buyer
+- One site: GlobalMart SE-DC (Atlanta, GA)
 - Inputs: Sample Tosca test script (XML) + sample BPMN process model
 - Outputs: Navigation walkthrough, process explainer video script, role-specific job aids
 
@@ -148,6 +148,6 @@ zero-touch-training/
 
 1. **Parsers work** — Tosca XML and BPMN XML are correctly parsed into structured data
 2. **AI generates usable content** — Job aids, walkthroughs, and video scripts are coherent, accurate, and match the source data
-3. **Overlay applies cleanly** — Anniston-specific variations appear correctly in output
+3. **Overlay applies cleanly** — SE-DC site-specific variations appear correctly in output
 4. **Re-run produces updated output** — Modify a test script input, re-run, and the output reflects the change
 5. **An SME would approve it** — Generated content is close enough to "production ready" that a subject matter expert would sign off with minor edits

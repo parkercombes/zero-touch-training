@@ -7,8 +7,8 @@ This PoC demonstrates that AI can generate accurate, usable ERP training materia
 ## Scope
 
 - **Process:** Purchase Requisition → Goods Receipt
-- **Role:** Purchasing Officer
-- **Site:** Anniston Army Depot
+- **Role:** Buyer
+- **Site:** GlobalMart Southeast Distribution Center (Atlanta, GA)
 - **Layers:** Navigation walkthrough, process explainer video script, role-specific job aids, WalkMe flow draft
 
 ## Setup
@@ -38,7 +38,7 @@ poc/
 ├── data/
 │   ├── tosca/             # Sample Tosca test scripts (XML)
 │   ├── bpmn/              # Sample BPMN process model (XML)
-│   └── opal_overlay.yaml  # Anniston site overlay
+│   └── opal_overlay.yaml  # SE-DC site overlay
 ├── parsers/
 │   ├── tosca_parser.py    # Parse Tosca XML → structured steps
 │   └── bpmn_parser.py     # Parse BPMN XML → process graph
