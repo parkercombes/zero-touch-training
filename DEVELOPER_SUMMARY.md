@@ -12,7 +12,7 @@ The tagline: *"We're not building training. We're compiling it from the same ass
 
 Commercial retail distribution center ERP users (starting at GlobalMart Southeast Distribution Center). The system sits on top of SAP S/4HANA 2023, Fiori, and Appian, with site-specific process overlays.
 
-## Five Training Layers
+## Six Training Layers
 
 | Layer | Goal | Source | Output |
 |---|---|---|---|
@@ -20,7 +20,8 @@ Commercial retail distribution center ERP users (starting at GlobalMart Southeas
 | 2. Process | "I know where I fit" | BPMN process models | Explainer videos |
 | 3. Execution | "I can do my job" | Tosca test scripts | Role-specific job aids |
 | 4. In-App | "Help me while I'm doing it" | Test scripts + UI element IDs | WalkMe flow drafts |
-| 5. Updates | "Training is never outdated" | Change detection across all sources | Auto-regeneration triggers |
+| 5. Rationale | "I understand *why* we do it this way" | BPMN gateways + consequences.yaml | Process decision guides |
+| 6. Updates | "Training is never outdated" | Change detection across all sources | Auto-regeneration triggers |
 
 ## Repo Structure
 
@@ -34,7 +35,7 @@ zero-touch-training/
 │   ├── pilot-charter.md         # PoC charter (SE-DC, one process, two weeks)
 │   ├── roadmap.md               # Four-phase plan: PoC → Expansion → Multi-site → Operationalize
 │   ├── tooling.md               # Full solution vs PoC tool stacks
-│   └── layers/                  # Detailed spec per training layer (5 docs)
+│   └── layers/                  # Detailed spec per training layer (6 docs)
 └── poc/                         # Proof of Concept
     ├── config.yaml              # PoC scope config (company, site, role, sources)
     ├── requirements.txt         # Python deps: lxml, PyYAML, anthropic, python-docx, Pillow
@@ -46,7 +47,8 @@ zero-touch-training/
     │   │   └── goods_receipt.xml          (28 steps, MIGO)
     │   ├── bpmn/
     │   │   └── purchase_to_pay.xml        (BPMN 2.0, 5 roles, 7 tasks)
-    │   └── opal_overlay.yaml              (SE-DC site-specific variations, 6 rules)
+    │   ├── opal_overlay.yaml              (SE-DC site-specific variations, 6 rules)
+    │   └── consequences.yaml              (Layer 5: anti-patterns, consequences, compliance)
     ├── parsers/                  # ✅ BUILT & TESTED
     │   ├── tosca_parser.py      # Tosca XML → structured steps, assertions, annotations
     │   └── bpmn_parser.py       # BPMN 2.0 XML → process graph with execution order
@@ -55,12 +57,16 @@ zero-touch-training/
     │   ├── walkthrough.py       # Layer 1: Tosca steps → navigation walkthroughs (Markdown)
     │   ├── video_script.py      # Layer 2: BPMN process → explainer video scripts (Markdown)
     │   ├── job_aid.py           # Layer 3: Tosca + BPMN → role-specific job aids (Markdown)
-    │   └── walkme_draft.py      # Layer 4: Tosca UI elements → WalkMe flow defs (JSON)
+    │   ├── walkme_draft.py      # Layer 4: Tosca UI elements → WalkMe flow defs (JSON)
+    │   ├── process_rationale.py # Layer 5: consequences.yaml + BPMN → decision guides (Markdown)
+    │   ├── video_render_v2.py   # Social video: ffmpeg libflite TTS + xfade + numpy music
+    │   └── video_render_bigfoot.py # Social video: DALL-E 3 + OpenAI TTS (run locally on Mac)
     ├── prompts/                  # ✅ BUILT — LLM prompt templates
     │   ├── walkthrough.txt      # Prompt: step-by-step navigation walkthrough
     │   ├── video_script.txt     # Prompt: process explainer video script
     │   ├── job_aid.txt          # Prompt: condensed desk-reference job aid
-    │   └── walkme.txt           # Prompt: WalkMe Smart Walk-Thru JSON definition
+    │   ├── walkme.txt           # Prompt: WalkMe Smart Walk-Thru JSON definition
+    │   └── process_rationale.txt # Prompt: process decision guide (Layer 5)
     ├── assembler/                # ✅ BUILT — Opal overlay assembly
     │   └── overlay.py           # Loads YAML overlays, resolves per-transaction constraints
     └── output/                   # Generated training materials land here
@@ -69,21 +75,24 @@ zero-touch-training/
 ## What's Built
 
 **Documentation (complete):**
-- Full concept doc, system architecture, PoC charter, 4-phase roadmap, tooling analysis, and detailed specs for all 5 training layers.
+- Full concept doc, system architecture, PoC charter, 4-phase roadmap, tooling analysis, and detailed specs for all 6 training layers.
 
-**PoC — Full Pipeline (Steps 1–4):**
+**PoC — Full Pipeline:**
 
 | Component | Status | Notes |
 |---|---|---|
 | Sample Tosca test scripts | ✅ Done | Realistic XML with SAP field refs, SE-DC constraints, assertions |
 | Sample BPMN process model | ✅ Done | Valid BPMN 2.0 with swimlanes, gateways, message flows |
 | Opal overlay config | ✅ Done | YAML with 6 site-specific variations (field constraints, approval rules, process gates, cold chain) |
+| Consequences data | ✅ Done | `consequences.yaml` — anti-patterns, consequence mappings, compliance context for Layer 5 |
 | Tosca parser | ✅ Done | Extracts steps, actions, UI elements, site-specific flags. Handles namespaced and plain XML |
 | BPMN parser | ✅ Done | Extracts tasks, gateways, events, builds execution-order traversal via BFS |
-| Prompt templates | ✅ Done | 4 structured prompt files for walkthroughs, video scripts, job aids, WalkMe flows |
-| AI content generators | ✅ Done | 4 generator modules + base class with Claude API integration, retry logic, output writing |
+| Prompt templates | ✅ Done | 5 structured prompt files (walkthroughs, video scripts, job aids, WalkMe flows, process rationale) |
+| AI content generators | ✅ Done | 5 generator modules + base class with Claude API integration, retry logic, output writing |
 | Overlay assembler | ✅ Done | Loads Opal YAML, resolves per-transaction constraints, provides to generators |
 | Pipeline orchestrator | ✅ Done | `run.py` — single script: parse → overlay → generate → write. Supports `--dry-run`, `--layer` filtering |
+| Social video (sandbox) | ✅ Done | `video_render_v2.py` — ffmpeg libflite TTS, xfade transitions, numpy music, 720×1280 |
+| Social video (Bigfoot) | ✅ Done | `video_render_bigfoot.py` — DALL-E 3 + OpenAI TTS, run locally on Mac, ~$0.90/video |
 
 ## Pipeline Architecture
 
@@ -164,6 +173,13 @@ python run.py --layer walkthrough
 python run.py --layer video_script
 python run.py --layer job_aid
 python run.py --layer walkme
+python run.py --layer process_rationale
+
+# Social media video (sandbox — no external APIs)
+python generators/video_render_v2.py
+
+# Social media video (Bigfoot quality — run on your Mac)
+OPENAI_API_KEY="sk-..." python generators/video_render_bigfoot.py
 
 # Test parsers directly
 python parsers/tosca_parser.py data/tosca/purchase_requisition.xml

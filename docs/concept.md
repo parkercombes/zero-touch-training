@@ -56,7 +56,20 @@ This is **Training-as-Code**, embedded in the DevSecOps pipeline.
 - AI generates draft WalkMe flows from test scripts and UI metadata
 - Humans review and approve (no manual authoring from scratch)
 
-### Layer 5 – Continuous Update & Drift Control
+### Layer 5 – Process Rationale & Consequence
+
+**Goal:** "I understand *why* we do it this way."
+
+Training that addresses the institutional knowledge gap: people who know how to execute a process but not why it is designed that way, when to use it versus alternatives, and what breaks if they choose incorrectly.
+
+- Decision maps: when to use this process vs. similar alternatives
+- Anti-pattern gallery: common wrong approaches with empathetic explanation of why they feel right and what actually breaks downstream
+- Consequence matrix: who notices, when, and what the audit or operational impact is
+- Compliance context: the business control the process enforces and what an auditor looks for in the transaction record
+
+Sourced from: BPMN decision gateways, Tosca negative test cases, Opal overlay validation rules, and a `consequences.yaml` data file maintained by the SME team. SME review and Finance/Compliance sign-off required before publication.
+
+### Layer 6 – Continuous Update & Drift Control
 
 **Goal:** "Training is never outdated."
 
@@ -67,7 +80,7 @@ Training updates are triggered automatically by:
 - Regression test updates or failures
 - Process model version changes
 
-If a regression test changes, training is assumed stale until regenerated and validated.
+If a regression test changes, training is assumed stale until regenerated and SME-validated.
 
 ## Site-Specific Reality (Opal Overlay)
 
