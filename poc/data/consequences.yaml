@@ -1,0 +1,302 @@
+# consequences.yaml — Process Rationale & Anti-Pattern Data
+# GlobalMart Southeast Distribution Center (SE-DC), Atlanta GA
+# SAP S/4HANA 2023
+#
+# Structure: one entry per process/transaction.
+# Each entry defines anti-patterns (wrong approaches), their consequences,
+# and the compliance context that explains why the correct process exists.
+#
+# This file feeds the Layer 5 (Process Rationale) generator.
+# SME review required before any changes are published.
+
+site: SE-DC
+system: SAP S/4HANA 2023
+last_reviewed: "2025-02-01"
+reviewed_by: "Pending SME assignment"
+
+processes:
+
+  # ── Goods Receipt ──────────────────────────────────────────────────────────
+  - id: goods_receipt_po
+    name: "Goods Receipt against Purchase Order"
+    transaction: MIGO
+    t_code_alt: ["MB01"]
+    process_area: "Purchase-to-Pay"
+    bpmn_ref: "purchase_to_pay.xml"
+    tosca_ref: "goods_receipt.xml"
+
+    description: >
+      The standard process for recording the physical receipt of goods
+      ordered through a Purchase Order. Creates a material document and
+      updates the GR/IR clearing account, enabling 3-way match for payment.
+
+    when_to_use:
+      - "Goods arrive at the dock with a delivery note referencing a PO"
+      - "Materials found during installation that correspond to an open PO line"
+      - "Partial deliveries against an open PO quantity"
+      - "Over-deliveries within tolerance (check PO tolerance settings first)"
+
+    decision_map:
+      - scenario: "Planned delivery, PO exists, quantity matches"
+        correct_process: "GR against PO (MIGO, movement type 101)"
+        movement_type: "101"
+        notes: "Standard case. Reference PO number, confirm quantity and storage location."
+
+      - scenario: "Material found during installation — PO exists"
+        correct_process: "GR against existing PO (MIGO, movement type 101)"
+        movement_type: "101"
+        notes: >
+          Locate the original PO. If the found quantity is within PO tolerance,
+          post normally. If it exceeds PO quantity, contact Procurement to
+          raise a PO amendment before posting.
+
+      - scenario: "Material found during installation — no PO exists"
+        correct_process: "STOP. Contact Procurement to raise an emergency PO first."
+        movement_type: "n/a"
+        notes: >
+          Do not post a free GR. All unplanned receipts at SE-DC require
+          a PO due to SOX 3-way match requirements. Procurement SLA for
+          emergency POs is 4 business hours.
+
+      - scenario: "Vendor over-delivery exceeds PO tolerance"
+        correct_process: "Reject overage at dock. Do not receive into system."
+        movement_type: "n/a"
+        notes: >
+          SE-DC Opal overlay sets over-delivery tolerance at 5%.
+          Quantities beyond this must be returned to vendor or covered
+          by a new PO line before GR can be posted.
+
+      - scenario: "Return of damaged or incorrect goods to vendor"
+        correct_process: "Return delivery against PO (MIGO, movement type 122)"
+        movement_type: "122"
+        notes: >
+          Never use a negative GR (movement type 102) for vendor returns.
+          Movement 102 reverses the original GR; movement 122 creates a
+          separate return shipment document that triggers vendor credit memo.
+
+    anti_patterns:
+
+      - id: free_gr_no_po
+        name: "Posting a Free Goods Receipt (no PO reference)"
+        why_feels_right: >
+          Faster — no need to track down the PO number. The system accepts it.
+          The material appears in inventory immediately. It feels done.
+        why_wrong: >
+          A free GR posts to a one-sided G/L entry with no offsetting GR/IR
+          clearing account entry. The 3-way match (PO / GR / Invoice) is
+          broken at the source. When the vendor invoice arrives, AP cannot
+          match it and payment is blocked indefinitely.
+        immediate_consequence: "GR posts successfully. No system error."
+        consequences:
+          - category: financial
+            severity: high
+            description: >
+              GR/IR clearing account has an unmatched open item.
+              Inventory value is correct but AP liability is understated.
+              At period-end, this creates an unexplained balance that
+              requires manual journal entry to clear.
+          - category: audit
+            severity: critical
+            description: >
+              SOX Section 404 requires that all inventory purchases trace
+              to an approved Purchase Order (authorization control) and a
+              matched Goods Receipt (existence/completeness control).
+              A free GR breaks both. This is a reportable control deficiency.
+          - category: operational
+            severity: high
+            description: >
+              AP team cannot process vendor payment. Vendor escalates.
+              Manual intervention required to either reverse the GR and
+              re-post correctly, or to create a correcting document.
+              Typical resolution time: 3–10 business days.
+          - category: cold_chain
+            severity: medium
+            description: >
+              If the item is a temperature-controlled product, the GR
+              timestamp is used to calculate shelf life and lot expiry.
+              A delayed or re-posted GR may corrupt the lot management record.
+        recovery: >
+          1. Cancel the free GR (MIGO, movement type 102 against the original material document).
+          2. Obtain or create the correct PO.
+          3. Re-post the GR referencing the PO (movement type 101).
+          4. Notify AP of the correction so they can clear any pending items.
+          Note: If the vendor invoice has already been posted against the free GR,
+          escalate to Finance before reversing — additional steps required.
+
+      - id: wrong_movement_type_blocked_stock
+        name: "Using movement type 103 (GR to Blocked Stock)"
+        why_feels_right: >
+          Movement type 103 is listed alongside 101 in the MIGO transaction.
+          Some users understand 'blocked' as a hold for quality inspection
+          and use it for items they're unsure about.
+        why_wrong: >
+          Blocked stock (unrestricted use: No) means the material is
+          physically received but not available for any downstream process —
+          production orders, delivery, consumption, or transfer orders.
+          The inventory count looks correct but the stock cannot move.
+        immediate_consequence: "GR posts. Material document created. Inventory quantity increases."
+        consequences:
+          - category: operational
+            severity: high
+            description: >
+              Warehouse Management System shows sufficient on-hand stock,
+              but picking tasks will fail — material is not in unrestricted
+              use stock. Production or outbound delivery may be delayed
+              while the root cause is investigated.
+          - category: cold_chain
+            severity: critical
+            description: >
+              Temperature-controlled items sitting in blocked stock do not
+              trigger the standard FEFO (First Expired, First Out) picks.
+              Items may expire while 'available' inventory exists in
+              unrestricted use. FDA cold chain compliance violation risk.
+          - category: financial
+            severity: low
+            description: >
+              Inventory is on balance sheet at full value but functionally
+              unavailable. If not resolved before period-end, a potential
+              impairment write-down discussion may be triggered.
+        recovery: >
+          Use MIGO with movement type 105 (GR from blocked stock to
+          unrestricted use) if the material has been quality-checked
+          and is acceptable. If the item needs to be returned to vendor,
+          use movement type 124 (return from blocked stock to vendor).
+
+      - id: gr_wrong_storage_location
+        name: "Posting GR to wrong storage location"
+        why_feels_right: >
+          The default storage location auto-populates. Users unfamiliar
+          with the Opal overlay configuration may not realize the default
+          is wrong for certain material types (e.g., frozen vs. ambient).
+        why_wrong: >
+          SE-DC uses storage location as the primary control for cold chain
+          segregation. Frozen goods (storage location FL01) and ambient
+          goods (storage location AM01) have different temperature zones.
+          A GR to the wrong location does not trigger the correct
+          temperature management and lot tracking rules.
+        immediate_consequence: "GR posts. Material is recorded in the wrong physical zone."
+        consequences:
+          - category: cold_chain
+            severity: critical
+            description: >
+              FDA 21 CFR Part 110 / FSMA requires temperature-controlled
+              goods to be stored in designated zones with continuous
+              monitoring. Material posted to AM01 instead of FL01 may
+              leave frozen goods in an unmonitored zone. Regulatory
+              inspection finding if discovered.
+          - category: operational
+            severity: medium
+            description: >
+              Warehouse execution system routes putaway tasks based on
+              storage location. Wrong location = wrong putaway destination.
+              Physical stock and system stock diverge until next physical
+              inventory count.
+        recovery: >
+          Post a transfer order (stock transfer, movement type 311) to
+          move the material from the incorrect storage location to the
+          correct one. No reversal of the original GR required.
+          Notify the warehouse supervisor to physically verify the
+          material was handled correctly in the interim.
+
+    compliance:
+      regulation: "SOX Section 404 / PCAOB AS 2201"
+      control_name: "Purchase-to-Pay 3-Way Match"
+      control_objective: >
+        All inventory purchases must trace to an authorized Purchase Order,
+        a matched Goods Receipt, and a vendor Invoice before payment is
+        released. This prevents unauthorized purchases, fictitious vendors,
+        and inventory fraud.
+      audit_question: >
+        "Can every goods receipt in the period be traced to an approved
+        Purchase Order? Are there any GR/IR open items older than 30 days?"
+      audit_risk: >
+        Unmatched GR/IR items and free GRs are among the top findings
+        in inventory and AP audit procedures. A pattern of free GRs
+        suggests a control breakdown, not just a process error.
+      se_dc_threshold: >
+        SE-DC policy (Opal overlay): PO required for all goods receipts.
+        No exceptions below a de minimis threshold (unlike some other sites).
+        This is more restrictive than the enterprise default.
+
+  # ── Purchase Requisition ───────────────────────────────────────────────────
+  - id: purchase_requisition
+    name: "Purchase Requisition"
+    transaction: ME51N
+    process_area: "Purchase-to-Pay"
+    bpmn_ref: "purchase_to_pay.xml"
+    tosca_ref: "purchase_requisition.xml"
+
+    description: >
+      Internal request to Procurement to source and purchase goods or services.
+      Creates an audit trail from the point of need through to payment.
+
+    when_to_use:
+      - "Replenishment of stock items below reorder point (auto-generated by MRP)"
+      - "One-time or project-based purchases not on contract"
+      - "Emergency replacements — use PR + expedite flag, not direct PO request"
+
+    decision_map:
+      - scenario: "Standard stock replenishment"
+        correct_process: "PR auto-generated by MRP run — do not create manually"
+        notes: "Manual PR for MRP-managed items overrides the planning run and creates duplicate demand."
+
+      - scenario: "Non-stock, project, or one-time purchase"
+        correct_process: "Manual PR (ME51N) with correct account assignment"
+        notes: "Account assignment category must match the cost object (project, cost center, or asset)."
+
+      - scenario: "Urgent replacement needed today"
+        correct_process: "Manual PR with 'expedite' indicator — notify Procurement verbally"
+        notes: >
+          Do not contact a vendor directly and ask them to deliver without a PO.
+          This creates a verbal commitment without authorization and typically
+          results in a disputed invoice with no matching document.
+
+    anti_patterns:
+
+      - id: verbal_po_to_vendor
+        name: "Calling a vendor directly to request urgent delivery without a PO"
+        why_feels_right: >
+          Production is stopping. The vendor has the part. One phone call
+          solves the immediate problem. The paperwork can follow.
+        why_wrong: >
+          Without a PO, the vendor has no obligation to honour any pricing
+          agreement or terms. The invoice they submit may not match any
+          negotiated rate. The system has no record of the commitment.
+          AP cannot process the invoice. The vendor cannot be paid on time.
+        immediate_consequence: "Nothing in the system. The problem feels solved."
+        consequences:
+          - category: financial
+            severity: high
+            description: >
+              Vendor submits invoice with no matching PO. AP parks the invoice.
+              Payment is delayed. Vendor applies late payment penalties.
+              Procurement may not be able to retroactively match the price.
+          - category: audit
+            severity: high
+            description: >
+              Unauthorized commitment. If payment is eventually forced through
+              manually, it bypasses the authorization matrix and is flagged
+              in the AP exception report. Audit finding: purchase without
+              prior authorization.
+          - category: operational
+            severity: medium
+            description: >
+              Vendor may not deliver at all if they require a PO number
+              on the delivery note. Or they deliver and the receiving dock
+              cannot post the GR (no PO to receive against).
+        recovery: >
+          Raise an emergency PR immediately. Have Procurement convert it
+          to a PO and provide the PO number to the vendor before or
+          immediately after delivery. If goods have already been received
+          without a PO, see the free_gr_no_po recovery process above.
+
+    compliance:
+      regulation: "SOX Section 404 / Internal Procurement Policy"
+      control_name: "Purchase Authorization Matrix"
+      control_objective: >
+        All external commitments must be authorized in advance through
+        the PR/PO process to ensure spending is within budget, within
+        approved vendor lists, and within individual authorization limits.
+      audit_question: >
+        "Are there any vendor invoices in the period without a matching
+        approved Purchase Order?"

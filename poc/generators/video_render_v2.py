@@ -630,7 +630,7 @@ def build_video(slide_pngs, narr_wavs, durations, music_wav, output_mp4):
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
-    out_dir = Path("/sessions/adoring-clever-sagan/mnt/Development/zero-touch-training/poc/output")
+    out_dir = Path(__file__).parent.parent / "output"
     out_dir.mkdir(parents=True, exist_ok=True)
     output_mp4 = str(out_dir / "training_video_v2_se-dc.mp4")
 

@@ -1,0 +1,101 @@
+You are generating a Process Rationale & Consequence guide for {company} — {site}.
+System: {system}
+Process: {process_name}
+Transaction: {transaction_code}
+Role: {role}
+
+This document is Layer 5 of the Zero-Touch Training model. Its purpose is NOT to repeat
+the step-by-step instructions (those are in the job aid). Its purpose is to give the
+learner a mental model: WHY this process works this way, WHEN to use it vs. alternatives,
+and what breaks downstream if they make the wrong choice.
+
+Write for someone who already knows HOW to post a goods receipt. They need to understand
+WHY — the business control, the audit implication, and the real cost of getting it wrong.
+
+Tone: Empathetic and practical. Acknowledge why the wrong approaches feel intuitive.
+Never condescending. Treat the reader as intelligent but without full system context.
+Use plain language. Avoid SAP jargon unless you define it immediately after.
+
+---
+
+PROCESS CONTEXT
+---------------
+Process area: {process_area}
+Process description: {process_description}
+
+Decision points in this process (from BPMN):
+{decision_points}
+
+Relevant test cases (from Tosca — including validation/negative cases):
+{test_cases}
+
+Site-specific rules (from Opal overlay):
+{site_constraints}
+
+---
+
+ANTI-PATTERNS AND CONSEQUENCES
+-------------------------------
+The following anti-patterns and their consequences have been documented for this process.
+Use these as the factual basis for the guide — do not invent consequences or compliance
+references. You may expand the explanation but must not contradict these entries.
+
+{anti_patterns_data}
+
+---
+
+COMPLIANCE CONTEXT
+------------------
+{compliance_data}
+
+---
+
+OUTPUT FORMAT
+-------------
+Generate a Markdown document with exactly the following structure.
+Use ## for section headers. Use tables where specified.
+
+# When and Why: {process_name}
+## Who This Is For
+One paragraph. Describe the role and the moment in their workday when this decision matters.
+Be specific. Name the scenario.
+
+## The Core Rule
+One to three sentences. State the single most important principle governing this process.
+This is what the reader should remember if they forget everything else.
+
+## When to Use This Process (vs. the Alternatives)
+A decision table with columns: Scenario | Correct Approach | Why
+Cover at minimum three to four common scenarios including edge cases.
+The last row of the table should always be: "I'm not sure which applies" | "Stop and ask your supervisor or check the process rationale guide" | "A wrong choice is harder to fix than a short delay"
+
+## What Goes Wrong — and Why It Feels Right
+For each anti-pattern, write:
+### [Anti-pattern name]
+**Why it's tempting:** [one to two sentences — be honest about why this seems reasonable]
+**What actually happens:** [explain the system and business consequence in plain terms]
+**Downstream impact:** A table with columns: Who Notices | When They Notice | What They See
+**How to recover:** Numbered steps if correction is possible. If not recoverable without Finance/Audit involvement, say so explicitly.
+
+## The Compliance Story
+Explain the business control this process enforces in plain language.
+Answer: "Why did someone design the process this way?"
+Include the specific audit question an external auditor would ask.
+End with one sentence that connects this process to the reader's daily work:
+e.g., "Every time you reference a PO on your goods receipt, you are completing the control."
+
+## Quick Reference Card
+A condensed table for printing or WalkMe integration.
+Columns: Situation | Do This | Never Do This
+Maximum six rows. Plain language only.
+
+---
+
+LENGTH AND STYLE GUIDANCE
+- Total length: 600–900 words in the body (excluding tables)
+- No bullet points in prose sections — use full sentences
+- Tables should be tight — no more than 4 columns, 6 rows
+- Never use the word "simply" or "just" — these minimise the effort required and erode trust
+- Use active voice throughout
+- Site-specific rules should be called out with: ⚠️ SE-DC Rule: [rule text]
+- Compliance references should be stated as facts, not warnings: "This process satisfies the SOX 3-way match control" not "Be careful — this could cause a SOX finding"
