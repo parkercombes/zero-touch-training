@@ -92,7 +92,8 @@ zero-touch-training/
 | Overlay assembler | ✅ Done | Loads Opal YAML, resolves per-transaction constraints, provides to generators |
 | Pipeline orchestrator | ✅ Done | `run.py` — single script: parse → overlay → generate → write. Supports `--dry-run`, `--layer` filtering |
 | Social video (sandbox) | ✅ Done | `video_render_v2.py` — ffmpeg libflite TTS, xfade transitions, numpy music, 720×1280 |
-| Social video (Bigfoot) | ✅ Done | `video_render_bigfoot.py` — Bigfoot warehouse vlogger teaches Goods Receipt in SAP MIGO. DALL-E 3 + OpenAI TTS, 13 slides, run locally on Mac, ~$0.90/video |
+| Social video (Bigfoot — Mark 1) | ✅ Done | `video_render_bigfoot.py` — Bigfoot vlog using DALL-E 3 still images + OpenAI TTS. 13 slides, ~$0.90/video. Tagged `cheapest-video-explainer-mark-1`. |
+| Social video (Bigfoot — Veo 3)  | ✅ Done | `video_render_veo3.py` — Bigfoot vlog using Google Veo 3 real video clips + OpenAI TTS. 13 scenes, ~$41.60 (Standard) or ~$15.60 (Fast). Run locally on Mac. |
 
 ## Pipeline Architecture
 
@@ -178,10 +179,15 @@ python run.py --layer process_rationale
 # Social media video (sandbox — no external APIs)
 python generators/video_render_v2.py
 
-# Bigfoot vlog — Goods Receipt in SAP MIGO (run on your Mac, ~$0.90)
-# Bigfoot, a warehouse worker, vlogs through the GR process step by step.
+# Bigfoot vlog — Mark 1 (DALL-E 3 still images + TTS, ~$0.90, tagged cheapest-video-explainer-mark-1)
 # Output: poc/output/bigfoot_goods_receipt_se-dc.mp4
 OPENAI_API_KEY="sk-..." python generators/video_render_bigfoot.py
+
+# Bigfoot vlog — Veo 3 (real video clips, ~$15.60 Fast / ~$41.60 Standard)
+# Keys loaded automatically from poc/.env (GOOGLE_API_KEY + OPENAI_API_KEY)
+# Output: poc/output/bigfoot_goods_receipt_veo3.mp4
+# Install: pip install google-genai openai
+python generators/video_render_veo3.py
 
 # Test parsers directly
 python parsers/tosca_parser.py data/tosca/purchase_requisition.xml
