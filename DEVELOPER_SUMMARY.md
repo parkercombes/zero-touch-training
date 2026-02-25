@@ -189,6 +189,14 @@ OPENAI_API_KEY="sk-..." python generators/video_render_bigfoot.py
 # Install: pip install google-genai openai
 python generators/video_render_veo3.py
 
+# NOTE — Location-specific accents (future enhancement, not yet implemented):
+# The current TTS voice is OpenAI nova (neutral US accent). For a Southern US
+# accent appropriate to Atlanta/SE-DC, swap gen_tts() to use ElevenLabs:
+#   pip install elevenlabs
+#   Add ELEVENLABS_API_KEY to poc/.env
+#   Browse voices at elevenlabs.io/voice-library → filter: American → Southern
+#   ~$0.60 total TTS cost for all 13 scenes (~2,000 characters at $0.30/1k chars)
+
 # Test parsers directly
 python parsers/tosca_parser.py data/tosca/purchase_requisition.xml
 python parsers/bpmn_parser.py data/bpmn/purchase_to_pay.xml
