@@ -28,7 +28,7 @@ from pathlib import Path
 import urllib.request, urllib.error, json
 
 # ── Config ───────────────────────────────────────────────────────────────────
-VEO_MODEL  = "veo-3.0-generate-preview"    # swap "veo-3.0-fast-generate-preview" to cut cost ~60%
+VEO_MODEL  = "veo-3.0-generate-001"        # swap "veo-3.0-fast-generate-001" to cut cost ~60%
 VEO_SECS   = 8                             # 4, 6, or 8
 ASPECT     = "9:16"                        # portrait (matches our 720x1280 target)
 TTS_MODEL  = "tts-1-hd"
@@ -286,7 +286,6 @@ def gen_veo_clip(prompt, out_mp4, google_api_key):
         config=types.GenerateVideosConfig(
             aspect_ratio=ASPECT,
             duration_seconds=VEO_SECS,
-            enhance_prompt=True,
         ),
     )
 
