@@ -268,43 +268,58 @@ def load_keys():
 
 
 # ── Veo 3 generation ──────────────────────────────────────────────────────────
-def gen_veo_clip(prompt, out_mp4, google_api_key):
-    """Generate a Veo 3 video clip. Polls until done, downloads to out_mp4."""
+def gen_veo_clip(prompt, out_mp4, google_api_key, retries=4):
+    """Generate a Veo 3 video clip. Polls until done, downloads to out_mp4.
+    Automatically retries on 429 rate-limit with exponential back-off."""
     try:
         from google import genai
         from google.genai import types
+        from google.genai import errors as genai_errors
     except ImportError:
         print("\n  ERROR: google-genai not installed. Run: pip install google-genai")
         sys.exit(1)
 
     client = genai.Client(api_key=google_api_key)
 
-    # Start generation
-    operation = client.models.generate_videos(
-        model=VEO_MODEL,
-        prompt=prompt,
-        config=types.GenerateVideosConfig(
-            aspect_ratio=ASPECT,
-            duration_seconds=VEO_SECS,
-        ),
-    )
+    for attempt in range(retries):
+        try:
+            # Start generation
+            operation = client.models.generate_videos(
+                model=VEO_MODEL,
+                prompt=prompt,
+                config=types.GenerateVideosConfig(
+                    aspect_ratio=ASPECT,
+                    duration_seconds=VEO_SECS,
+                ),
+            )
 
-    # Poll until complete
-    for attempt in range(MAX_POLLS):
-        if operation.done:
-            break
-        time.sleep(POLL_SECS)
-        operation = client.operations.get(operation)
-        elapsed = (attempt + 1) * POLL_SECS
-        print(f"    [{elapsed}s] waiting for Veo …", end="\r", flush=True)
+            # Poll until complete
+            for poll in range(MAX_POLLS):
+                if operation.done:
+                    break
+                time.sleep(POLL_SECS)
+                operation = client.operations.get(operation)
+                elapsed = (poll + 1) * POLL_SECS
+                print(f"    [{elapsed}s] waiting for Veo …", end="\r", flush=True)
 
-    print()  # newline after polling dots
+            print()  # newline after polling dots
 
-    if not operation.done:
-        raise RuntimeError("Veo generation timed out after 20 minutes")
+            if not operation.done:
+                raise RuntimeError("Veo generation timed out after 20 minutes")
 
-    if operation.error:
-        raise RuntimeError(f"Veo generation failed: {operation.error.message}")
+            if operation.error:
+                raise RuntimeError(f"Veo generation failed: {operation.error.message}")
+
+            break  # success — exit retry loop
+
+        except genai_errors.ClientError as e:
+            if e.status_code == 429 and attempt < retries - 1:
+                wait = 60 * (2 ** attempt)  # 60s, 120s, 240s, 480s
+                print(f"\n  Rate limited (429). Waiting {wait}s before retry "
+                      f"({attempt+1}/{retries-1}) …")
+                time.sleep(wait)
+                continue
+            raise  # re-raise if not 429 or out of retries
 
     videos = operation.result.generated_videos
     if not videos:
