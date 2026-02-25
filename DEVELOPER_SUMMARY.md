@@ -92,7 +92,7 @@ zero-touch-training/
 | Overlay assembler | ✅ Done | Loads Opal YAML, resolves per-transaction constraints, provides to generators |
 | Pipeline orchestrator | ✅ Done | `run.py` — single script: parse → overlay → generate → write. Supports `--dry-run`, `--layer` filtering |
 | Social video (sandbox) | ✅ Done | `video_render_v2.py` — ffmpeg libflite TTS, xfade transitions, numpy music, 720×1280 |
-| Social video (Bigfoot) | ✅ Done | `video_render_bigfoot.py` — DALL-E 3 + OpenAI TTS, run locally on Mac, ~$0.90/video |
+| Social video (Bigfoot) | ✅ Done | `video_render_bigfoot.py` — Bigfoot warehouse vlogger teaches Goods Receipt in SAP MIGO. DALL-E 3 + OpenAI TTS, 13 slides, run locally on Mac, ~$0.90/video |
 
 ## Pipeline Architecture
 
@@ -178,7 +178,9 @@ python run.py --layer process_rationale
 # Social media video (sandbox — no external APIs)
 python generators/video_render_v2.py
 
-# Social media video (Bigfoot quality — run on your Mac)
+# Bigfoot vlog — Goods Receipt in SAP MIGO (run on your Mac, ~$0.90)
+# Bigfoot, a warehouse worker, vlogs through the GR process step by step.
+# Output: poc/output/bigfoot_goods_receipt_se-dc.mp4
 OPENAI_API_KEY="sk-..." python generators/video_render_bigfoot.py
 
 # Test parsers directly

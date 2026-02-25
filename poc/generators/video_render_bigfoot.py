@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """
-video_render_bigfoot.py — Bigfoot-quality social media training video
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+video_render_bigfoot.py — Bigfoot's Guide to Goods Receipt in SAP MIGO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Bigfoot, the legendary warehouse creature, walks GlobalMart SE-DC staff
+through the Goods Receipt process in SAP S/4HANA MIGO — step by step.
+
 Uses:
   • OpenAI TTS (tts-1-hd, nova voice) — natural narration per slide
-  • DALL-E 3 (1024x1792 portrait) — cinematic scene image per slide
+  • DALL-E 3 (1024x1792 portrait) — cinematic Bigfoot scene per slide
   • NumPy — ambient background music (no external dependency)
   • Pillow — text/branding overlay composited on each image
   • ffmpeg — xfade transitions, audio mix, H.264 assembly
@@ -17,7 +20,7 @@ Usage:
   OPENAI_API_KEY="sk-..." python3 video_render_bigfoot.py
   # or place key in poc/.env as OPENAI_API_KEY=sk-...
 
-Output: poc/output/training_video_bigfoot_se-dc.mp4
+Output: poc/output/bigfoot_goods_receipt_se-dc.mp4
 Estimated API cost: ~$0.90 per full run (TTS + 15 DALL-E images)
 """
 
@@ -86,215 +89,269 @@ C_DIM    = (180,  180, 180)
 # Each slide has: type, narration, headline (optional), sub/bullets,
 # and image_prompt for DALL-E 3.
 SLIDES = [
+    # ── 01 INTRO ────────────────────────────────────────────────────────────
     {
         "type": "title",
-        "headline": "Zero-Touch\nTraining",
-        "sub": "AI-Generated ERP Training\nGlobalMart SE-DC · Atlanta, GA",
-        "narration": "Zero-Touch Training. AI-generated ERP training for GlobalMart Southeast Distribution Center in Atlanta.",
+        "headline": "Goods Receipt\nwith Bigfoot",
+        "sub": "SAP MIGO · GlobalMart SE-DC",
+        "narration": (
+            "Hey, what's up everybody. It's your boy Bigfoot, coming at you live "
+            "from the receiving dock at GlobalMart Southeast Distribution Center. "
+            "Today we're walking through Goods Receipt in SAP MIGO. Let's get into it."
+        ),
         "image_prompt": (
-            "Aerial view of a modern large-scale distribution center at golden hour, "
-            "forklifts and loading docks, clean organized warehouse interior visible through "
-            "glass walls, cinematic drone photography, photorealistic, no text"
+            "Bigfoot, a large friendly sasquatch creature wearing an orange warehouse safety vest "
+            "and a GlobalMart employee badge, holding a smartphone up in selfie-vlog style, "
+            "standing at a busy distribution center receiving dock with trucks in the background, "
+            "big goofy grin, natural daylight, photorealistic, cinematic, no text"
         ),
     },
-    {
-        "type": "problem",
-        "headline": "The Problem",
-        "bullets": [
-            "ERP training is expensive to create",
-            "Quickly becomes outdated",
-            "Detached from how systems change",
-        ],
-        "narration": "ERP training today is expensive to create, slow to update, and quickly becomes detached from how the system actually changes.",
-        "image_prompt": (
-            "Warehouse worker looking frustrated at a thick binder of printed training manuals, "
-            "outdated documents on a desk, ERP system visible on a computer screen in the background, "
-            "cinematic lighting, photorealistic, no text overlays"
-        ),
-    },
+    # ── 02 WHAT IS GOODS RECEIPT ────────────────────────────────────────────
     {
         "type": "idea",
-        "headline": "The Core Idea",
-        "body": "Compile training from the assets that already keep the system running.",
-        "narration": "Our core idea: instead of manually authoring courses, we compile training directly from the same assets that already keep the system running.",
+        "headline": "What Is\nGoods Receipt?",
+        "body": "Telling SAP the stuff actually arrived.",
+        "narration": (
+            "So what even is a Goods Receipt? Simple. "
+            "The vendor just showed up with a truckload of product. "
+            "Goods Receipt is how you tell SAP — yeah, it's here, it's real, put it in inventory. "
+            "No GR, no stock. And no stock means your replenishment team is calling you. "
+            "Trust me, you don't want that."
+        ),
         "image_prompt": (
-            "Abstract visualization of data flowing from code and process diagrams into clean "
-            "training documents, glowing blue pipeline, dark background, futuristic enterprise "
-            "technology concept art, photorealistic render, no text"
+            "Bigfoot vlogging selfie-style inside a distribution center warehouse, "
+            "gesturing enthusiastically at a large delivery truck being unloaded behind him, "
+            "pallets of boxes visible, wearing safety vest and hard hat, "
+            "authentic documentary vlog aesthetic, natural warehouse lighting, photorealistic, no text"
         ),
     },
+    # ── 03 STEP 1: FIND YOUR PO ─────────────────────────────────────────────
     {
         "type": "section",
-        "label": "LAYER 1",
-        "headline": "Navigation &\nOrientation",
-        "goal": "I'm not lost.",
-        "narration": "Layer One: Navigation and Orientation. The goal — I am not lost.",
+        "label": "STEP 1",
+        "headline": "Find Your\nPurchase Order",
+        "goal": "No PO? No GR.",
+        "narration": (
+            "Step one. Before you touch MIGO, you need your Purchase Order number. "
+            "Every Goods Receipt at SE-DC has to be tied to a PO — no exceptions. "
+            "If someone hands you product and there's no PO, you stop, you call your buyer, "
+            "and you do not post that receipt. I don't care how nice the delivery driver is."
+        ),
         "image_prompt": (
-            "Close-up of hands navigating a modern ERP software interface on a large monitor, "
-            "SAP Fiori tiles visible, clean office environment, professional corporate photography, "
-            "shallow depth of field, no text overlays"
+            "Bigfoot holding up a paper purchase order document to the camera in vlog selfie style, "
+            "standing at a receiving desk in a distribution center, "
+            "pointing at the PO number with one large furry finger, "
+            "slightly exaggerated expression for comedic effect, photorealistic, no text"
         ),
     },
-    {
-        "type": "layer",
-        "label": "LAYER 1",
-        "bullets": [
-            "AI-generated navigation walkthroughs",
-            "Site-specific menus and access paths",
-            "Derived from UI metadata and test automation",
-        ],
-        "narration": "Layer One generates step-by-step navigation walkthroughs directly from UI metadata and automated test scripts.",
-        "image_prompt": (
-            "Split screen showing automated test scripts on the left and clean step-by-step "
-            "documentation on the right, connected by glowing arrows, dark tech background, "
-            "cinematic corporate technology photography, no text"
-        ),
-    },
+    # ── 04 STEP 2: OPEN MIGO ────────────────────────────────────────────────
     {
         "type": "section",
-        "label": "LAYER 2",
-        "headline": "End-to-End\nProcess",
-        "goal": "I know where I fit.",
-        "narration": "Layer Two: End-to-End Process Understanding. The goal — I know where I fit.",
+        "label": "STEP 2",
+        "headline": "Open MIGO\nin SAP Fiori",
+        "goal": "Transaction code: MIGO",
+        "narration": (
+            "Step two. Jump into SAP Fiori and search for MIGO — that's M-I-G-O. "
+            "This is your Goods Movement transaction. "
+            "When it opens, make sure the action is set to Goods Receipt "
+            "and the reference document is Purchase Order. "
+            "Then type in your PO number and hit Enter."
+        ),
         "image_prompt": (
-            "Business process flowchart visualized as glowing nodes and connecting lines, "
-            "multiple team members represented as icons in a collaborative workflow, "
-            "modern supply chain process visualization, dark background, cinematic, no text"
+            "Bigfoot filming himself in selfie style while sitting at a warehouse office computer, "
+            "one enormous furry hand pointing at an SAP Fiori interface on the screen, "
+            "leaning in close to camera with eyebrows raised like he's sharing a secret tip, "
+            "casual and funny vlog energy, photorealistic, no text"
         ),
     },
-    {
-        "type": "layer",
-        "label": "LAYER 2",
-        "bullets": [
-            "AI-generated process explainer videos",
-            "All roles, inputs, and outputs shown",
-            "Minimal post-production required",
-        ],
-        "narration": "Layer Two produces process explainer videos showing every role, every input, and every output — with minimal post-production.",
-        "image_prompt": (
-            "Modern video production setup with a process diagram being recorded, cinematic "
-            "lighting, supply chain workflow displayed on a large screen behind the camera, "
-            "professional corporate videography atmosphere, no text"
-        ),
-    },
+    # ── 05 STEP 3: MOVEMENT TYPE ────────────────────────────────────────────
     {
         "type": "section",
-        "label": "LAYER 3",
-        "headline": "Role-Specific\nExecution",
-        "goal": "I can do my job.",
-        "narration": "Layer Three: Role-Specific Execution. The goal — I can do my job.",
+        "label": "STEP 3",
+        "headline": "Movement\nType 101",
+        "goal": "101 = GR against PO. Always.",
+        "narration": (
+            "Step three — and listen up because people mess this up all the time. "
+            "Your movement type needs to be 101. "
+            "That is Goods Receipt against a Purchase Order. "
+            "Do not use 103. Do not use 501. "
+            "One-oh-one. Say it with me. One. Oh. One."
+        ),
         "image_prompt": (
-            "Warehouse associate scanning inventory with a handheld device, tablet showing "
-            "a step-by-step job aid app, organized warehouse shelving in background, "
-            "professional corporate photography, good lighting, no text"
+            "Bigfoot holding up one finger, then zero fingers, then one finger again "
+            "to the selfie camera, mouthing the numbers exaggeratedly, "
+            "standing at a warehouse computer station, wearing safety vest, "
+            "comedic and enthusiastic vlog style, photorealistic, no text"
         ),
     },
-    {
-        "type": "layer",
-        "label": "LAYER 3",
-        "bullets": [
-            "Short, task-focused job aids",
-            "Generated from automated test scripts",
-            "Site-specific Opal overlays included",
-        ],
-        "narration": "Layer Three generates short, task-focused job aids directly from automated test scripts, including site-specific overlays for each location.",
-        "image_prompt": (
-            "Tablet screen showing a clean, well-formatted digital job aid with numbered steps "
-            "and checkboxes, warehouse environment visible in background, professional photo, "
-            "crisp modern UI design visible on screen, no text"
-        ),
-    },
+    # ── 06 STEP 4: VERIFY LINE ITEMS ────────────────────────────────────────
     {
         "type": "section",
-        "label": "LAYER 4",
-        "headline": "In-App\nAssistance",
-        "goal": "Help me while I\u2019m doing it.",
-        "narration": "Layer Four: In-App Assistance. The goal — help me while I am doing it.",
+        "label": "STEP 4",
+        "headline": "Verify\nLine Items",
+        "goal": "Quantity received = quantity on dock.",
+        "narration": (
+            "Step four. SAP pulls in your PO line items automatically. "
+            "Now you compare what's on screen to what's physically on your dock. "
+            "Check the material number, check the quantity, check the unit of measure. "
+            "If the vendor shorted you twenty cases of frozen burritos, "
+            "you change the quantity here — you do not just accept the PO quantity and move on."
+        ),
         "image_prompt": (
-            "Computer screen showing software interface with a floating tooltip or guided overlay "
-            "highlighting a key button, WalkMe-style UI guidance, clean modern enterprise software, "
-            "office environment, professional photography, no text"
+            "Bigfoot in selfie vlog style, standing between rows of warehouse shelving "
+            "holding a clipboard and a barcode scanner, looking back and forth between "
+            "the clipboard and camera with a serious but funny expression, "
+            "like a detective checking clues, photorealistic, no text"
         ),
     },
+    # ── 07 STEP 5: BATCH TRACKING ───────────────────────────────────────────
     {
-        "type": "layer",
-        "label": "LAYER 4",
+        "type": "section",
+        "label": "STEP 5",
+        "headline": "Batch & Lot\nTracking",
+        "goal": "Mandatory for all perishables at SE-DC.",
+        "narration": (
+            "Step five — and this one is specific to Southeast DC. "
+            "For any perishable or private-label item, "
+            "you are required to enter the batch and lot number. "
+            "This is not optional at our site. Enterprise says optional. SE-DC says mandatory. "
+            "It's how we trace product back if there's ever a recall. "
+            "Scan the lot code off the pallet label and enter it here."
+        ),
+        "image_prompt": (
+            "Bigfoot kneeling next to a pallet of refrigerated food products in a cold storage area, "
+            "scanning a barcode on the pallet label with a handheld scanner while vlogging selfie style, "
+            "breath visible in cold air, wearing a safety vest over a hoodie, "
+            "earnest and helpful expression, photorealistic, no text"
+        ),
+    },
+    # ── 08 STEP 6: TEMPERATURE ZONE ─────────────────────────────────────────
+    {
+        "type": "section",
+        "label": "STEP 6",
+        "headline": "Temperature\nZone Verification",
+        "goal": "Zone-F · Zone-R · Zone-A — match the product.",
+        "narration": (
+            "Step six. SE-DC has three temperature zones — "
+            "Zone Foxtrot for frozen, Zone Romeo for refrigerated, Zone Alpha for ambient. "
+            "You must set the storage location in MIGO to match the product's temperature requirement. "
+            "Frozen product going into Zone Romeo is a cold chain violation. "
+            "And that is a very bad day for everyone, including me."
+        ),
+        "image_prompt": (
+            "Bigfoot standing in a large walk-in freezer at a distribution center, "
+            "frost on his fur, vlogging selfie style, pointing to a temperature zone sign on the wall "
+            "with an amused expression, breath fogging in the cold, "
+            "warehouse safety vest visible, photorealistic, cinematic cold lighting, no text"
+        ),
+    },
+    # ── 09 STEP 7: QUALITY INSPECTION ───────────────────────────────────────
+    {
+        "type": "section",
+        "label": "STEP 7",
+        "headline": "Quality\nInspection Flag",
+        "goal": "Check the box. Every time.",
+        "narration": (
+            "Step seven. For perishable and private-label goods, "
+            "you need to check the Quality Inspection flag before you post. "
+            "This puts the stock into inspection status automatically "
+            "and routes it to the QA team for sign-off. "
+            "It does not hold up your receipt — it just means QA has to clear it before it ships out. "
+            "Check the box. Every single time."
+        ),
+        "image_prompt": (
+            "Bigfoot in selfie vlog mode, holding up a large furry thumb toward the camera "
+            "while standing next to a QA inspection station with product samples on a table, "
+            "clipboard visible, professional but funny warehouse vlog aesthetic, "
+            "photorealistic, no text"
+        ),
+    },
+    # ── 10 STEP 8: POST THE GR ──────────────────────────────────────────────
+    {
+        "type": "section",
+        "label": "STEP 8",
+        "headline": "Post the\nGoods Receipt",
+        "goal": "Click Post. Watch the magic happen.",
+        "narration": (
+            "Step eight. The big moment. "
+            "You've verified your quantities, entered your batch numbers, "
+            "confirmed your temperature zone, flagged quality inspection. "
+            "Now you click Post. "
+            "SAP generates a material document, updates inventory, "
+            "and triggers the three-way match with your PO and your invoice. "
+            "That product is now officially in the building."
+        ),
+        "image_prompt": (
+            "Bigfoot pressing a large green button on a computer keyboard with great ceremony, "
+            "filming himself in selfie vlog style, eyes wide with excitement, "
+            "warehouse environment visible behind him, "
+            "dramatic lighting like a movie climax moment but funny, photorealistic, no text"
+        ),
+    },
+    # ── 11 WHAT NOT TO DO ───────────────────────────────────────────────────
+    {
+        "type": "problem",
+        "headline": "Don't Do This",
         "bullets": [
-            "WalkMe point-of-need guidance",
-            "AI drafts flows from test scripts",
-            "Experts review and approve all outputs",
-        ],
-        "narration": "Layer Four drafts WalkMe guidance flows from test scripts. Subject matter experts review and approve every output before it goes live.",
-        "image_prompt": (
-            "Two professionals reviewing a digital workflow diagram on a large screen, "
-            "one pointing at a step in the process, collaborative review meeting, modern office, "
-            "enterprise software visible, professional corporate photography, no text"
-        ),
-    },
-    {
-        "type": "formula",
-        "headline": "The Opal\nOverlay Pattern",
-        "formula_parts": [
-            ("Enterprise Process", C_BLUE),
-            ("+  Site Overlay",    C_AMBER),
-            ("+  Role Context",    C_GREEN),
-            ("=  Delivered Training", C_WHITE),
+            "Free GR with no PO reference",
+            "Wrong movement type (103 or 501)",
+            "Accepting short shipment at full PO qty",
         ],
         "narration": (
-            "The Opal Overlay pattern combines the enterprise process baseline, "
-            "a site-specific overlay, and the learner role context to produce delivered training."
+            "Alright, real talk. Three things I see go wrong out here all the time. "
+            "One — posting a Goods Receipt with no PO. Don't do it. "
+            "Two — wrong movement type. I said one-oh-one, not one-oh-three. "
+            "Three — accepting the full PO quantity when the vendor only delivered part of it. "
+            "That breaks your three-way match and your AP team will find you."
         ),
         "image_prompt": (
-            "Abstract layered architectural diagram showing three stacked translucent layers "
-            "merging into one output, blue green amber color scheme, enterprise architecture "
-            "visualization, dark background, cinematic tech art, photorealistic render, no text"
+            "Bigfoot wagging a large furry finger at the camera in a stern but funny way, "
+            "standing in front of a warehouse receiving dock, "
+            "exaggerated warning expression on his face like a disappointed parent, "
+            "vlog selfie style, photorealistic, no text"
         ),
     },
+    # ── 12 RECAP ────────────────────────────────────────────────────────────
     {
-        "type": "poc",
-        "headline": "Proof of Concept",
-        "stats": [
-            ("7",   "training artifacts generated"),
-            ("4",   "content layers covered"),
-            ("210s","total generation time"),
+        "type": "layer",
+        "label": "RECAP",
+        "bullets": [
+            "Get your PO number before opening MIGO",
+            "Movement type 101 — always",
+            "Batch, temperature zone, and QI flag for perishables",
         ],
         "narration": (
-            "Our proof of concept generated seven complete training artifacts "
-            "across all four content layers in just two hundred and ten seconds — "
-            "one role, one process, one site."
+            "Quick recap before I let you go. "
+            "One — get your PO number before you even open MIGO. "
+            "Two — movement type 101, every time. "
+            "Three — for perishables, enter the batch number, set the right temperature zone, "
+            "and check the quality inspection flag. "
+            "Do those three things and your Goods Receipt is clean."
         ),
         "image_prompt": (
-            "Clean analytics dashboard on a monitor showing successful metrics, green checkmarks, "
-            "seven completed items, modern data visualization, professional office setting, "
-            "celebratory atmosphere, cinematic corporate photography, no text"
+            "Bigfoot standing at a whiteboard in a warehouse break room, "
+            "vlogging selfie style, pointing at three numbered items drawn on the board, "
+            "friendly and encouraging teacher energy, safety vest on, "
+            "photorealistic, warm break room lighting, no text"
         ),
     },
-    {
-        "type": "soundbite",
-        "quote": "\u201cWe\u2019re not building training.\nWe\u2019re compiling it.\u201d",
-        "narration": (
-            "We are not building training. "
-            "We are compiling it from the same assets that already keep the system running."
-        ),
-        "image_prompt": (
-            "Dramatic close-up of code and process models on screen transforming into a polished "
-            "training document, glowing transformation effect, dark moody background, "
-            "cinematic tech photography, strong directional lighting, no text"
-        ),
-    },
+    # ── 13 OUTRO ────────────────────────────────────────────────────────────
     {
         "type": "end",
-        "headline": "Zero-Touch\nTraining",
-        "tags": ["Governed", "Accurate", "Always Current"],
-        "sub": "Subject matter experts stay in the loop.\nThe pipeline does the heavy lifting.",
+        "headline": "That's a\nWrap!",
+        "tags": ["Questions? Ask your team lead.", "More videos dropping soon."],
+        "sub": "GlobalMart SE-DC · SAP Training Series",
         "narration": (
-            "Zero-Touch Training. Governed, accurate, and always current. "
-            "Subject matter experts stay in the loop. The pipeline does the heavy lifting."
+            "And that's a wrap on Goods Receipt in MIGO. "
+            "If you have questions, hit up your team lead or check the job aid on the portal. "
+            "I'm Bigfoot, I work here, and I will see you in the next one. "
+            "Stay safe out there on those docks."
         ),
         "image_prompt": (
-            "Modern distribution center at sunrise, warm golden light, organized and efficient "
-            "operations visible, hopeful optimistic atmosphere, aerial cinematic photography, "
-            "photorealistic, professional corporate imagery, no text"
+            "Bigfoot doing a big wave goodbye to the selfie camera with a huge grin, "
+            "standing at the distribution center receiving dock at end of shift, "
+            "golden hour sunlight, other warehouse workers visible in background, "
+            "warm and friendly vlog outro energy, photorealistic, cinematic, no text"
         ),
     },
 ]
@@ -706,7 +763,7 @@ def main():
 
     out_dir = Path(__file__).parent.parent / "output"
     out_dir.mkdir(parents=True, exist_ok=True)
-    output_mp4 = str(out_dir / "training_video_bigfoot_se-dc.mp4")
+    output_mp4 = str(out_dir / "bigfoot_goods_receipt_se-dc.mp4")
 
     tmp = tempfile.mkdtemp(prefix="ztt_bigfoot_")
     print(f"Workspace: {tmp}")
