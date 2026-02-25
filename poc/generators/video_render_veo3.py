@@ -312,12 +312,19 @@ def gen_veo_clip(prompt, out_mp4, google_api_key, retries=4):
 
             break  # success — exit retry loop
 
-        except genai_errors.ClientError as e:
-            if e.status_code == 429 and attempt < retries - 1:
-                wait = 60 * (2 ** attempt)  # 60s, 120s, 240s, 480s
-                print(f"\n  Rate limited (429). Waiting {wait}s before retry "
+        except Exception as e:
+            # ClientError attribute name varies by library version — check string
+            is_429 = "429" in str(e)
+            if is_429 and attempt < retries - 1:
+                wait = 300 * (2 ** attempt)  # 5min, 10min, 20min, 40min
+                mins = wait // 60
+                print(f"\n  Quota exhausted (429). Waiting {mins} min before retry "
                       f"({attempt+1}/{retries-1}) …")
-                time.sleep(wait)
+                # Countdown so it's clear the script is still alive
+                for remaining in range(wait, 0, -30):
+                    print(f"    {remaining}s remaining …", end="\r", flush=True)
+                    time.sleep(min(30, remaining))
+                print()
                 continue
             raise  # re-raise if not 429 or out of retries
 
