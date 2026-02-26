@@ -101,11 +101,44 @@ This allows reuse without ignoring local reality.
 | **AI** | Translates technical assets into human-usable training — generates videos, job aids, and in-app guidance drafts |
 | **WalkMe** | Delivery surface, not the authoring engine |
 
+## Game-Inspired Training (The Engagement Layer)
+
+Generating accurate training quickly is necessary but not sufficient. If nobody completes the training, accuracy doesn't matter. The engagement problem is as important as the content problem.
+
+The UI trainer is being built as a game, not a tutorial. The design draws on the same mechanics that make mobile games addictive and applies them to SAP task simulation:
+
+- **Progressive levels:** Level 0 (UI basics) → Level 1 (guided steps with prompts) → Level 2 (semi-guided, hints available but delayed) → Level 3 (challenge/boss-fight mode: real task, timer, no prompts)
+- **XP and achievement badges:** Milestone recognition for first posting, first catch of a discrepancy, fastest goods receipt
+- **Timer:** Visible countdown in challenge mode, score based on speed and accuracy
+- **Leaderboard:** Site-level competition — who cleared goods receipt fastest this week
+- **Narrative stakes:** "The truck has been at the dock for 45 minutes. Dock fees start in 15. Post the goods receipt." Pressure without actual consequences.
+- **Confetti and feedback:** Immediate positive reinforcement on successful posting; empathetic error explanations (not "wrong," but "here's what that would have caused downstream")
+
+This is not new in the training industry — **UKG Pro's training game** is the closest existing example, using story mode, character missions, and challenge levels to achieve 67% higher completion rates over their previous eLearning approach. Nobody has built this for SAP at an affordable price point. That's the gap.
+
+The AI-generation capability means the game content (scenarios, screens, scripts) updates automatically when the system changes. A traditional gamified training platform would require manual rework of every level after each ERP upgrade. This one recompiles.
+
+## Target Use Case: Anniston Army Depot
+
+The Army's supply clerks at Anniston Army Depot manage nine Classes of Supply (I through IX). Each class has a distinct handling profile — dry storage, hazmat, serialized asset tracking, regulated medical supplies — that maps directly to the five handling profiles already built into the UI trainer:
+
+| Class of Supply | Profile |
+|---|---|
+| I (Subsistence) | perishable |
+| II/III/IV (General supplies) | standard_dry |
+| VI (Personal demand / controlled) | serialized |
+| VIII (Medical material) | regulated_pharma |
+| III/IX (POL, repair parts w/ hazmat) | hazmat |
+
+Anniston represents a high-value, under-served ERP training market: government supply operations that run SAP (GCSS-Army or similar) but lack commercial-quality training tooling. The game layer matters here — Army clerks are typically younger, mobile-first, and respond well to game mechanics that civilian eLearning vendors haven't bothered to build for them.
+
 ## Why This Is Credible Now
 
 The same AI techniques used to rapidly generate viral video content ("Bigfoot videos") are applied here in a governed, enterprise-safe way: script generation, video generation, workflow orchestration, and minimal human editing.
 
 The difference is governance, security, and accuracy — not core capability.
+
+The game mechanics gap is a distribution and incentive problem, not a technical one. The hard part — generating accurate, up-to-date simulation content at near-zero marginal cost — is what this system solves.
 
 ## Pilot Approach
 

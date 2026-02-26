@@ -12,6 +12,8 @@ The tagline: *"We're not building training. We're compiling it from the same ass
 
 Commercial retail distribution center ERP users (starting at GlobalMart Southeast Distribution Center). The system sits on top of SAP S/4HANA 2023, Fiori, and Appian, with site-specific process overlays.
 
+A near-term target use case is **Anniston Army Depot** — Army supply clerks working with Classes of Supply (I–IX) that map directly to the five handling profiles already built into the UI trainer.
+
 ## Six Training Layers
 
 | Layer | Goal | Source | Output |
@@ -30,8 +32,9 @@ zero-touch-training/
 ├── README.md
 ├── DEVELOPER_SUMMARY.md         # This file
 ├── docs/
-│   ├── concept.md               # Full project concept
-│   ├── architecture.md          # System design, data flows, AI pipeline
+│   ├── concept.md               # Full project concept + game-inspired training vision
+│   ├── architecture.md          # System design, data flows, AI pipeline, video + UI trainer
+│   ├── game-design-vision.md    # Game mechanics framework, real-world examples, Anniston use case
 │   ├── pilot-charter.md         # PoC charter (SE-DC, one process, two weeks)
 │   ├── roadmap.md               # Four-phase plan: PoC → Expansion → Multi-site → Operationalize
 │   ├── tooling.md               # Full solution vs PoC tool stacks
@@ -60,7 +63,19 @@ zero-touch-training/
     │   ├── walkme_draft.py      # Layer 4: Tosca UI elements → WalkMe flow defs (JSON)
     │   ├── process_rationale.py # Layer 5: consequences.yaml + BPMN → decision guides (Markdown)
     │   ├── video_render_v2.py   # Social video: ffmpeg libflite TTS + xfade + numpy music
-    │   └── video_render_bigfoot.py # Social video: DALL-E 3 + OpenAI TTS (run locally on Mac)
+    │   ├── video_render_bigfoot.py  # Social video Mark 1: DALL-E 3 stills + OpenAI TTS
+    │   ├── video_render_veo3.py     # Social video Mark 2: Veo 3 real video + native audio
+    │   ├── video_render_veo3_poc.py # 3-scene POC cut (intro + 101 lesson + outro)
+    │   ├── veo3_test_clip.py        # Single-clip validator — downloads raw Veo output
+    │   ├── ui_trainer.py            # Interactive SAP UI trainer (HTML, scenario-pack-driven)
+    │   └── scenarios/               # Scenario packs for the UI trainer
+    │       ├── __init__.py
+    │       ├── base.py              # Shared Pillow drawing helpers (SAP Fiori chrome)
+    │       ├── sedc_goods_receipt.py  # SE-DC perishable goods receipt (original scenario)
+    │       ├── standard_dry.py        # Apex Auto Parts DC — basic dry goods
+    │       ├── regulated_pharma.py    # Cardinal Health DC — pharmaceutical/GxP
+    │       ├── hazmat.py              # ChemCo Industrial DC — hazardous materials
+    │       └── serialized.py          # TechVault DC — serialized/high-value assets
     ├── prompts/                  # ✅ BUILT — LLM prompt templates
     │   ├── walkthrough.txt      # Prompt: step-by-step navigation walkthrough
     │   ├── video_script.txt     # Prompt: process explainer video script
@@ -75,7 +90,7 @@ zero-touch-training/
 ## What's Built
 
 **Documentation (complete):**
-- Full concept doc, system architecture, PoC charter, 4-phase roadmap, tooling analysis, and detailed specs for all 6 training layers.
+- Full concept doc, system architecture, PoC charter, 4-phase roadmap, tooling analysis, detailed specs for all 6 training layers, and game design vision.
 
 **PoC — Full Pipeline:**
 
@@ -92,64 +107,61 @@ zero-touch-training/
 | Overlay assembler | ✅ Done | Loads Opal YAML, resolves per-transaction constraints, provides to generators |
 | Pipeline orchestrator | ✅ Done | `run.py` — single script: parse → overlay → generate → write. Supports `--dry-run`, `--layer` filtering |
 | Social video (sandbox) | ✅ Done | `video_render_v2.py` — ffmpeg libflite TTS, xfade transitions, numpy music, 720×1280 |
-| Social video (Bigfoot — Mark 1) | ✅ Done | `video_render_bigfoot.py` — Bigfoot vlog using DALL-E 3 still images + OpenAI TTS. 13 slides, ~$0.90/video. Tagged `cheapest-video-explainer-mark-1`. |
-| Social video (Bigfoot — Veo 3)  | ✅ Done | `video_render_veo3.py` — Bigfoot vlog using Google Veo 3 real video clips + OpenAI TTS. 13 scenes, ~$41.60 (Standard) or ~$15.60 (Fast). Run locally on Mac. |
+| Social video (Bigfoot — Mark 1) | ✅ Done | `video_render_bigfoot.py` — DALL-E 3 stills + OpenAI TTS. 13 slides, ~$0.90/video. Tagged `cheapest-video-explainer-mark-1`. |
+| Social video (Bigfoot — Veo 3)  | ✅ Done | `video_render_veo3.py` — Veo 3 real video + **native lip-synced audio**. 4-character cast. ~$15.60 Fast / ~$41.60 Standard. |
+| Bigfoot POC cut | ✅ Done | `video_render_veo3_poc.py` — 3 scenes (intro/101/outro), ~$3.60, daily-quota-safe |
+| UI trainer — generic engine | ✅ Done | `ui_trainer.py` — scenario-pack-driven SAP Fiori simulation. Loads any scenario module. |
+| UI trainer — SE-DC scenario | ✅ Done | `sedc_goods_receipt.py` — perishable goods receipt, 13 screens, cold chain, lot tracking |
+| UI trainer — 4 additional scenarios | ✅ Done | standard_dry, regulated_pharma, hazmat, serialized |
 
-## Pipeline Architecture
+## The Bigfoot Character Cast
 
+`video_render_veo3.py` uses a cast of four named Bigfoot employees to make different domain areas visually distinct. Each character is embedded in every relevant video prompt to guide Veo toward visual consistency.
+
+| Character | Fur | Vest | Domain |
+|---|---|---|---|
+| **Dave** | Dark reddish-brown | Orange (GLOBALMART SE-DC) | Intro, document entry, vendor data, line items, posting, follow-up, outro |
+| **Sandra** | Silver-grey | Red (COMPLIANCE) | Delivery verification, movement type, discrepancy reporting |
+| **Keisha** | Auburn reddish | White (QUALITY ASSURANCE) | QA inspection, batch tracking |
+| **Marcus** | Jet-black | Yellow (RECEIVING) + blue hard hat | Temperature zone / cold chain |
+
+The 3-scene POC features Dave (intro), Sandra (movement type 101), and Marcus (outro).
+
+## Video Pipeline: Native Audio Architecture
+
+**Mark 1** (video_render_bigfoot.py): DALL-E 3 generates still images → OpenAI TTS generates voiceover → ffmpeg combines them. No lip sync possible.
+
+**Mark 2** (video_render_veo3.py): Google Veo 3 generates video **and** audio together from a single prompt. Dialogue embedded in the video prompt produces natural lip movement and voice in sync. No separate TTS step.
+
+Key implementation detail in `compose_scene()`:
+```python
+"-map", "0:v",
+"-map", "0:a?",   # preserve Veo's native lip-synced audio
+                   # (? = skip gracefully if clip has no audio track)
 ```
-┌─────────────┐    ┌──────────────┐    ┌───────────────┐    ┌───────────────┐
-│  Source Data │ →  │   Parsers    │ →  │   Assembler   │ →  │  Generators   │
-│             │    │              │    │               │    │               │
-│ Tosca XML   │    │ tosca_parser │    │ overlay.py    │    │ walkthrough   │
-│ BPMN XML    │    │ bpmn_parser  │    │ (Opal rules)  │    │ video_script  │
-│ Opal YAML   │    │              │    │               │    │ job_aid       │
-│             │    │              │    │               │    │ walkme_draft   │
-└─────────────┘    └──────────────┘    └───────────────┘    └──────┬────────┘
-                                                                    │
-                                                          ┌─────────▼────────┐
-                                                          │  Claude API      │
-                                                          │  (content gen)   │
-                                                          └─────────┬────────┘
-                                                                    │
-                                                          ┌─────────▼────────┐
-                                                          │   output/        │
-                                                          │  walkthroughs/   │
-                                                          │  video_scripts/  │
-                                                          │  job_aids/       │
-                                                          │  walkme_flows/   │
-                                                          └──────────────────┘
-```
 
-## How the Opal Overlay Pattern Works
+The earlier (broken) version used `-map 1:a` to overlay OpenAI TTS, discarding Veo's generated audio entirely. The `veo3_test_clip.py` validator never applied this transform, which is why the test clip sounded correct while the full pipeline didn't.
 
-Enterprise baseline + Site overlay + Role context = Delivered training
+## UI Trainer Scenario Pack Architecture
 
-The overlay assembler loads `opal_overlay.yaml` which defines how SE-DC differs from GlobalMart enterprise standards. Generators inject these constraints into prompts so the AI produces site-accurate training — not generic docs.
+`ui_trainer.py` is a generic HTML simulation engine. All warehouse-specific content lives in a separate scenario module.
 
-Example: *Enterprise says "any purchasing group." SE-DC overlay says "R-SE or R-NAT only, because regional supplier programs." The walkthrough generator tells the user exactly which group to select and why.*
+**Each scenario module exports:**
+- `SCENARIO` dict — metadata (id, title, site, process, handling_profile, num_screens)
+- `SCREEN_GENERATORS` dict — maps screen names to generator functions
+- `generate_screens(out_dir)` — calls all generators, writes PNGs to output dir
 
-## PoC Scope
+**Handling profiles built:**
 
-- **Process:** Purchase Requisition → Goods Receipt
-- **Role:** Buyer
-- **Site:** GlobalMart Southeast Distribution Center (Atlanta, GA)
-- **Key SE-DC constraints baked into sample data:**
-  - Lot/batch tracking mandatory for perishables (enterprise default: optional)
-  - Purchasing group restricted to R-SE / R-NAT
-  - 3-tier approval for amounts > $25K for perishable categories (enterprise: 2-tier > $50K)
-  - Temperature zone must match product category (Zone-F/Zone-R/Zone-A)
-  - Mandatory quality inspection for perishable and private-label goods
-  - Cold chain verification with temperature recording at receiving dock
+| Profile | Example Site | Key Regulatory Layer |
+|---|---|---|
+| `perishable` | GlobalMart SE-DC | Cold chain, lot/batch, QI |
+| `standard_dry` | Apex Auto Parts DC | None |
+| `regulated_pharma` | Cardinal Health DC | GxP, lot + expiry + CoA, QI |
+| `hazmat` | ChemCo Industrial DC | DOT/OSHA, UN number, hazmat class |
+| `serialized` | TechVault DC | Serial scan, CAGE-01, manager approval |
 
-## Tech Stack (PoC)
-
-- Python 3.10+
-- `lxml` — XML parsing for Tosca and BPMN
-- `PyYAML` — Opal overlay config
-- `anthropic` — Claude API for content generation
-- `python-docx` — Formatted Word doc job aids (future)
-- `Pillow` — Image processing for screenshots (future)
+Adding a new scenario: copy any existing scenario file, update the `SCENARIO` dict and screen generator functions, then run `python3 ui_trainer.py scenarios.your_new_scenario`.
 
 ## Getting Started
 
@@ -158,52 +170,51 @@ cd poc/
 
 # Install dependencies
 pip install -r requirements.txt
+pip install google-genai openai pillow  # for video + UI trainer
 
-# Set up API key
+# Set up API keys
 cp .env.example .env
-# Edit .env and add your Anthropic API key
+# Edit .env — add ANTHROPIC_API_KEY, GOOGLE_API_KEY, OPENAI_API_KEY
 
 # Dry run (parse + overlay, no AI calls)
 python run.py --dry-run
 
-# Full pipeline
+# Full training pipeline
 python run.py
 
-# Single layer only
-python run.py --layer walkthrough
-python run.py --layer video_script
-python run.py --layer job_aid
-python run.py --layer walkme
-python run.py --layer process_rationale
-
-# Social media video (sandbox — no external APIs)
+# Social video — sandbox (no external APIs)
 python generators/video_render_v2.py
 
-# Bigfoot vlog — Mark 1 (DALL-E 3 still images + TTS, ~$0.90, tagged cheapest-video-explainer-mark-1)
-# Output: poc/output/bigfoot_goods_receipt_se-dc.mp4
-OPENAI_API_KEY="sk-..." python generators/video_render_bigfoot.py
+# Social video — Mark 1 (DALL-E 3 stills + TTS, ~$0.90)
+python generators/video_render_bigfoot.py
 
-# Bigfoot vlog — Veo 3 (real video clips, ~$15.60 Fast / ~$41.60 Standard)
-# Keys loaded automatically from poc/.env (GOOGLE_API_KEY + OPENAI_API_KEY)
-# Output: poc/output/bigfoot_goods_receipt_veo3.mp4
-# Install: pip install google-genai openai
+# Social video — Mark 2, full 13-scene (Veo 3 native audio, ~$15.60)
+# Requires Tier 2 Google AI Studio API or own GCP billing
 python generators/video_render_veo3.py
 
-# NOTE — Location-specific accents (future enhancement, not yet implemented):
-# The current TTS voice is OpenAI nova (neutral US accent). For a Southern US
-# accent appropriate to Atlanta/SE-DC, swap gen_tts() to use ElevenLabs:
-#   pip install elevenlabs
-#   Add ELEVENLABS_API_KEY to poc/.env
-#   Browse voices at elevenlabs.io/voice-library → filter: American → Southern
-#   ~$0.60 total TTS cost for all 13 scenes (~2,000 characters at $0.30/1k chars)
+# Social video — 3-scene POC cut (~$3.60, daily-quota-safe)
+python generators/video_render_veo3_poc.py
 
-# Test parsers directly
+# Validate a single Veo clip (download raw, no audio stripping)
+python generators/veo3_test_clip.py
+
+# UI trainer — SE-DC perishable scenario (default)
+python generators/ui_trainer.py
+
+# UI trainer — alternate scenario packs
+python generators/ui_trainer.py scenarios.standard_dry
+python generators/ui_trainer.py scenarios.regulated_pharma
+python generators/ui_trainer.py scenarios.hazmat
+python generators/ui_trainer.py scenarios.serialized
+
+# Test parsers
 python parsers/tosca_parser.py data/tosca/purchase_requisition.xml
 python parsers/bpmn_parser.py data/bpmn/purchase_to_pay.xml
 ```
 
 ## Key Docs to Read First
 
-1. `docs/concept.md` — The "why" and the layered model
-2. `docs/tooling.md` — What we're using and why
-3. `poc/README.md` — How to run what's built so far
+1. `docs/concept.md` — The "why", the layered model, and game-inspired training vision
+2. `docs/game-design-vision.md` — Game mechanics framework, real-world examples, planned enhancements
+3. `docs/architecture.md` — Full system design including video pipeline and UI trainer
+4. `docs/tooling.md` — What we're using and why

@@ -872,7 +872,180 @@ The architecture supports addition of new:
 
 ---
 
-## 11. Glossary
+## 11. Video Pipeline Architecture (Veo 3 + Native Audio)
+
+### 11.1 Overview
+
+The social media video component (Layer 2 explainer videos) has evolved through three generations:
+
+| Version | Script | Audio | Video | Cost |
+|---|---|---|---|---|
+| v2 (sandbox) | Hardcoded | libflite (local TTS) | ffmpeg static frames | Free |
+| Mark 1 (Bigfoot) | Claude-generated | OpenAI TTS (nova) | DALL-E 3 stills | ~$0.90 |
+| Mark 2 (Veo 3) | Claude-generated | Veo 3 native (lip-synced) | Google Veo 3 clips | ~$3.60–$15.60 |
+
+### 11.2 Veo 3 Native Audio Architecture
+
+Google Veo 3 generates video and audio together from a single prompt. When dialogue is embedded in the video prompt, Veo produces natural lip movement and voice in sync — no separate TTS step required.
+
+```
+video_prompt (with embedded dialogue)
+           │
+           ▼
+    Google Veo 3 API
+           │
+           ▼
+  raw_clip.mp4 (video + lip-synced audio, single file)
+           │
+           ▼
+    compose_scene()
+    ffmpeg: -map 0:v -map 0:a?
+    (preserves native audio, re-encodes to H.264/AAC)
+           │
+           ▼
+  scene_NNN.mp4
+           │
+           ▼
+    concat_scenes()
+    ffmpeg concat demuxer
+           │
+           ▼
+  bigfoot_goods_receipt_veo3.mp4  (720×1280, 9:16)
+```
+
+The critical implementation detail in `compose_scene()`:
+
+```python
+"-map", "0:v",
+"-map", "0:a?",   # native Veo audio — the ? skips gracefully if no audio track
+```
+
+Earlier versions used `-map 1:a` to overlay a separately generated TTS file, discarding Veo's lip-synced audio. The `veo3_test_clip.py` validator skipped `compose_scene` entirely (downloading raw output), which is why single-clip tests sounded correct while the full pipeline did not.
+
+### 11.3 Character Cast System
+
+Each of the 13 training scenes is assigned to one of four named Bigfoot employees. Character identity is embedded in the video prompt as a multi-sentence physical description, giving Veo enough detail to maintain visual consistency across clips.
+
+```python
+DAVE = ("Dave, a 7-foot sasquatch with dark reddish-brown fur, broad shoulders, "
+        "a wide friendly face with amber eyes, wearing a bright orange GLOBALMART SE-DC "
+        "safety vest and a yellow employee ID badge clipped to the left strap")
+
+SANDRA = ("Sandra, a 7-foot sasquatch with silver-grey fur, sharp focused eyes, "
+          "wearing a red COMPLIANCE safety vest with a laminated badge on a lanyard, "
+          "clipboard in hand, authoritative posture")
+
+MARCUS = ("Marcus, a 7-foot sasquatch with jet-black fur and a relaxed confident posture, "
+          "wearing a yellow RECEIVING safety vest and a blue hard hat, "
+          "breath visibly fogging in the cold air")
+
+KEISHA = ("Keisha, a 7-foot sasquatch with auburn reddish fur and precise attentive manner, "
+          "wearing a white QUALITY ASSURANCE safety vest with a QA logo patch, "
+          "holding a tablet computer")
+```
+
+Scene-to-character mapping is by domain ownership: Dave handles intro/document entry/posting/outro, Sandra owns compliance verification, Keisha owns QA inspection, Marcus owns cold chain/temperature zone.
+
+### 11.4 POC Cut
+
+`video_render_veo3_poc.py` is a 3-scene subset for development and daily-quota-constrained testing. It imports character constants and utility functions from the main script and runs independently:
+
+```
+Scene 01 — Dave (intro)
+Scene 05 — Sandra (movement type 101 lesson)
+Scene 13 — Marcus (outro)
+Estimated cost: ~$3.60 (Veo 3 Fast, 3 × 8s × $0.15)
+```
+
+### 11.5 Quota and Tier Notes
+
+- Veo 3 access requires Google AI Studio with billing enabled
+- Default free tier exhausts quickly (≈2–3 clips)
+- Tier 2 requires $250 cumulative GCP spend + 30 days, then manual request at aistudio.google.com
+- `veo-3.0-fast-generate-001` ($0.15/s) vs `veo-3.0-generate-001` ($0.40/s)
+- Silent empty-result failure: Veo occasionally returns `operation.done=True` with no error but empty `generated_videos` list — handled inside the retry loop with 30-second wait
+
+---
+
+## 12. UI Trainer Architecture
+
+### 12.1 Scenario Pack Pattern
+
+The UI trainer (`ui_trainer.py`) is a generic HTML simulation engine. All warehouse-specific content lives in Python modules under `poc/generators/scenarios/`.
+
+```
+ui_trainer.py                   # generic engine — HTML player, screen navigation, HUD
+     │
+     ├── scenarios/base.py       # shared Pillow drawing helpers (SAP Fiori chrome)
+     │
+     └── scenarios/<name>.py     # scenario pack
+             │
+             ├── SCENARIO dict   # metadata: id, title, site, process, handling_profile
+             ├── SCREEN_GENERATORS  # dict mapping screen names → generator functions
+             └── generate_screens(out_dir)  # calls all generators, writes PNGs
+```
+
+The engine loads the scenario module dynamically:
+
+```python
+import importlib
+mod = importlib.import_module(scenario_module)  # e.g. "scenarios.sedc_goods_receipt"
+scenario = mod.SCENARIO
+mod.generate_screens(screens_dir)
+```
+
+### 12.2 SAP Fiori Chrome (base.py)
+
+`scenarios/base.py` provides a consistent SAP Fiori visual language across all scenario packs using Pillow:
+
+- Shell bar (dark blue, hamburger menu, user avatar)
+- Field inputs with label, border, optional amber highlight and underline
+- Dropdown fields with caret arrow
+- Primary/secondary buttons (blue, amber highlight state)
+- Table headers and row rendering with per-column highlight
+- Checkboxes with check mark
+- Card containers with optional title and divider
+- Status banners (green success / red error)
+
+All colors follow the SAP Fiori palette: `#0070F2` (primary blue), `#033D80` (shell), `#E87600` (amber/hotspot), `#107E3E` (success green), `#BB000B` (error red).
+
+### 12.3 Handling Profiles
+
+| Profile | Scenario File | Site Example | Distinguishing Fields |
+|---|---|---|---|
+| `perishable` | sedc_goods_receipt.py | GlobalMart SE-DC | Lot/batch, temp zone, cold chain, QI mandatory |
+| `standard_dry` | standard_dry.py | Apex Auto Parts DC | Basic 6-step receipt, no regulatory layer |
+| `regulated_pharma` | regulated_pharma.py | Cardinal Health DC | Lot + expiry + CoA, QI hold, GxP language |
+| `hazmat` | hazmat.py | ChemCo Industrial DC | UN number, hazmat class, DOT/OSHA mandatory fields |
+| `serialized` | serialized.py | TechVault DC | Serial number scan, CAGE-01 secure storage, manager approval |
+
+### 12.4 Adding a New Scenario
+
+1. Copy `scenarios/standard_dry.py` as a starting point
+2. Update the `SCENARIO` dict: `id`, `title`, `site`, `process`, `handling_profile`, `num_screens`
+3. Update `SCREEN_GENERATORS` with the screens relevant to the new process
+4. Run: `python3 ui_trainer.py scenarios.<your_module_name>`
+5. Output lands in `poc/output/ui_trainer/<scenario_id>/`
+
+No changes to `ui_trainer.py` or `base.py` are required for a new scenario.
+
+### 12.5 Game Layer (Planned)
+
+The current UI trainer renders a static HTML simulation. The following game mechanics are planned for the next development phase:
+
+- **Level system** (0=orientation, 1=guided, 2=semi-guided, 3=challenge/timed)
+- **XP and achievement badges** stored in session JSON
+- **Timer** in Level 3 with score formula: `base × time_bonus × accuracy_multiplier`
+- **Narrative premise cards** before each Level 3 scenario
+- **Error consequence explanations** (Layer 5 content delivered in-moment)
+- **Confetti animation** on successful posting
+- **Site-level leaderboard** via lightweight file-based score store
+
+See `docs/game-design-vision.md` for full design rationale, real-world benchmarks, and implementation priority order.
+
+---
+
+## 13. Glossary
 
 **Baseline (Enterprise Standard):** Canonical, standardized process and training content applicable across all sites
 
