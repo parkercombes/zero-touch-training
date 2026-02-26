@@ -28,7 +28,7 @@ from pathlib import Path
 import urllib.request, urllib.error, json
 
 # ── Config ───────────────────────────────────────────────────────────────────
-VEO_MODEL  = "veo-3.0-generate-001"        # swap "veo-3.0-fast-generate-001" to cut cost ~60%
+VEO_MODEL  = "veo-3.0-fast-generate-001"   # Fast tier: ~60% cheaper ($0.15/s vs $0.40/s)
 VEO_SECS   = 8                             # 4, 6, or 8
 ASPECT     = "9:16"                        # portrait (matches our 720x1280 target)
 TTS_MODEL  = "tts-1-hd"
@@ -310,6 +310,16 @@ def gen_veo_clip(prompt, out_mp4, google_api_key, retries=4):
             if operation.error:
                 raise RuntimeError(f"Veo generation failed: {operation.error.message}")
 
+            # Check for silent empty-result failure (fast model occasionally returns no video)
+            videos = operation.result.generated_videos if operation.result else []
+            if not videos:
+                if attempt < retries - 1:
+                    print(f"\n  Veo returned empty result (silent failure). Retrying "
+                          f"({attempt+1}/{retries-1}) in 30s …")
+                    time.sleep(30)
+                    continue
+                raise RuntimeError("Veo returned no video output after all retries")
+
             break  # success — exit retry loop
 
         except Exception as e:
@@ -328,11 +338,7 @@ def gen_veo_clip(prompt, out_mp4, google_api_key, retries=4):
                 continue
             raise  # re-raise if not 429 or out of retries
 
-    videos = operation.result.generated_videos
-    if not videos:
-        raise RuntimeError("Veo returned no video output")
-
-    # Download video to file
+    # Download video to file  (videos already validated inside retry loop)
     video_file = videos[0].video
     video_bytes = client.files.download(file=video_file)
     with open(out_mp4, "wb") as f:
