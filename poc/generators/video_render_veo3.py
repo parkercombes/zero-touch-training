@@ -36,218 +36,277 @@ TTS_VOICE  = "nova"
 POLL_SECS  = 20                            # how often to check Veo generation status
 MAX_POLLS  = 60                            # 60 × 20s = 20 min max wait per clip
 
-# ── Scene definitions ────────────────────────────────────────────────────────
-# video_prompt: describe motion, camera movement, and physical action — Veo needs it
-# narration:    the TTS voice-over; clip will loop to match its duration
+# ── Character cast ────────────────────────────────────────────────────────────
+# Each character is a distinct Sasquatch employee at GlobalMart SE-DC.
+# The full description is embedded in every video_prompt to help Veo stay
+# consistent within a character across retries and future runs.
+#
+# DAVE    — Receiving Lead.     Dark reddish-brown fur, orange vest. Host/narrator.
+# SANDRA  — Compliance Officer. Silver-grey fur, red vest. Owns the rule scenes.
+# MARCUS  — Cold Chain.         Jet-black fur, yellow vest + blue hard hat. Freezer guy.
+# KEISHA  — QA Lead.            Auburn fur, white QA vest + tablet. Quality scenes.
+
+DAVE = (
+    "Dave, a 7-foot sasquatch with dark reddish-brown fur, broad shoulders, "
+    "a wide friendly face with amber eyes, wearing a bright orange GLOBALMART SE-DC "
+    "safety vest and a yellow employee ID badge clipped to the left strap"
+)
+SANDRA = (
+    "Sandra, a 7-foot sasquatch with silver-grey fur, sharp focused eyes, "
+    "wearing a red COMPLIANCE safety vest with a laminated badge on a lanyard, "
+    "clipboard in hand, authoritative posture"
+)
+MARCUS = (
+    "Marcus, a 7-foot sasquatch with jet-black fur and a relaxed confident posture, "
+    "wearing a yellow RECEIVING safety vest and a blue hard hat, "
+    "breath visibly fogging in the cold air"
+)
+KEISHA = (
+    "Keisha, a 7-foot sasquatch with auburn reddish fur and precise attentive manner, "
+    "wearing a white QUALITY ASSURANCE safety vest with a QA logo patch, "
+    "holding a tablet computer"
+)
+
+# ── Scene definitions ─────────────────────────────────────────────────────────
+# video_prompt: visual action + character card + short spoken dialogue (~20 words).
+#   Dialogue embedded so Veo generates lip-synced native audio.
+# narration:    full educational content for reference / future use.
 SCENES = [
     {
         "id": "01_intro",
+        "character": "Dave",
         "narration": (
-            "Hey, what's up everybody. It's your boy Bigfoot, coming at you live "
-            "from the receiving dock at GlobalMart Southeast Distribution Center. "
+            "Hey, what's up everybody. It's Dave from Receiving, coming at you live "
+            "from the dock at GlobalMart Southeast Distribution Center. "
             "Today we're walking through Goods Receipt in SAP MIGO. Let's get into it."
         ),
         "video_prompt": (
-            "Handheld selfie-vlog footage of Bigfoot, a large friendly sasquatch wearing an orange "
-            "warehouse safety vest and employee badge, walking toward the camera while talking "
-            "enthusiastically and waving, a busy distribution center loading dock with delivery "
-            "trucks behind him, natural daylight, slight handheld camera shake, photorealistic"
+            f"Handheld selfie-vlog footage of {DAVE}, walking toward the camera "
+            "while talking enthusiastically and waving, a busy distribution center "
+            "loading dock with delivery trucks behind him, natural daylight, "
+            "slight handheld camera shake, photorealistic. "
+            "Dave speaks to camera: 'Hey what's up! I'm Dave from Receiving. "
+            "Today we're covering Goods Receipt in SAP MIGO. Let's get into it!'"
         ),
     },
     {
         "id": "02_what_is_gr",
+        "character": "Dave",
         "narration": (
             "So what even is a Goods Receipt? Simple. "
             "The vendor just showed up with a truckload of product. "
             "Goods Receipt is how you tell SAP — yeah, it's here, it's real, put it in inventory. "
-            "No GR, no stock. And no stock means your replenishment team is calling you. "
-            "Trust me, you don't want that."
+            "No GR, no stock. And no stock means your replenishment team is calling you."
         ),
         "video_prompt": (
-            "Selfie vlog footage of Bigfoot, a large friendly sasquatch in an orange safety vest, "
-            "gesturing broadly toward a delivery truck being unloaded behind him, turning to look "
-            "at the truck and back at camera with animated expressions, workers moving pallets in "
-            "the background, natural warehouse loading dock lighting, handheld vlog camera, photorealistic"
+            f"Selfie vlog footage of {DAVE}, gesturing broadly toward a delivery truck "
+            "being unloaded behind him, turning to look at the truck then back at camera "
+            "with animated expressions, workers moving pallets in background, "
+            "natural loading dock lighting, handheld vlog camera, photorealistic. "
+            "Dave speaks to camera: 'Goods Receipt tells SAP the product arrived. "
+            "No GR, no stock. No stock, and your replenishment team is calling you.'"
         ),
     },
     {
         "id": "03_find_po",
+        "character": "Sandra",
         "narration": (
             "Step one. Before you touch MIGO, you need your Purchase Order number. "
             "Every Goods Receipt at SE-DC has to be tied to a PO — no exceptions. "
             "If someone hands you product and there's no PO, you stop, you call your buyer, "
-            "and you do not post that receipt. I don't care how nice the delivery driver is."
+            "and you do not post that receipt."
         ),
         "video_prompt": (
-            "Selfie vlog shot of Bigfoot, a large sasquatch in a safety vest, "
-            "holding up a printed purchase order document close to the camera and tapping it "
-            "emphatically with one large furry finger, then shaking his head no firmly, "
-            "receiving desk and shelving visible behind, handheld camera, photorealistic"
+            f"Selfie vlog shot of {SANDRA}, holding up a printed purchase order document "
+            "close to the camera and tapping it emphatically with one large furry finger, "
+            "then shaking her head firmly no, receiving desk and shelving visible behind, "
+            "handheld camera, photorealistic. "
+            "Sandra speaks to camera: 'Before you open MIGO you need your PO number. "
+            "No purchase order? You do not post that receipt. No exceptions.'"
         ),
     },
     {
         "id": "04_open_migo",
+        "character": "Dave",
         "narration": (
-            "Step two. Jump into SAP Fiori and search for MIGO — that's M-I-G-O. "
-            "This is your Goods Movement transaction. "
-            "When it opens, make sure the action is set to Goods Receipt "
-            "and the reference document is Purchase Order. "
+            "Step two. Jump into SAP Fiori and search for MIGO. "
+            "Set the action to Goods Receipt and the reference document to Purchase Order. "
             "Then type in your PO number and hit Enter."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch, sitting at a warehouse office computer "
+            f"Selfie vlog of {DAVE}, sitting at a warehouse office computer, "
             "leaning toward the camera while pointing at the monitor with one enormous furry finger, "
             "eyebrows raised in a helpful expression, turning between the screen and the camera, "
-            "warm office lighting, slight handheld vlog movement, photorealistic"
+            "warm office lighting, slight handheld vlog movement, photorealistic. "
+            "Dave speaks to camera: 'Open SAP Fiori, find MIGO. "
+            "Action: Goods Receipt. Reference: Purchase Order. Enter your PO and hit go.'"
         ),
     },
     {
         "id": "05_movement_type",
+        "character": "Sandra",
         "narration": (
-            "Step three — and listen up because people mess this up all the time. "
-            "Your movement type needs to be 101. "
+            "Step three. Your movement type needs to be 101. "
             "That is Goods Receipt against a Purchase Order. "
             "Do not use 103. Do not use 501. "
             "One-oh-one. Say it with me. One. Oh. One."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch in a warehouse safety vest, "
-            "holding up fingers to count one-zero-one while mouthing the numbers exaggeratedly, "
-            "wagging his finger at the camera with a stern but funny expression, "
-            "warehouse computer station behind him, handheld camera, photorealistic"
+            f"Selfie vlog of {SANDRA}, holding up three fingers counting one-zero-one, "
+            "mouthing the numbers exaggeratedly, wagging her finger at the camera "
+            "with a stern but funny expression, warehouse computer station behind her, "
+            "handheld camera, photorealistic. "
+            "Sandra speaks to camera: 'Movement type must be 101. "
+            "Not 103. Not 501. One. Oh. One. Every single time.'"
         ),
     },
     {
         "id": "06_verify_items",
+        "character": "Dave",
         "narration": (
             "Step four. SAP pulls in your PO line items automatically. "
-            "Now you compare what's on screen to what's physically on your dock. "
+            "Compare what's on screen to what's physically on your dock. "
             "Check the material number, check the quantity, check the unit of measure. "
-            "If the vendor shorted you twenty cases of frozen burritos, "
-            "you change the quantity here — you do not just accept the PO quantity and move on."
+            "If the vendor shorted you, change the quantity now — not after posting."
         ),
         "video_prompt": (
-            "Selfie vlog footage of Bigfoot, a large sasquatch, walking along warehouse shelving "
-            "with a clipboard, looking at it then back at the camera with a focused expression, "
+            f"Selfie vlog footage of {DAVE}, walking along warehouse shelving with a clipboard, "
+            "looking at it then back at the camera with a focused expression, "
             "counting boxes on shelves with his finger, shaking his head knowingly, "
-            "natural warehouse aisle lighting, handheld camera movement, photorealistic"
+            "natural warehouse aisle lighting, handheld camera movement, photorealistic. "
+            "Dave speaks to camera: 'SAP loads your line items automatically. "
+            "Compare to what's on the dock. If quantities are short, fix it now.'"
         ),
     },
     {
         "id": "07_batch_tracking",
+        "character": "Keisha",
         "narration": (
-            "Step five — and this one is specific to Southeast DC. "
-            "For any perishable or private-label item, "
+            "Step five. For any perishable or private-label item, "
             "you are required to enter the batch and lot number. "
-            "This is not optional at our site. Enterprise says optional. SE-DC says mandatory. "
-            "It's how we trace product back if there's ever a recall. "
+            "Enterprise says optional. SE-DC says mandatory. "
+            "It's how we trace product in a recall. "
             "Scan the lot code off the pallet label and enter it here."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch wearing a safety vest over a hoodie, "
-            "kneeling beside a pallet of refrigerated food products in a cold storage area, "
+            f"Selfie vlog of {KEISHA}, kneeling beside a pallet of refrigerated food products, "
             "scanning a barcode label with a handheld scanner while glancing at the camera, "
-            "breath visibly fogging in the cold air, earnest expression, "
-            "cinematic cold blue lighting, handheld camera, photorealistic"
+            "cold storage area, breath visibly fogging, earnest expression, "
+            "cinematic cold blue lighting, handheld camera, photorealistic. "
+            "Keisha speaks to camera: 'Perishables require a batch and lot number — "
+            "mandatory at SE-DC. Scan the pallet label and enter it in MIGO.'"
         ),
     },
     {
         "id": "08_temp_zone",
+        "character": "Marcus",
         "narration": (
             "Step six. SE-DC has three temperature zones — "
             "Zone Foxtrot for frozen, Zone Romeo for refrigerated, Zone Alpha for ambient. "
-            "You must set the storage location in MIGO to match the product's temperature requirement. "
-            "Frozen product going into Zone Romeo is a cold chain violation. "
-            "And that is a very bad day for everyone, including me."
+            "Set the storage location in MIGO to match the product's temperature requirement. "
+            "Frozen product in Zone Romeo is a cold chain violation."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch with frost forming on his fur, "
-            "standing inside a walk-in freezer, turning to point at a temperature zone sign on "
-            "the wall then back to camera with an amused expression, breath heavily fogging, "
-            "safety vest visible, cinematic cold blue freezer lighting, photorealistic"
+            f"Selfie vlog of {MARCUS}, standing inside a walk-in freezer, "
+            "frost forming on his black fur, turning to point at a temperature zone sign on the wall "
+            "then back to camera with an amused expression, breath heavily fogging, "
+            "cinematic cold blue freezer lighting, photorealistic. "
+            "Marcus speaks to camera: 'Three zones: Foxtrot for frozen, Romeo for refrigerated, "
+            "Alpha for ambient. Match the product or it's a cold chain violation.'"
         ),
     },
     {
         "id": "09_quality_flag",
+        "character": "Keisha",
         "narration": (
             "Step seven. For perishable and private-label goods, "
-            "you need to check the Quality Inspection flag before you post. "
-            "This puts the stock into inspection status automatically "
-            "and routes it to the QA team for sign-off. "
-            "It does not hold up your receipt — it just means QA has to clear it before it ships out. "
+            "check the Quality Inspection flag before you post. "
+            "This routes the stock to QA for sign-off. "
+            "It does not hold up your receipt — QA clears it before it ships. "
             "Check the box. Every single time."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch in a warehouse safety vest, "
-            "standing at a QA inspection station holding up a big furry thumbs up at the camera, "
-            "then turning to gesture at product samples on the table beside him, "
-            "nodding emphatically, warm inspection area lighting, handheld vlog camera, photorealistic"
+            f"Selfie vlog of {KEISHA}, standing at a QA inspection station, "
+            "holding up a big furry thumbs up at the camera, then turning to gesture "
+            "at product samples on the table beside her, nodding emphatically, "
+            "warm inspection area lighting, handheld vlog camera, photorealistic. "
+            "Keisha speaks to camera: 'Check the Quality Inspection flag for every perishable "
+            "and private-label item. QA clears it before it ships. Every single time.'"
         ),
     },
     {
         "id": "10_post_gr",
+        "character": "Dave",
         "narration": (
             "Step eight. The big moment. "
-            "You've verified your quantities, entered your batch numbers, "
+            "You've verified quantities, entered batch numbers, "
             "confirmed your temperature zone, flagged quality inspection. "
-            "Now you click Post. "
-            "SAP generates a material document, updates inventory, "
-            "and triggers the three-way match with your PO and your invoice. "
-            "That product is now officially in the building."
+            "Click Post. SAP generates a material document, updates inventory, "
+            "and triggers the three-way match. That product is officially in the building."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch, pressing a keyboard key with great ceremony "
+            f"Selfie vlog of {DAVE}, pressing a keyboard key with great ceremony "
             "using one enormous furry finger, filming himself with wide excited eyes, "
             "then pumping his fist and doing a small celebration dance, "
-            "warehouse environment behind him, dramatic comic lighting, handheld camera, photorealistic"
+            "warehouse environment behind him, dramatic comic lighting, handheld camera, photorealistic. "
+            "Dave speaks to camera: 'Everything is verified. Click Post. "
+            "SAP creates the material document and updates inventory. It's officially in the building!'"
         ),
     },
     {
         "id": "11_dont_do_this",
+        "character": "Sandra",
         "narration": (
-            "Alright, real talk. Three things I see go wrong out here all the time. "
-            "One — posting a Goods Receipt with no PO. Don't do it. "
-            "Two — wrong movement type. I said one-oh-one, not one-oh-three. "
-            "Three — accepting the full PO quantity when the vendor only delivered part of it. "
+            "Three things I see go wrong all the time. "
+            "One — posting with no PO. Two — wrong movement type, not 101. "
+            "Three — accepting the full PO quantity when the vendor short-shipped. "
             "That breaks your three-way match and your AP team will find you."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch in a safety vest, "
-            "wagging a large furry finger sternly at the camera with a disappointed parent expression, "
-            "shaking his head slowly, then holding up three fingers to count the mistakes one by one, "
-            "standing at the receiving dock, natural warehouse lighting, handheld camera, photorealistic"
+            f"Selfie vlog of {SANDRA}, wagging a large furry finger sternly at the camera "
+            "with a disappointed expression, shaking her head slowly, "
+            "then holding up three fingers to count the mistakes one by one, "
+            "standing at the receiving dock, natural warehouse lighting, handheld camera, photorealistic. "
+            "Sandra speaks to camera: 'Three things I see go wrong: no PO, wrong movement type, "
+            "and accepting short quantities. Your AP team will find you.'"
         ),
     },
     {
         "id": "12_recap",
+        "character": "Dave",
         "narration": (
-            "Quick recap before I let you go. "
-            "One — get your PO number before you even open MIGO. "
+            "Quick recap. "
+            "One — get your PO number before you open MIGO. "
             "Two — movement type 101, every time. "
-            "Three — for perishables, enter the batch number, set the right temperature zone, "
-            "and check the quality inspection flag. "
+            "Three — for perishables: batch number, correct temperature zone, QI flag. "
             "Do those three things and your Goods Receipt is clean."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch in a safety vest, "
-            "standing at a whiteboard in a warehouse break room pointing at three numbered items, "
-            "then looking back at camera with an encouraging smile and giving a thumbs up, "
-            "other workers visible at break tables in background, warm lighting, handheld camera, photorealistic"
+            f"Selfie vlog of {DAVE}, standing at a whiteboard in a warehouse break room "
+            "pointing at three numbered items, then looking back at camera with an encouraging smile "
+            "and giving a thumbs up, other Sasquatch workers visible at break tables in background, "
+            "warm lighting, handheld camera, photorealistic. "
+            "Dave speaks to camera: 'Quick recap: get your PO, movement type 101, "
+            "and for perishables — batch number, right zone, QI flag. You've got this.'"
         ),
     },
     {
         "id": "13_outro",
+        "character": "Dave",
         "narration": (
             "And that's a wrap on Goods Receipt in MIGO. "
-            "If you have questions, hit up your team lead or check the job aid on the portal. "
-            "I'm Bigfoot, I work here, and I will see you in the next one. "
+            "Questions? Hit up your team lead or check the job aid on the portal. "
+            "I'm Dave, I work here, and I will see you in the next one. "
             "Stay safe out there on those docks."
         ),
         "video_prompt": (
-            "Selfie vlog of Bigfoot, a large sasquatch in a safety vest, "
-            "giving a big enthusiastic wave goodbye to the camera at a distribution center receiving dock, "
-            "golden hour sunlight streaming in, other warehouse workers waving in the background, "
-            "huge warm grin, slowly stepping back from camera, cinematic golden light, photorealistic"
+            f"Selfie vlog of {DAVE}, giving a big enthusiastic wave goodbye to the camera "
+            "at a distribution center receiving dock at golden hour, sunlight streaming in, "
+            "other Sasquatch workers — one with silver-grey fur, one with jet-black fur, "
+            "one with auburn fur — waving in the background, huge warm grin, "
+            "slowly stepping back from camera, cinematic golden light, photorealistic. "
+            "Dave speaks to camera: 'That's a wrap! Questions? Check the job aid on the portal. "
+            "I'm Dave, I work here, and stay safe out there on those docks!'"
         ),
     },
 ]
@@ -388,20 +447,16 @@ def probe_duration(path):
     return float(VEO_SECS)
 
 
-def compose_scene(veo_mp4, narr_mp3, out_mp4):
+def compose_scene(veo_mp4, out_mp4):
     """
-    Loop the Veo clip to match narration length, strip Veo audio, mix in TTS.
-    Result: a single MP4 with real Veo video + TTS narration.
+    Transcode Veo clip preserving its native audio (lip-synced to video).
+    Veo 3 generates speech + ambient audio together with the video — keep it.
     """
-    narr_dur = probe_duration(narr_mp3)
-
     cmd = [
         "ffmpeg", "-y",
-        "-stream_loop", "-1", "-i", veo_mp4,   # loop video
-        "-i", narr_mp3,                          # narration
-        "-map", "0:v",                           # video from Veo (no Veo audio)
-        "-map", "1:a",                           # audio from TTS
-        "-t", str(narr_dur),                     # trim to narration length
+        "-i", veo_mp4,
+        "-map", "0:v",    # video stream
+        "-map", "0:a?",   # native Veo audio (? = skip gracefully if absent)
         "-vf", "scale=720:1280:force_original_aspect_ratio=disable,setsar=1",
         "-c:v", "libx264", "-preset", "fast", "-crf", "23",
         "-pix_fmt", "yuv420p",
@@ -465,10 +520,9 @@ def main():
     print(f"Workspace : {tmp}")
     print(f"Scenes    : {len(SCENES)}")
     print(f"Veo model : {VEO_MODEL}  ({VEO_SECS}s clips, {ASPECT})")
-    print(f"TTS       : {TTS_MODEL}/{TTS_VOICE}")
+    print(f"Audio     : Veo 3 native (lip-synced, no TTS)")
     veo_cost = len(SCENES) * VEO_SECS * (0.15 if "fast" in VEO_MODEL else 0.40)
-    tts_cost = len(SCENES) * 0.02
-    print(f"Est. cost : ~${veo_cost:.2f} Veo  +  ~${tts_cost:.2f} TTS  =  ~${veo_cost + tts_cost:.2f}\n")
+    print(f"Est. cost : ~${veo_cost:.2f}\n")
 
     total      = len(SCENES)
     scene_mp4s = []
@@ -477,22 +531,15 @@ def main():
         print(f"[{i+1:02d}/{total}] {scene['id']}")
 
         veo_mp4  = os.path.join(tmp, f"veo_{i:02d}.mp4")
-        narr_mp3 = os.path.join(tmp, f"narr_{i:02d}.mp3")
         comp_mp4 = os.path.join(tmp, f"scene_{i:02d}.mp4")
 
         # 1 — Generate Veo clip
-        print(f"       Veo 3 generating …", end="", flush=True)
+        print(f"       Veo 3 generating (video + audio) …", end="", flush=True)
         gen_veo_clip(scene["video_prompt"], veo_mp4, google_key)
         print(f" ✓  ({VEO_SECS}s clip)")
 
-        # 2 — Generate TTS narration
-        print(f"       TTS narration …", end="", flush=True)
-        gen_tts(scene["narration"], narr_mp3, openai_key)
-        narr_dur = probe_duration(narr_mp3)
-        print(f" ✓  ({narr_dur:.1f}s)")
-
-        # 3 — Compose: loop clip to narration length + mix audio
-        compose_scene(veo_mp4, narr_mp3, comp_mp4)
+        # 2 — Compose: transcode + preserve native Veo audio (lip-synced)
+        compose_scene(veo_mp4, comp_mp4)
         scene_mp4s.append(comp_mp4)
 
     # Final assembly
@@ -502,7 +549,7 @@ def main():
     total_dur = sum(probe_duration(s) for s in scene_mp4s)
     print(f"\n✅  Done: {output_mp4}")
     print(f"   {size_mb:.1f} MB  |  ~{total_dur:.0f}s total  |  720×1280  |  24fps")
-    print(f"\nActual API cost: ~${veo_cost:.2f} Veo  +  ~${tts_cost:.2f} TTS  =  ~${veo_cost + tts_cost:.2f}")
+    print(f"\nActual API cost: ~${veo_cost:.2f} Veo  (native audio — no TTS charge)")
 
     shutil.rmtree(tmp, ignore_errors=True)
 
