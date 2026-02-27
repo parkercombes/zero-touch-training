@@ -52,8 +52,8 @@ This is **Training-as-Code**, embedded in the DevSecOps pipeline.
 
 **Goal:** "Help me while I'm doing it."
 
-- WalkMe (or similar) provides point-of-need guidance
-- AI generates draft WalkMe flows from test scripts and UI metadata
+- Intelligent in-app support provides point-of-need guidance
+- AI generates draft in-app guidance flows from test scripts and UI metadata
 - Humans review and approve (no manual authoring from scratch)
 
 ### Layer 5 – Process Rationale & Consequence
