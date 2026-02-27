@@ -4,10 +4,10 @@
 
 ERP training today is expensive to create, slow to update, quickly outdated, and detached from how the system actually changes.
 
-At GlobalMart distribution centers (and other retail operations), this is amplified by:
+This is amplified by:
 
-- Site-specific processes (Opal overlays)
-- Multiple UI layers (SAP, Fiori, Appian, etc.)
+- Site-specific processes
+- Multiple UI layers (SAP Fiori, Appian Low Code, etc.)
 - High personnel turnover and mixed experience levels
 
 ## The Core Idea
@@ -97,9 +97,9 @@ This allows reuse without ignoring local reality.
 | System | Role |
 |---|---|
 | **SAP / Signavio** | Source of process and semantic truth (not the UI truth) |
-| **Automated Testing (e.g., Tosca)** | Primary execution truth — step-level fidelity, change detection via regression testing |
+| **Robust Testing Scripts** | Primary execution truth — step-level fidelity, change detection via regression testing |
 | **AI** | Translates technical assets into human-usable training — generates videos, job aids, and in-app guidance drafts |
-| **WalkMe** | Delivery surface, not the authoring engine |
+| **Intelligent In-App Support** | Delivery surface, not the authoring engine |
 
 ## Game-Inspired Training (The Engagement Layer)
 
@@ -114,23 +114,9 @@ The UI trainer is being built as a game, not a tutorial. The design draws on the
 - **Narrative stakes:** "The truck has been at the dock for 45 minutes. Dock fees start in 15. Post the goods receipt." Pressure without actual consequences.
 - **Confetti and feedback:** Immediate positive reinforcement on successful posting; empathetic error explanations (not "wrong," but "here's what that would have caused downstream")
 
-This is not new in the training industry — **UKG Pro's training game** is the closest existing example, using story mode, character missions, and challenge levels to achieve 67% higher completion rates over their previous eLearning approach. Nobody has built this for SAP at an affordable price point. That's the gap.
+Game-based training is not new — products like UKG Pro's learning platform have demonstrated that story mode, character missions, and challenge levels significantly outperform traditional eLearning on completion rates. Nobody has built this for SAP at an affordable price point. That's the gap.
 
 The AI-generation capability means the game content (scenarios, screens, scripts) updates automatically when the system changes. A traditional gamified training platform would require manual rework of every level after each ERP upgrade. This one recompiles.
-
-## Target Use Case: Anniston Army Depot
-
-The Army's supply clerks at Anniston Army Depot manage nine Classes of Supply (I through IX). Each class has a distinct handling profile — dry storage, hazmat, serialized asset tracking, regulated medical supplies — that maps directly to the five handling profiles already built into the UI trainer:
-
-| Class of Supply | Profile |
-|---|---|
-| I (Subsistence) | perishable |
-| II/III/IV (General supplies) | standard_dry |
-| VI (Personal demand / controlled) | serialized |
-| VIII (Medical material) | regulated_pharma |
-| III/IX (POL, repair parts w/ hazmat) | hazmat |
-
-Anniston represents a high-value, under-served ERP training market: government supply operations that run SAP (GCSS-Army or similar) but lack commercial-quality training tooling. The game layer matters here — Army clerks are typically younger, mobile-first, and respond well to game mechanics that civilian eLearning vendors haven't bothered to build for them.
 
 ## Why This Is Credible Now
 
@@ -140,20 +126,29 @@ The difference is governance, security, and accuracy — not core capability.
 
 The game mechanics gap is a distribution and incentive problem, not a technical one. The hard part — generating accurate, up-to-date simulation content at near-zero marginal cost — is what this system solves.
 
-## Pilot Approach
+## Pilot Approach (all fabricated data)
 
-- One role
-- One end-to-end process slice
-- One site (GlobalMart SE-DC, Atlanta, GA)
-- One person, ~1–2 weeks
+This PoC uses a fictional company — "GlobalMart Southeast Distribution Center" — with entirely fabricated process data, test scripts, and site configurations. No real enterprise data is used.
+
+- One role (Buyer)
+- One end-to-end process slice (Purchase Requisition → Goods Receipt)
+- One fictional site (GlobalMart SE-DC, Atlanta, GA)
+- One person, off-hours development
 
 **Outputs:**
 
 - AI-generated process explainer video
 - Several role-specific job aids
-- Optional WalkMe draft
+- Interactive UI trainer with game mechanics
+- Optional in-app guidance drafts
 
 **Goal:** Prove speed, accuracy, and maintainability — not perfection.
+
+## Current Status
+
+The PoC to date covers Layers 1 through 5 with working code: navigation walkthroughs, AI-generated explainer videos (including a lip-synced Bigfoot character vlog built on Google Veo 3), role-specific job aids, in-app guidance drafts, and process rationale content. Layer 6 (continuous update triggers) is designed but not yet automated. The interactive UI trainer supports five distinct handling profiles (standard dry goods, perishable, pharmaceutical, hazardous materials, and serialized assets), each runnable as a standalone scenario.
+
+Total development time: 16 days of off-hours work. Total external API spend: less than $200.
 
 ## Executive Soundbite
 
