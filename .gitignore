@@ -26,7 +26,6 @@ node_modules/
 # Generated outputs
 output/
 generated/
-*.mp4
 *.avi
 *.mov
 
