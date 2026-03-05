@@ -45,6 +45,14 @@ SCENARIO = {
             "hint":        "Look for the 'Goods Movement (MIGO)' tile — it has a star icon.",
             "hotspot":     {"x": 473, "y": 162, "w": 200, "h": 130},
             "feedback":    "Nice! MIGO is open. Now let's configure your Goods Receipt.",
+            "consequence": "Opening the wrong transaction means you're working in the wrong module. If you open Inventory Management instead of MIGO, you can't post a goods receipt against a PO.",
+            "tooltips": [
+                {"x": 49, "y": 162, "w": 200, "h": 130, "text": "Purchase Requisition — request materials before a PO exists. Not used for receiving."},
+                {"x": 473, "y": 162, "w": 200, "h": 130, "text": "Goods Movement (MIGO) — this is where you post receipts, issues, and transfers. Your main tool for receiving."},
+                {"x": 273, "y": 162, "w": 200, "h": 130, "text": "Inventory Management — view stock levels. Read-only for receiving associates."},
+                {"x": 49, "y": 316, "w": 200, "h": 130, "text": "Purchase Order — view PO details. You don't create POs, but you reference them in MIGO."},
+                {"x": 273, "y": 316, "w": 200, "h": 130, "text": "Receiving Dock — SE-DC custom tile showing today's expected deliveries."},
+            ],
         },
         {
             "screen":      "migo_action.png",
@@ -53,6 +61,12 @@ SCENARIO = {
             "hint":        "The Action dropdown is the first field in the transaction header.",
             "hotspot":     {"x": 36, "y": 148, "w": 220, "h": 36},
             "feedback":    "Correct. Action = Goods Receipt. Now set the reference type.",
+            "consequence": "Selecting the wrong action (e.g. 'Goods Issue' instead of 'Goods Receipt') would remove inventory instead of adding it. Finance sees a negative stock movement and the PO won't match.",
+            "tooltips": [
+                {"x": 36, "y": 148, "w": 220, "h": 36, "text": "Action — tells SAP what kind of goods movement you're doing. Options: Goods Receipt, Goods Issue, Transfer Posting, etc."},
+                {"x": 280, "y": 148, "w": 220, "h": 36, "text": "Reference Document — what you're posting against. Usually a Purchase Order for receiving."},
+                {"x": 524, "y": 148, "w": 200, "h": 36, "text": "Purchase Order No. — the PO number from your delivery paperwork."},
+            ],
         },
         {
             "screen":      "migo_reference.png",
@@ -61,6 +75,10 @@ SCENARIO = {
             "hint":        "The Reference Document dropdown is next to the Action dropdown.",
             "hotspot":     {"x": 280, "y": 148, "w": 220, "h": 36},
             "feedback":    "Good. Every GR at SE-DC must be tied to a PO.",
+            "consequence": "Posting without a PO reference creates a free-goods receipt. Finance can't match it to an invoice, the vendor doesn't get paid on time, and an auditor flags the discrepancy.",
+            "tooltips": [
+                {"x": 280, "y": 148, "w": 220, "h": 36, "text": "Reference Document — links your receipt to an existing document. 'Purchase Order' is standard for receiving. Other options exist for returns and transfers."},
+            ],
         },
         {
             "screen":      "migo_po.png",
@@ -69,6 +87,11 @@ SCENARIO = {
             "hint":        "The PO number field is to the right of the Reference Document dropdown.",
             "hotspot":     {"x": 524, "y": 148, "w": 200, "h": 36},
             "feedback":    "PO 4500012345 loaded. SAP pulled in the line items automatically.",
+            "consequence": "Entering the wrong PO number means you're receiving against someone else's order. The quantities won't match, the vendor invoice won't clear, and both POs get stuck in error.",
+            "tooltips": [
+                {"x": 524, "y": 148, "w": 200, "h": 36, "text": "PO Number — find this on the delivery note or bill of lading. SAP auto-populates the line items when you press Enter."},
+                {"x": 744, "y": 148, "w": 80, "h": 36, "text": "Execute — loads the PO data into MIGO. Same as pressing Enter in the PO field."},
+            ],
         },
         {
             "screen":      "migo_items.png",
@@ -77,6 +100,14 @@ SCENARIO = {
             "hint":        "Compare each quantity against your delivery paperwork before proceeding.",
             "hotspot":     {"x": 450, "y": 272, "w": 100, "h": 34},
             "feedback":    "Quantities verified. If anything is short, update it now — not after posting.",
+            "consequence": "Posting the wrong quantity means inventory records don't match physical stock. Short receipt: vendor doesn't get paid for what they shipped. Over receipt: you're paying for product you didn't get.",
+            "tooltips": [
+                {"x": 36, "y": 272, "w": 60, "h": 34, "text": "Item — line number in the PO. Each material is a separate line."},
+                {"x": 96, "y": 272, "w": 120, "h": 34, "text": "Material — SAP material number. Matches the product master."},
+                {"x": 216, "y": 272, "w": 200, "h": 34, "text": "Description — human-readable product name."},
+                {"x": 450, "y": 272, "w": 100, "h": 34, "text": "Qty — how many units you're receiving. Must match what's physically on the dock."},
+                {"x": 550, "y": 272, "w": 70, "h": 34, "text": "UoM — Unit of Measure. CS = cases, EA = each, KG = kilograms."},
+            ],
         },
         {
             "screen":      "migo_batch.png",
@@ -85,6 +116,11 @@ SCENARIO = {
             "hint":        "Batch entry is mandatory for all perishable items at SE-DC — enterprise says optional, we say required.",
             "hotspot":     {"x": 650, "y": 272, "w": 120, "h": 34},
             "feedback":    "Batch recorded. This is how we trace product in a recall.",
+            "consequence": "Skipping the lot number means this product can't be traced in a recall. If there's a food safety issue, you can't identify which pallets to pull. FDA and your QA team will both flag this.",
+            "tooltips": [
+                {"x": 650, "y": 272, "w": 120, "h": 34, "text": "Batch / Lot — traceability code from the manufacturer. Required for all perishable and private-label items at SE-DC."},
+                {"x": 560, "y": 272, "w": 90, "h": 34, "text": "S.Loc — Storage Location. Determines which zone the product goes to."},
+            ],
         },
         {
             "screen":      "migo_storage.png",
@@ -93,6 +129,12 @@ SCENARIO = {
             "hint":        "Zone-F = Frozen · Zone-R = Refrigerated · Zone-A = Ambient. Match the product.",
             "hotspot":     {"x": 260, "y": 210, "w": 220, "h": 34},
             "feedback":    "ZONE-F confirmed. Frozen product to the freezer. Cold chain maintained.",
+            "consequence": "Wrong temperature zone means frozen product goes to ambient storage. It thaws, becomes unsellable, and fails QI inspection. The entire pallet is a write-off — typically $2,000–$5,000 in product loss.",
+            "tooltips": [
+                {"x": 36, "y": 210, "w": 200, "h": 34, "text": "Plant — the physical facility. SE01 = SE-DC Atlanta."},
+                {"x": 260, "y": 210, "w": 220, "h": 34, "text": "Storage Location — the temperature zone. ZONE-F (Frozen, -10°F), ZONE-R (Refrigerated, 34°F), ZONE-A (Ambient, room temp)."},
+                {"x": 504, "y": 210, "w": 200, "h": 34, "text": "Movement Type — 101 = standard goods receipt against PO. Don't change this unless you know what you're doing."},
+            ],
         },
         {
             "screen":      "migo_qi.png",
@@ -101,6 +143,12 @@ SCENARIO = {
             "hint":        "Mandatory for perishable and private-label goods. QA will sign off before stock ships.",
             "hotspot":     {"x": 32, "y": 346, "w": 300, "h": 26},
             "feedback":    "QI flagged. The QA team will receive a task automatically.",
+            "consequence": "Skipping QI on perishable goods means product goes directly to sellable stock without inspection. If there's a temperature excursion or damaged packaging, contaminated product reaches the store shelf.",
+            "tooltips": [
+                {"x": 32, "y": 346, "w": 300, "h": 26, "text": "Quality Inspection Required — when checked, stock goes to QI hold status. QA team must release it before it ships. Mandatory for perishable + private-label at SE-DC."},
+                {"x": 32, "y": 390, "w": 300, "h": 26, "text": "Cold Chain Verification — confirms temp was recorded at the dock. Already checked because dock scanner captured it."},
+                {"x": 32, "y": 430, "w": 300, "h": 26, "text": "Private Label Item — SE-DC distributes store-brand products that need extra QA. Flagged automatically from material master."},
+            ],
         },
         {
             "screen":      "migo_post.png",
@@ -109,6 +157,12 @@ SCENARIO = {
             "hint":        "Review the summary first. Once you post, SAP generates the material document.",
             "hotspot":     {"x": 20, "y": 88, "w": 80, "h": 32},
             "feedback":    "Posted! Material document created. Inventory updated. Three-way match triggered.",
+            "consequence": "Clicking Check instead of Post runs validation but doesn't create the document. Clicking Cancel discards everything — you'd need to start over. Neither is harmful, but the truck is waiting.",
+            "tooltips": [
+                {"x": 20, "y": 88, "w": 80, "h": 32, "text": "Post — creates the material document and updates inventory. This is the final step. Can be reversed, but it's easier to get it right the first time."},
+                {"x": 112, "y": 88, "w": 80, "h": 32, "text": "Check — runs validation without posting. Use this if you're unsure and want SAP to flag errors first."},
+                {"x": 204, "y": 88, "w": 80, "h": 32, "text": "Cancel — discards the entire goods receipt. You'll need to start over from the PO number."},
+            ],
         },
     ],
     "mission": {
@@ -119,6 +173,13 @@ SCENARIO = {
             "Lot number: LOT-240201 · Temperature zone: ZONE-F · QI required."
         ),
         "par_clicks": 12,
+        "time_limit": 180,
+        "narratives": [
+            "The truck has been at the dock for 45 minutes. Dock fees start in 15. Post the goods receipt and flag the temperature discrepancy before your lead notices.",
+            "Vendor just called — they need confirmation of receipt before 3pm or the invoice auto-cancels. You've got the paperwork. Go.",
+            "Your lead is out sick. You're handling cold chain solo today. The auditor is on-site and watching the dock. No pressure.",
+            "New hire is shadowing you. Show them how a clean goods receipt looks — every field, every checkbox, no shortcuts.",
+        ],
     },
 }
 
