@@ -271,6 +271,10 @@ function HUD({ state }) {
       display: "flex", alignItems: "center", gap: 16, padding: "0 20px",
       zIndex: 100, borderBottom: "2px solid rgba(0,112,242,0.6)",
     }}>
+      <a href="../index.html" title="Back to Scenario Selector" style={{
+        color: "#c0d4ff", textDecoration: "none", fontSize: 18, lineHeight: 1,
+        marginRight: 4, display: "inline-flex", alignItems: "center",
+      }}>←</a>
       <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", flex: 1 }}>
         {SCENARIO.title} · {SCENARIO.site}
       </div>
@@ -341,6 +345,10 @@ function LevelSelect({ dispatch }) {
       display: "flex", alignItems: "center", justifyContent: "center",
       zIndex: 500, flexDirection: "column", gap: 32,
     }}>
+      <a href="../index.html" style={{
+        color: "#a0c4ff", textDecoration: "none", fontSize: 13,
+        alignSelf: "flex-start", marginLeft: "5vw", marginBottom: -16,
+      }}>← All Scenarios</a>
       <h1 style={{ fontSize: 32, color: "#fff", letterSpacing: 1 }}>Choose Your Level</h1>
       <div style={{ fontSize: 14, color: "#a0c4ff", marginTop: -20 }}>
         {SCENARIO.title} · {SCENARIO.role}
