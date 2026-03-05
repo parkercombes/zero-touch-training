@@ -122,7 +122,7 @@ SCENARIO = {
             "goal":        "Scan and enter serial numbers per unit",
             "instruction": "Enter the serial number for each unit. Serial capture is mandatory for chain of custody.",
             "hint":        "Type or scan each serial number. Laptops: SN-LT001 through SN-LT010. Do not skip any unit.",
-            "hotspot":     {"x": 200, "y": 320, "w": 300, "h": 34},
+            "hotspot":     {"x": 36, "y": 440, "w": 300, "h": 34},
             "feedback":    "Serials captured. Unit accountability complete. Now assign secure storage.",
             "consequence": "Skipping serial capture means units enter inventory without individual tracking. If a laptop is stolen or lost, you can't identify which specific unit is missing or trace it back to this shipment.",
             "explore_info": [
