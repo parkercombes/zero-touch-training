@@ -118,6 +118,32 @@ Game-based training is not new — products like UKG Pro's learning platform hav
 
 The AI-generation capability means the game content (scenarios, screens, scripts) updates automatically when the system changes. A traditional gamified training platform would require manual rework of every level after each ERP upgrade. This one recompiles.
 
+## Generation Architecture (UI Trainer)
+
+The interactive UI trainer is fully generated from source — no AI is involved at build time or runtime. A single command (`python3 ui_trainer.py`) produces a self-contained HTML file and all screen images. There is no server, no API call, and no model inference in the pipeline.
+
+### Source Files
+
+Three files comprise the entire source:
+
+- **`scenarios/base.py`** — Shared Pillow drawing primitives (fields, dropdowns, buttons, tables, checkboxes, shell bar). This is the visual component library that renders SAP Fiori-style UI elements as static PNGs.
+- **`scenarios/sedc_goods_receipt.py`** — The scenario pack. Contains the complete scenario definition (all steps with goals, instructions, hints, hotspots, consequences, and explore descriptions) plus the screen generator functions that draw each screen using the base helpers. Each scenario pack is self-contained and can be swapped or duplicated for different handling profiles.
+- **`trainer_app.jsx`** — The React application (~46K chars). This is the game engine: a useReducer state machine drives all four progression levels plus review mode. It reads scenario data injected as JSON globals and renders the interactive experience entirely client-side.
+
+### Build Process
+
+The generator script reads the scenario module, calls its `generate_screens()` function (which renders 18 PNGs — 9 highlighted for Levels 0–1 and 9 neutral for Levels 2–3), reads the JSX file, and injects three JSON blobs (scenario data, highlighted screen paths, neutral screen paths) plus the JSX source into a single HTML wrapper. The output is a standalone directory: `index.html` plus two screen folders.
+
+### Where AI Contributed Content
+
+AI (Claude) authored the following content during the development process, not at runtime: all consequence descriptions (what happens in production if a step is done wrong), all explore-mode element descriptions, the narrative premises for Level 3, and the hint text for each step. These are plausible SAP MIGO descriptions based on general warehouse receiving knowledge but are not sourced from an actual SE-DC standard operating procedure or SAP configuration. For a real deployment, these strings would require SME review to ensure accuracy against the site's specific process.
+
+Pixel coordinates for hotspots and field positions are calculated deterministically from the Pillow drawing code, not estimated or AI-generated.
+
+### Pedagogical Features
+
+The current build includes six pedagogical mechanics beyond the base four-level progression: consequence-based elaborated error feedback (structured "what would happen in production" panels on wrong clicks in Levels 2–3), post-level debrief screens (expandable "why each step matters" cards shown after Levels 1–2), audio cues via Web Audio API (correct/wrong tones, timer tick in the last 10 seconds, win fanfare, timeout alert), a Review mode (5 randomly selected steps in scrambled order, accessible from the win screen), an adaptive hint system (after 3 consecutive wrong clicks in Level 2, the next hint becomes free), and decoy fields on neutral screens (2–3 non-target fields styled with subtle blue borders and tints to create multiple plausible click targets).
+
 ## Why This Is Credible Now
 
 The same AI techniques used to rapidly generate viral video content ("Bigfoot videos") are applied here in a governed, enterprise-safe way: script generation, video generation, workflow orchestration, and minimal human editing.

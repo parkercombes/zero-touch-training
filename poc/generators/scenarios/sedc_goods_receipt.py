@@ -43,15 +43,16 @@ SCENARIO = {
             "goal":        "Open the MIGO transaction",
             "instruction": "Click the MIGO tile to open Goods Movement.",
             "hint":        "Look for the 'Goods Movement (MIGO)' tile — it has a star icon.",
-            "hotspot":     {"x": 473, "y": 162, "w": 200, "h": 130},
+            "hotspot":     {"x": 540, "y": 100, "w": 200, "h": 130},
             "feedback":    "Nice! MIGO is open. Now let's configure your Goods Receipt.",
             "consequence": "Opening the wrong transaction means you're working in the wrong module. If you open Inventory Management instead of MIGO, you can't post a goods receipt against a PO.",
-            "tooltips": [
-                {"x": 49, "y": 162, "w": 200, "h": 130, "text": "Purchase Requisition — request materials before a PO exists. Not used for receiving."},
-                {"x": 473, "y": 162, "w": 200, "h": 130, "text": "Goods Movement (MIGO) — this is where you post receipts, issues, and transfers. Your main tool for receiving."},
-                {"x": 273, "y": 162, "w": 200, "h": 130, "text": "Inventory Management — view stock levels. Read-only for receiving associates."},
-                {"x": 49, "y": 316, "w": 200, "h": 130, "text": "Purchase Order — view PO details. You don't create POs, but you reference them in MIGO."},
-                {"x": 273, "y": 316, "w": 200, "h": 130, "text": "Receiving Dock — SE-DC custom tile showing today's expected deliveries."},
+            "explore_info": [
+                "Goods Movement (MIGO) — this is where you post receipts, issues, and transfers. Your main tool for receiving. Look for the star icon.",
+                "Purchase Requisition — request materials before a PO exists. Not used for receiving.",
+                "Inventory Management — view stock levels. Read-only for receiving associates.",
+                "Purchase Order — view PO details. You don't create POs, but you reference them in MIGO.",
+                "Receiving Dock — SE-DC custom tile showing today's expected deliveries.",
+                "Vendor Invoice — finance uses this. Not part of the receiving workflow.",
             ],
         },
         {
@@ -62,10 +63,11 @@ SCENARIO = {
             "hotspot":     {"x": 36, "y": 148, "w": 220, "h": 36},
             "feedback":    "Correct. Action = Goods Receipt. Now set the reference type.",
             "consequence": "Selecting the wrong action (e.g. 'Goods Issue' instead of 'Goods Receipt') would remove inventory instead of adding it. Finance sees a negative stock movement and the PO won't match.",
-            "tooltips": [
-                {"x": 36, "y": 148, "w": 220, "h": 36, "text": "Action — tells SAP what kind of goods movement you're doing. Options: Goods Receipt, Goods Issue, Transfer Posting, etc."},
-                {"x": 280, "y": 148, "w": 220, "h": 36, "text": "Reference Document — what you're posting against. Usually a Purchase Order for receiving."},
-                {"x": 524, "y": 148, "w": 200, "h": 36, "text": "Purchase Order No. — the PO number from your delivery paperwork."},
+            "explore_info": [
+                "Action — tells SAP what kind of goods movement you're doing. Options: Goods Receipt, Goods Issue, Transfer Posting, etc.",
+                "Reference Document — what you're posting against. Usually a Purchase Order for receiving.",
+                "Purchase Order No. — the PO number from your delivery paperwork.",
+                "Execute button — loads the PO data into MIGO. Same as pressing Enter in the PO field.",
             ],
         },
         {
@@ -76,8 +78,9 @@ SCENARIO = {
             "hotspot":     {"x": 280, "y": 148, "w": 220, "h": 36},
             "feedback":    "Good. Every GR at SE-DC must be tied to a PO.",
             "consequence": "Posting without a PO reference creates a free-goods receipt. Finance can't match it to an invoice, the vendor doesn't get paid on time, and an auditor flags the discrepancy.",
-            "tooltips": [
-                {"x": 280, "y": 148, "w": 220, "h": 36, "text": "Reference Document — links your receipt to an existing document. 'Purchase Order' is standard for receiving. Other options exist for returns and transfers."},
+            "explore_info": [
+                "Reference Document — links your receipt to an existing document. 'Purchase Order' is standard for receiving.",
+                "Other reference types — 'Material Document' for reversals, 'Delivery' for inbound deliveries. You'll almost always use Purchase Order.",
             ],
         },
         {
@@ -88,9 +91,10 @@ SCENARIO = {
             "hotspot":     {"x": 524, "y": 148, "w": 200, "h": 36},
             "feedback":    "PO 4500012345 loaded. SAP pulled in the line items automatically.",
             "consequence": "Entering the wrong PO number means you're receiving against someone else's order. The quantities won't match, the vendor invoice won't clear, and both POs get stuck in error.",
-            "tooltips": [
-                {"x": 524, "y": 148, "w": 200, "h": 36, "text": "PO Number — find this on the delivery note or bill of lading. SAP auto-populates the line items when you press Enter."},
-                {"x": 744, "y": 148, "w": 80, "h": 36, "text": "Execute — loads the PO data into MIGO. Same as pressing Enter in the PO field."},
+            "explore_info": [
+                "PO Number — find this on the delivery note or bill of lading. SAP auto-populates the line items when you press Enter.",
+                "Execute button — loads the PO data into MIGO. Same as pressing Enter in the PO field.",
+                "Tip — always double-check the PO number against the paper BOL before hitting Enter.",
             ],
         },
         {
@@ -98,15 +102,17 @@ SCENARIO = {
             "goal":        "Verify line item quantities",
             "instruction": "Check the Qty column. Confirm it matches what's physically on your dock.",
             "hint":        "Compare each quantity against your delivery paperwork before proceeding.",
-            "hotspot":     {"x": 450, "y": 272, "w": 100, "h": 34},
+            "hotspot":     {"x": 416, "y": 272, "w": 100, "h": 34},
             "feedback":    "Quantities verified. If anything is short, update it now — not after posting.",
             "consequence": "Posting the wrong quantity means inventory records don't match physical stock. Short receipt: vendor doesn't get paid for what they shipped. Over receipt: you're paying for product you didn't get.",
-            "tooltips": [
-                {"x": 36, "y": 272, "w": 60, "h": 34, "text": "Item — line number in the PO. Each material is a separate line."},
-                {"x": 96, "y": 272, "w": 120, "h": 34, "text": "Material — SAP material number. Matches the product master."},
-                {"x": 216, "y": 272, "w": 200, "h": 34, "text": "Description — human-readable product name."},
-                {"x": 450, "y": 272, "w": 100, "h": 34, "text": "Qty — how many units you're receiving. Must match what's physically on the dock."},
-                {"x": 550, "y": 272, "w": 70, "h": 34, "text": "UoM — Unit of Measure. CS = cases, EA = each, KG = kilograms."},
+            "explore_info": [
+                "Item — line number in the PO. Each material is a separate line.",
+                "Material — SAP material number. Matches the product master.",
+                "Description — human-readable product name.",
+                "Qty — how many units you're receiving. Must match what's physically on the dock.",
+                "UoM — Unit of Measure. CS = cases, EA = each, KG = kilograms.",
+                "S.Loc — Storage Location. Determines which temperature zone the product goes to.",
+                "Batch — traceability code from the manufacturer. Required for perishable items.",
             ],
         },
         {
@@ -114,12 +120,13 @@ SCENARIO = {
             "goal":        "Enter the batch / lot number",
             "instruction": "Click the Batch field and enter the lot code from the pallet label.",
             "hint":        "Batch entry is mandatory for all perishable items at SE-DC — enterprise says optional, we say required.",
-            "hotspot":     {"x": 650, "y": 272, "w": 120, "h": 34},
+            "hotspot":     {"x": 686, "y": 272, "w": 120, "h": 34},
             "feedback":    "Batch recorded. This is how we trace product in a recall.",
             "consequence": "Skipping the lot number means this product can't be traced in a recall. If there's a food safety issue, you can't identify which pallets to pull. FDA and your QA team will both flag this.",
-            "tooltips": [
-                {"x": 650, "y": 272, "w": 120, "h": 34, "text": "Batch / Lot — traceability code from the manufacturer. Required for all perishable and private-label items at SE-DC."},
-                {"x": 560, "y": 272, "w": 90, "h": 34, "text": "S.Loc — Storage Location. Determines which zone the product goes to."},
+            "explore_info": [
+                "Batch / Lot — traceability code from the manufacturer. Required for all perishable and private-label items at SE-DC.",
+                "Why it matters — in a recall, this is how you identify which pallets to pull. No batch = no traceability.",
+                "Where to find it — printed on the pallet label or the case stamp. Format is usually LOT-YYMMDD.",
             ],
         },
         {
@@ -130,10 +137,12 @@ SCENARIO = {
             "hotspot":     {"x": 260, "y": 210, "w": 220, "h": 34},
             "feedback":    "ZONE-F confirmed. Frozen product to the freezer. Cold chain maintained.",
             "consequence": "Wrong temperature zone means frozen product goes to ambient storage. It thaws, becomes unsellable, and fails QI inspection. The entire pallet is a write-off — typically $2,000–$5,000 in product loss.",
-            "tooltips": [
-                {"x": 36, "y": 210, "w": 200, "h": 34, "text": "Plant — the physical facility. SE01 = SE-DC Atlanta."},
-                {"x": 260, "y": 210, "w": 220, "h": 34, "text": "Storage Location — the temperature zone. ZONE-F (Frozen, -10°F), ZONE-R (Refrigerated, 34°F), ZONE-A (Ambient, room temp)."},
-                {"x": 504, "y": 210, "w": 200, "h": 34, "text": "Movement Type — 101 = standard goods receipt against PO. Don't change this unless you know what you're doing."},
+            "explore_info": [
+                "Plant — the physical facility. SE01 = SE-DC Atlanta.",
+                "Storage Location — the temperature zone. ZONE-F (Frozen, -10°F), ZONE-R (Refrigerated, 34°F), ZONE-A (Ambient, room temp).",
+                "Movement Type — 101 = standard goods receipt against PO. Don't change this unless you know what you're doing.",
+                "Vendor — the supplier. Auto-populated from the PO.",
+                "Delivery Note — the DN number from the truck paperwork.",
             ],
         },
         {
@@ -144,10 +153,10 @@ SCENARIO = {
             "hotspot":     {"x": 32, "y": 346, "w": 300, "h": 26},
             "feedback":    "QI flagged. The QA team will receive a task automatically.",
             "consequence": "Skipping QI on perishable goods means product goes directly to sellable stock without inspection. If there's a temperature excursion or damaged packaging, contaminated product reaches the store shelf.",
-            "tooltips": [
-                {"x": 32, "y": 346, "w": 300, "h": 26, "text": "Quality Inspection Required — when checked, stock goes to QI hold status. QA team must release it before it ships. Mandatory for perishable + private-label at SE-DC."},
-                {"x": 32, "y": 390, "w": 300, "h": 26, "text": "Cold Chain Verification — confirms temp was recorded at the dock. Already checked because dock scanner captured it."},
-                {"x": 32, "y": 430, "w": 300, "h": 26, "text": "Private Label Item — SE-DC distributes store-brand products that need extra QA. Flagged automatically from material master."},
+            "explore_info": [
+                "Quality Inspection Required — when checked, stock goes to QI hold status. QA team must release it before it ships. Mandatory for perishable + private-label at SE-DC.",
+                "Cold Chain Verification — confirms temp was recorded at the dock. Already checked because dock scanner captured it.",
+                "Private Label Item — SE-DC distributes store-brand products that need extra QA. Flagged automatically from material master.",
             ],
         },
         {
@@ -158,10 +167,11 @@ SCENARIO = {
             "hotspot":     {"x": 20, "y": 88, "w": 80, "h": 32},
             "feedback":    "Posted! Material document created. Inventory updated. Three-way match triggered.",
             "consequence": "Clicking Check instead of Post runs validation but doesn't create the document. Clicking Cancel discards everything — you'd need to start over. Neither is harmful, but the truck is waiting.",
-            "tooltips": [
-                {"x": 20, "y": 88, "w": 80, "h": 32, "text": "Post — creates the material document and updates inventory. This is the final step. Can be reversed, but it's easier to get it right the first time."},
-                {"x": 112, "y": 88, "w": 80, "h": 32, "text": "Check — runs validation without posting. Use this if you're unsure and want SAP to flag errors first."},
-                {"x": 204, "y": 88, "w": 80, "h": 32, "text": "Cancel — discards the entire goods receipt. You'll need to start over from the PO number."},
+            "explore_info": [
+                "Post — creates the material document and updates inventory. This is the final step. Can be reversed, but it's easier to get it right the first time.",
+                "Check — runs validation without posting. Use this if you're unsure and want SAP to flag errors first.",
+                "Cancel — discards the entire goods receipt. You'll need to start over from the PO number.",
+                "Summary panel — shows everything you've entered. Review it before clicking Post.",
             ],
         },
     ],
@@ -189,33 +199,40 @@ SCENARIO = {
 # The highlighted element matches the hotspot in SCENARIO["tutorial"] above.
 
 def _header_row(d, action="Goods Receipt", reference="Purchase Order",
-                po="", hl_action=False, hl_ref=False, hl_po=False):
+                po="", hl_action=False, hl_ref=False, hl_po=False,
+                decoy_action=False, decoy_ref=False, decoy_po=False, decoy_exec=False):
     """Reusable MIGO transaction header strip (y=90–200)."""
     draw_card(d, 20, 90, W - 20, 200, title="Transaction Header")
-    draw_dropdown(d, 36,  148, 220, 36, "Action",                action,    highlight=hl_action)
-    draw_dropdown(d, 280, 148, 220, 36, "Reference Document",    reference, highlight=hl_ref)
-    draw_field(   d, 524, 148, 200, 36, "Purchase Order No.",    po,        highlight=hl_po)
-    draw_button(  d, 744, 148,  80, 36, "Execute")
+    draw_dropdown(d, 36,  148, 220, 36, "Action",             action,    highlight=hl_action, decoy=decoy_action)
+    draw_dropdown(d, 280, 148, 220, 36, "Reference Document", reference, highlight=hl_ref,    decoy=decoy_ref)
+    draw_field(   d, 524, 148, 200, 36, "Purchase Order No.", po,        highlight=hl_po,     decoy=decoy_po)
+    draw_button(  d, 744, 148,  80, 36, "Execute",            decoy=decoy_exec)
 
 
-def _items_table(d, highlight_col=None, batch_val=""):
-    """Reusable MIGO line items table (y=210+)."""
+def _items_table(d, highlight_col=None, batch_val="", blank_col=None, decoy_cols=None):
+    """Reusable MIGO line items table (y=210+).
+    blank_col: if set, blanks the values in that column (for L2/L3 challenge).
+    decoy_cols: list of column indices to style as decoys (subtle blue tint).
+    """
     d.text((36, 216), "Line Items", font=fnt(14, bold=True), fill=SAP_TEXT)
     cols = [("Item", 60), ("Material", 120), ("Description", 200),
             ("Qty", 100), ("UoM", 70), ("S.Loc", 100), ("Batch", 120)]
+    row1 = ["0001", "FZ-9921", "Frozen Burrito 12pk", "50", "CS", "ZONE-F", batch_val]
+    row2 = ["0002", "RF-4410", "Chilled Salsa 6pk", "24", "CS", "ZONE-R", ""]
+    if blank_col is not None:
+        row1[blank_col] = ""
+        row2[blank_col] = ""
     draw_table_header(d, 36, 240, cols)
-    draw_table_row(d, 36, 272, cols,
-                   ["0001", "FZ-9921", "Frozen Burrito 12pk", "50", "CS", "ZONE-F", batch_val],
-                   highlight_col=highlight_col)
-    draw_table_row(d, 36, 306, cols,
-                   ["0002", "RF-4410", "Chilled Salsa 6pk", "24", "CS", "ZONE-R", ""],
-                   highlight_col=None)
+    draw_table_row(d, 36, 272, cols, row1, highlight_col=highlight_col, decoy_cols=decoy_cols)
+    draw_table_row(d, 36, 306, cols, row2, highlight_col=None, decoy_cols=decoy_cols)
 
 
-def screen_fiori_home():
+def screen_fiori_home(hl=True):
     img, d = new_screen("SAP Fiori Launchpad")
+    # Decoy tiles: Purchase Order (idx 4) and Receiving Dock (idx 5) look active on neutral
+    decoy_indices = set() if hl else {4, 5}
     tiles = [
-        ("Purchase\nRequisition", False),  ("Goods\nMovement\n(MIGO)", True),
+        ("Purchase\nRequisition", False),  ("Goods\nMovement\n(MIGO)", hl),
         ("Inventory\nManagement", False),  ("Vendor\nInvoice",          False),
         ("Purchase\nOrder",       False),  ("Receiving\nDock",          False),
     ]
@@ -226,10 +243,15 @@ def screen_fiori_home():
         col, row = i % 3, i // 3
         x = start_x + col * (tw + gap)
         y = start_y + row * (th + gap)
-        border = SAP_AMBER if highlight else SAP_BORDER
-        bg = (255, 248, 235) if highlight else SAP_WHITE
+        is_decoy = i in decoy_indices
+        if highlight:
+            border, bg, lw = SAP_AMBER, (255, 248, 235), 2
+        elif is_decoy:
+            border, bg, lw = SAP_BLUE, (240, 246, 255), 1
+        else:
+            border, bg, lw = SAP_BORDER, SAP_WHITE, 1
         d.rounded_rectangle([x, y, x + tw, y + th], radius=6,
-                             fill=bg, outline=border, width=2 if highlight else 1)
+                             fill=bg, outline=border, width=lw)
         icon_col = SAP_AMBER if highlight else SAP_BLUE
         d.rounded_rectangle([x + tw // 2 - 20, y + 18, x + tw // 2 + 20, y + 58],
                              radius=4, fill=icon_col)
@@ -242,58 +264,69 @@ def screen_fiori_home():
     return img
 
 
-def screen_migo_action():
+def screen_migo_action(hl=True):
     img, d = new_screen("Goods Movement (MIGO)")
     draw_subheader(d, "Goods Movement > MIGO")
-    _header_row(d, hl_action=True)
+    # Neutral: blank target + decoy the Reference Doc dropdown and Execute button
+    action_val = "Goods Receipt" if hl else ""
+    _header_row(d, action=action_val, hl_action=hl,
+                decoy_ref=not hl, decoy_exec=not hl)
     placeholder_note(d)
     return img
 
 
-def screen_migo_reference():
+def screen_migo_reference(hl=True):
     img, d = new_screen("Goods Movement (MIGO)")
     draw_subheader(d, "Goods Movement > MIGO")
-    _header_row(d, hl_ref=True)
+    # Neutral: blank target + decoy the Action dropdown and PO field
+    ref_val = "Purchase Order" if hl else ""
+    _header_row(d, reference=ref_val, hl_ref=hl,
+                decoy_action=not hl, decoy_po=not hl)
     placeholder_note(d)
     return img
 
 
-def screen_migo_po():
+def screen_migo_po(hl=True):
     img, d = new_screen("Goods Movement (MIGO)")
     draw_subheader(d, "Goods Movement > MIGO")
-    _header_row(d, po="4500012345", hl_po=True)
+    # Neutral: blank target + decoy the Reference Doc dropdown and Execute button
+    po_val = "4500012345" if hl else ""
+    _header_row(d, po=po_val, hl_po=hl,
+                decoy_ref=not hl, decoy_exec=not hl)
     placeholder_note(d)
     return img
 
 
-def screen_migo_items():
+def screen_migo_items(hl=True):
     img, d = new_screen("Goods Movement (MIGO) — PO 4500012345")
     draw_subheader(d, "Goods Movement > MIGO")
     _header_row(d, po="4500012345")
-    _items_table(d, highlight_col=3)   # Qty column highlighted
+    # Neutral: blank Qty + decoy S.Loc (5) and Batch (6) columns
+    _items_table(d, highlight_col=3 if hl else None,
+                 blank_col=3 if not hl else None,
+                 decoy_cols=[5, 6] if not hl else None)
     placeholder_note(d)
     return img
 
 
-def screen_migo_batch():
+def screen_migo_batch(hl=True):
     img, d = new_screen("Goods Movement (MIGO) — PO 4500012345")
     draw_subheader(d, "Goods Movement > MIGO")
     _header_row(d, po="4500012345")
-    _items_table(d, highlight_col=6, batch_val="LOT-240201")  # Batch highlighted
+    # Neutral: blank Batch + decoy Qty (3) and S.Loc (5) columns
+    batch = "LOT-240201" if hl else ""
+    _items_table(d, highlight_col=6 if hl else None, batch_val=batch,
+                 decoy_cols=[3, 5] if not hl else None)
     placeholder_note(d)
     return img
 
 
-def screen_migo_storage():
-    img, d = new_screen("Goods Movement (MIGO) — Item Detail")
-    draw_subheader(d, "Goods Movement > MIGO")
-    draw_card(d, 20, 90, W - 20, 560,
-              title="Item Detail — Line 0001: FZ-9921 Frozen Burrito 12pk")
-    # Tabs
+def _draw_item_detail_tabs(d, active_idx):
+    """Shared tab bar for item detail screens."""
     tabs = ["Where", "Quantity", "Material", "Account Assignment", "Purchase Order"]
     tx = 36
     for i, tab in enumerate(tabs):
-        active = (i == 0)
+        active = (i == active_idx)
         bg = SAP_WHITE if active else SAP_GREY_BG
         d.rectangle([tx, 126, tx + len(tab) * 8 + 20, 150], fill=bg, outline=SAP_BORDER, width=1)
         if active:
@@ -302,55 +335,54 @@ def screen_migo_storage():
                font=fnt(12, bold=active), fill=SAP_BLUE if active else SAP_LABEL)
         tx += len(tab) * 8 + 28
     d.line([(36, 150), (W - 36, 150)], fill=SAP_BORDER, width=1)
+
+
+def screen_migo_storage(hl=True):
+    img, d = new_screen("Goods Movement (MIGO) — Item Detail")
+    draw_subheader(d, "Goods Movement > MIGO")
+    draw_card(d, 20, 90, W - 20, 560,
+              title="Item Detail — Line 0001: FZ-9921 Frozen Burrito 12pk")
+    _draw_item_detail_tabs(d, active_idx=0)
     d.text((36, 170), "Where Tab — Storage Information", font=fnt(13, bold=True), fill=SAP_LABEL)
-    draw_field(   d, 36,  210, 200, 34, "Plant",            "SE01")
-    draw_dropdown(d, 260, 210, 220, 34, "Storage Location", "ZONE-F (Frozen)", highlight=True)
-    draw_field(   d, 504, 210, 200, 34, "Movement Type",    "101")
+    # Neutral: decoy Plant and Movement Type fields
+    draw_field(   d, 36,  210, 200, 34, "Plant",            "SE01",  decoy=not hl)
+    sloc_val = "ZONE-F (Frozen)" if hl else ""
+    draw_dropdown(d, 260, 210, 220, 34, "Storage Location", sloc_val, highlight=hl)
+    draw_field(   d, 504, 210, 200, 34, "Movement Type",    "101",   decoy=not hl)
     draw_field(   d, 36,  278, 200, 34, "Vendor",           "V-00042")
     draw_field(   d, 260, 278, 220, 34, "Delivery Note",    "DN-20240201")
     placeholder_note(d)
     return img
 
 
-def screen_migo_qi():
+def screen_migo_qi(hl=True):
     img, d = new_screen("Goods Movement (MIGO) — Item Detail")
     draw_subheader(d, "Goods Movement > MIGO")
     draw_card(d, 20, 90, W - 20, 560,
               title="Item Detail — Line 0001: FZ-9921 Frozen Burrito 12pk")
-    tabs = ["Where", "Quantity", "Material", "Account Assignment", "Purchase Order"]
-    tx = 36
-    for i, tab in enumerate(tabs):
-        active = (i == 2)
-        bg = SAP_WHITE if active else SAP_GREY_BG
-        d.rectangle([tx, 126, tx + len(tab) * 8 + 20, 150], fill=bg, outline=SAP_BORDER, width=1)
-        if active:
-            d.rectangle([tx, 148, tx + len(tab) * 8 + 20, 150], fill=SAP_BLUE)
-        d.text((tx + 8, 132), tab,
-               font=fnt(12, bold=active), fill=SAP_BLUE if active else SAP_LABEL)
-        tx += len(tab) * 8 + 28
-    d.line([(36, 150), (W - 36, 150)], fill=SAP_BORDER, width=1)
+    _draw_item_detail_tabs(d, active_idx=2)
     d.text((36, 170), "Material Tab — Quality & Classification",
            font=fnt(13, bold=True), fill=SAP_LABEL)
     draw_field(d, 36,  210, 200, 34, "Material Number",      "FZ-9921")
     draw_field(d, 260, 210, 220, 34, "Material Description", "Frozen Burrito 12pk")
     draw_field(d, 36,  278, 200, 34, "Purchasing Group",     "R-SE")
-    draw_checkbox(d, 36, 350, "Quality Inspection Required", checked=False, highlight=True)
-    draw_checkbox(d, 36, 390, "Cold Chain Verification",     checked=True)
-    draw_checkbox(d, 36, 430, "Private Label Item",          checked=True)
+    # Neutral: decoy Cold Chain and Private Label checkboxes
+    draw_checkbox(d, 36, 350, "Quality Inspection Required", checked=False, highlight=hl)
+    draw_checkbox(d, 36, 390, "Cold Chain Verification",     checked=True,  decoy=not hl)
+    draw_checkbox(d, 36, 430, "Private Label Item",          checked=True,  decoy=not hl)
     placeholder_note(d)
     return img
 
 
-def screen_migo_post():
+def screen_migo_post(hl=True):
     img, d = new_screen("Goods Movement (MIGO) — Ready to Post")
     draw_subheader(d, "Goods Movement > MIGO")
-    # Toolbar with Post highlighted
     d.rectangle([0, 80, W, 116], fill=(248, 250, 252))
     d.line([(0, 116), (W, 116)], fill=SAP_BORDER, width=1)
-    draw_button(d, 20,  88, 80, 32, "Post",   primary=True,  highlight=True)
-    draw_button(d, 112, 88, 80, 32, "Check",  primary=False)
-    draw_button(d, 204, 88, 80, 32, "Cancel", primary=False)
-    # Summary card
+    # Neutral: decoy Check and Cancel buttons
+    draw_button(d, 20,  88, 80, 32, "Post",   primary=True,  highlight=hl)
+    draw_button(d, 112, 88, 80, 32, "Check",  primary=False, decoy=not hl)
+    draw_button(d, 204, 88, 80, 32, "Cancel", primary=False, decoy=not hl)
     draw_card(d, 20, 126, W - 20, 340, title="Ready to Post — Summary")
     summary = [
         ("Action",             "Goods Receipt against Purchase Order"),
@@ -371,7 +403,7 @@ def screen_migo_post():
 
 
 # ── Screen registry ───────────────────────────────────────────────────────────
-# Maps filename → generator function. ui_trainer.py calls generate_screens().
+# Maps filename → generator function. Each accepts hl=True/False.
 
 SCREEN_GENERATORS = {
     "fiori_home.png":     screen_fiori_home,
@@ -387,8 +419,21 @@ SCREEN_GENERATORS = {
 
 
 def generate_screens(screens_dir: Path):
-    """Generate all placeholder PNGs into screens_dir. Called by ui_trainer.py."""
+    """Generate highlighted + neutral PNGs. Called by ui_trainer.py.
+
+    Output:
+        screens/           ← highlighted variants (L0 Explore, L1 Guided)
+        screens_neutral/   ← neutral variants   (L2 On Your Own, L3 Challenge)
+
+    Returns (highlighted_filenames, neutral_filenames).
+    """
     screens_dir.mkdir(parents=True, exist_ok=True)
+    neutral_dir = screens_dir.parent / "screens_neutral"
+    neutral_dir.mkdir(parents=True, exist_ok=True)
+
     for fname, fn in SCREEN_GENERATORS.items():
-        fn().save(str(screens_dir / fname), "PNG")
-    return list(SCREEN_GENERATORS.keys())
+        fn(hl=True).save(str(screens_dir / fname), "PNG")
+        fn(hl=False).save(str(neutral_dir / fname), "PNG")
+
+    names = list(SCREEN_GENERATORS.keys())
+    return names

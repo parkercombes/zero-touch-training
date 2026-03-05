@@ -63,30 +63,46 @@ def draw_shell_bar(draw, title="SAP Fiori Launchpad", initials="USR"):
     draw.text((W - 44, 16), initials[:3], font=fnt(11, bold=True), fill=SAP_WHITE)
 
 
-def draw_field(draw, x, y, w, h, label, value="", highlight=False):
+def draw_field(draw, x, y, w, h, label, value="", highlight=False, decoy=False):
     draw.text((x, y - 18), label, font=fnt(11), fill=SAP_LABEL)
-    border_col = SAP_AMBER if highlight else SAP_BORDER
-    lw = 2 if highlight else 1
-    draw.rectangle([x, y, x + w, y + h], fill=SAP_WHITE, outline=border_col, width=lw)
+    if highlight:
+        border_col, lw, bg = SAP_AMBER, 2, SAP_WHITE
+    elif decoy:
+        border_col, lw, bg = SAP_BLUE, 1, (240, 246, 255)
+    else:
+        border_col, lw, bg = SAP_BORDER, 1, SAP_WHITE
+    draw.rectangle([x, y, x + w, y + h], fill=bg, outline=border_col, width=lw)
     if value:
         draw.text((x + 8, y + 8), value, font=fnt(13), fill=SAP_TEXT)
     if highlight:
         draw.rectangle([x, y + h - 2, x + w, y + h], fill=SAP_AMBER)
+    if decoy:
+        # Subtle cursor line suggesting the field is active/editable
+        draw.line([(x + 8, y + 6), (x + 8, y + h - 6)], fill=SAP_BLUE, width=1)
 
 
-def draw_dropdown(draw, x, y, w, h, label, value, highlight=False):
-    draw_field(draw, x, y, w, h, label, value, highlight)
+def draw_dropdown(draw, x, y, w, h, label, value, highlight=False, decoy=False):
+    draw_field(draw, x, y, w, h, label, value, highlight, decoy=decoy)
     arr_x = x + w - 24
+    arrow_col = SAP_AMBER if highlight else SAP_BLUE
     draw.polygon([(arr_x, y + 12), (arr_x + 12, y + 12), (arr_x + 6, y + 22)],
-                 fill=SAP_BLUE if not highlight else SAP_AMBER)
+                 fill=arrow_col)
 
 
-def draw_button(draw, x, y, w, h, label, primary=True, highlight=False):
-    col = SAP_AMBER if highlight else (SAP_BLUE if primary else SAP_GREY_BG)
-    border = SAP_AMBER if highlight else (SAP_BLUE if primary else SAP_BORDER)
+def draw_button(draw, x, y, w, h, label, primary=True, highlight=False, decoy=False):
+    if highlight:
+        col, border = SAP_AMBER, SAP_AMBER
+    elif decoy:
+        col = (220, 235, 255) if primary else (235, 240, 250)
+        border = SAP_BLUE
+    else:
+        col = SAP_BLUE if primary else SAP_GREY_BG
+        border = SAP_BLUE if primary else SAP_BORDER
     draw.rounded_rectangle([x, y, x + w, y + h], radius=4,
                             fill=col, outline=border, width=1)
     txt_col = SAP_WHITE if (primary or highlight) else SAP_TEXT
+    if decoy and not primary:
+        txt_col = SAP_BLUE
     draw.text((x + w // 2 - 20, y + h // 2 - 8), label,
               font=fnt(13, bold=True), fill=txt_col)
 
@@ -101,23 +117,35 @@ def draw_table_header(draw, x, y, columns):
     draw.line([(x, y + 32), (W - 40, y + 32)], fill=SAP_BORDER, width=1)
 
 
-def draw_table_row(draw, x, y, columns, values, highlight_col=None):
+def draw_table_row(draw, x, y, columns, values, highlight_col=None, decoy_cols=None):
     cx = x
+    decoy_cols = decoy_cols or []
     draw.rectangle([x, y, W - 40, y + 34], fill=SAP_WHITE, outline=SAP_BORDER, width=1)
     for i, ((col_label, col_w), val) in enumerate(zip(columns, values)):
-        bg = (255, 248, 235) if i == highlight_col else SAP_WHITE
+        if i == highlight_col:
+            bg = (255, 248, 235)
+        elif i in decoy_cols:
+            bg = (240, 246, 255)
+        else:
+            bg = SAP_WHITE
         draw.rectangle([cx, y, cx + col_w, y + 34], fill=bg)
-        draw.line([(cx + col_w, y), (cx + col_w, y + 34)], fill=SAP_BORDER, width=1)
+        border_col = SAP_BLUE if i in decoy_cols else SAP_BORDER
+        draw.line([(cx + col_w, y), (cx + col_w, y + 34)], fill=border_col, width=1)
         draw.text((cx + 6, y + 10), str(val), font=fnt(12), fill=SAP_TEXT)
         if i == highlight_col:
             draw.rectangle([cx, y + 32, cx + col_w, y + 34], fill=SAP_AMBER)
         cx += col_w
 
 
-def draw_checkbox(draw, x, y, label, checked=False, highlight=False):
-    border = SAP_AMBER if highlight else SAP_BORDER
-    lw = 2 if highlight else 1
-    draw.rectangle([x, y, x + 18, y + 18], fill=SAP_WHITE, outline=border, width=lw)
+def draw_checkbox(draw, x, y, label, checked=False, highlight=False, decoy=False):
+    if highlight:
+        border, lw = SAP_AMBER, 2
+    elif decoy:
+        border, lw = SAP_BLUE, 1
+    else:
+        border, lw = SAP_BORDER, 1
+    bg = (240, 246, 255) if decoy else SAP_WHITE
+    draw.rectangle([x, y, x + 18, y + 18], fill=bg, outline=border, width=lw)
     if checked:
         draw.line([(x + 3, y + 9), (x + 7, y + 14), (x + 15, y + 4)],
                   fill=SAP_GREEN, width=2)
@@ -125,6 +153,9 @@ def draw_checkbox(draw, x, y, label, checked=False, highlight=False):
     if highlight:
         draw.rectangle([x - 4, y - 4, x + 22, y + 22],
                        outline=SAP_AMBER, width=2)
+    if decoy:
+        draw.rectangle([x - 3, y - 3, x + 21, y + 21],
+                       outline=SAP_BLUE, width=1)
 
 
 def draw_subheader(draw, text):
