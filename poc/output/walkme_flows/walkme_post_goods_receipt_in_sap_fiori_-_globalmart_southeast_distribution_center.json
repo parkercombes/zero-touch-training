@@ -1,0 +1,353 @@
+{
+  "walkthru": {
+    "name": "Purchase Requisition to Goods Receipt — Buyer Guide",
+    "description": "Step-by-step in-app guidance for Purchase Requisition to Goods Receipt at Southeast Distribution Center",
+    "transaction": "",
+    "site": "SE-DC",
+    "role": "Buyer",
+    "version": "1.0",
+    "generated_from": "tosca_test_script",
+    "steps": [
+      {
+        "step_number": 1,
+        "type": "balloon",
+        "title": "Open SAP Fiori Launchpad",
+        "content": "Navigate to SAP Fiori Launchpad to access your receiving applications. Ensure you are logged in with proper credentials.",
+        "element_selector": "page",
+        "element_description": "SAP Fiori Launchpad",
+        "action": "navigate",
+        "expected_value": "https://sap.globalmart.com/fiori",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "page_load",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 2,
+        "type": "tooltip",
+        "title": "Search for Post Goods Receipt App",
+        "content": "Enter 'Post Goods Receipt' in the search box to find the MIGO application for processing goods receipts.",
+        "element_selector": "id://searchInput",
+        "element_description": "Fiori Launchpad search box",
+        "action": "input",
+        "expected_value": "Post Goods Receipt",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 3,
+        "type": "tooltip",
+        "title": "Open Post Goods Receipt App",
+        "content": "Click on the Post Goods Receipt (MIGO) app tile to open the goods receipt transaction.",
+        "element_selector": "xpath://div[@class='sapMTile' and contains(.//span[@class='sapMTileContent'], 'Post Goods Receipt')]",
+        "element_description": "MIGO app tile",
+        "action": "click",
+        "expected_value": "",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "click",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 4,
+        "type": "tooltip",
+        "title": "Select Movement Type 101",
+        "content": "Select Movement Type 101 for Goods Receipt for Purchase Order. This is the standard movement type for receiving goods against a PO.",
+        "element_selector": "id://MovementType",
+        "element_description": "Movement Type dropdown",
+        "action": "select",
+        "expected_value": "101",
+        "validation": {
+          "enabled": true,
+          "rule": "Movement Type must be 101",
+          "error_message": "Please select Movement Type 101 - Goods Receipt for Purchase Order"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 1000
+        }
+      },
+      {
+        "step_number": 5,
+        "type": "tooltip",
+        "title": "Enter Purchase Order Number",
+        "content": "Enter the purchase order number that you are receiving goods against. This will populate the line items automatically.",
+        "element_selector": "id://PONumber",
+        "element_description": "Purchase Order Number field",
+        "action": "input",
+        "expected_value": "4500234567",
+        "validation": {
+          "enabled": true,
+          "rule": "Valid PO number required",
+          "error_message": "Please enter a valid Purchase Order number"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 6,
+        "type": "tooltip",
+        "title": "Enter Goods Receipt Quantity",
+        "content": "Enter the actual quantity received. Ensure this matches the physical count and does not exceed the PO quantity.",
+        "element_selector": "id://GRQuantity_Item1",
+        "element_description": "Goods Receipt quantity field",
+        "action": "input",
+        "expected_value": "500",
+        "validation": {
+          "enabled": true,
+          "rule": "Quantity must match physical receipt",
+          "error_message": "Entered quantity must match the actual goods received"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 7,
+        "type": "popup",
+        "title": "Select Proper Storage Location - SE-DC Requirement",
+        "content": "⚠️ IMPORTANT: At SE-DC, you must select Zone-R (Refrigerated Zone) for perishable dairy items. This ensures proper cold chain integrity and temperature control at 38°F as required by site policy.",
+        "element_selector": "id://StorageLocation_Item1",
+        "element_description": "Storage Location dropdown",
+        "action": "select",
+        "expected_value": "Zone-R",
+        "validation": {
+          "enabled": true,
+          "rule": "Storage location must match temperature zone for perishables",
+          "error_message": "For perishable dairy items at SE-DC, you must select Zone-R (Refrigerated Zone) to maintain cold chain integrity"
+        },
+        "site_specific": {
+          "is_site_specific": true,
+          "site_rule": "At SE-DC, perishable dairy items must be received and stored in Zone-R (Refrigerated, 38°F maintained) for cold chain integrity and food safety compliance",
+          "enterprise_default": "Standard storage location selection without mandatory temperature zone matching"
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 8,
+        "type": "popup",
+        "title": "Mandatory Quality Inspection - SE-DC Policy",
+        "content": "⚠️ REQUIRED: At SE-DC, quality inspection is mandatory for all perishable and private-label goods. This checkbox must be selected to ensure product quality and compliance with distribution center policy.",
+        "element_selector": "id://QualityInspectionCheckbox_Item1",
+        "element_description": "Quality Inspection checkbox",
+        "action": "click",
+        "expected_value": "true",
+        "validation": {
+          "enabled": true,
+          "rule": "Quality inspection is mandatory for perishables at SE-DC",
+          "error_message": "Quality Inspection is required for perishable and private-label goods at SE-DC"
+        },
+        "site_specific": {
+          "is_site_specific": true,
+          "site_rule": "Quality Inspection is mandatory for perishable and private-label goods at GlobalMart SE-DC to ensure product quality, cold chain integrity, expiry date verification, and packaging condition",
+          "enterprise_default": "Enterprise default allows optional quality inspection"
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 9,
+        "type": "smarttip",
+        "title": "Enter Quality Inspection Notes",
+        "content": "Document key inspection details including temperature at receiving, packaging condition, and expiry date verification. This information is critical for traceability and compliance at SE-DC.",
+        "element_selector": "id://InspectionNotes_Item1",
+        "element_description": "Quality inspection notes field",
+        "action": "input",
+        "expected_value": "Temperature at receiving: 36°F (within 33-40°F range). Packaging intact. Expiry date: 2026-03-01. Lot LOT-2026-0215-MK verified.",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": true,
+          "site_rule": "Detailed inspection notes required for cold chain traceability and compliance verification at SE-DC",
+          "enterprise_default": "Basic inspection notes optional"
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 10,
+        "type": "tooltip",
+        "title": "Post the Goods Receipt",
+        "content": "Click Post to finalize the goods receipt. This will update inventory and complete the receiving process.",
+        "element_selector": "id://PostButton",
+        "element_description": "Post button",
+        "action": "click",
+        "expected_value": "",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "click",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 11,
+        "type": "balloon",
+        "title": "Verify Stock Update",
+        "content": "Navigate to Inventory Management (MMBE) to verify that the stock has been properly updated with your goods receipt.",
+        "element_selector": "page",
+        "element_description": "Navigation to Stock Overview",
+        "action": "navigate",
+        "expected_value": "https://sap.globalmart.com/fiori?transaction=MMBE",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "page_load",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 12,
+        "type": "tooltip",
+        "title": "Search Material",
+        "content": "Enter the material number to query the current stock levels and verify your goods receipt has been processed.",
+        "element_selector": "id://MaterialQuery",
+        "element_description": "Material number search field",
+        "action": "input",
+        "expected_value": "SKU-DRY-78432",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 1000
+        }
+      },
+      {
+        "step_number": 13,
+        "type": "tooltip",
+        "title": "Filter by Plant SE-DC",
+        "content": "Select SE-DC plant to view stock levels specifically for the Southeast Distribution Center.",
+        "element_selector": "id://PlantFilter",
+        "element_description": "Plant filter dropdown",
+        "action": "select",
+        "expected_value": "SE-DC",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 14,
+        "type": "tooltip",
+        "title": "Filter by Storage Location Zone-R",
+        "content": "Filter to Zone-R (Refrigerated Zone) to confirm the goods were properly received into the correct temperature-controlled storage area.",
+        "element_selector": "id://StorageLocationFilter",
+        "element_description": "Storage location filter",
+        "action": "select",
+        "expected_value": "Zone-R",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 0
+        }
+      }
+    ],
+    "completion": {
+      "message": "Congratulations! You have successfully completed the Purchase Requisition to Goods Receipt process. The goods have been received, quality inspected per SE-DC requirements, and stock has been updated in the proper refrigerated storage location.",
+      "next_suggested": "Next: Consider running 'Invoice Verification Process' or 'Quality Inspection Follow-up' walkthrus"
+    }
+  }
+}

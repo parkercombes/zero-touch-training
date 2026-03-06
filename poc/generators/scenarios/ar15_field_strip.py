@@ -28,6 +28,12 @@ from scenarios.base_hardware import (
     hardware_status_banner, placeholder_note,
 )
 
+# ── Reference diagram ─────────────────────────────────────────────────────────
+# Path to the AR-15 parts breakdown diagram (relative to the repo root).
+# load_base_image() will resize it to the 1280×720 canvas.
+_DIAGRAM_DIR = Path(__file__).resolve().parent.parent.parent.parent / "docs" / "AR-15"
+_DIAGRAM_PATH = _DIAGRAM_DIR / "ar15-parts-breakdown-drawing-1024x683.webp"
+
 
 # ── Scenario definition ───────────────────────────────────────────────────────
 
@@ -46,7 +52,7 @@ SCENARIO = {
             "goal":        "Verify the weapon is clear",
             "instruction": "Remove the magazine and lock the bolt to the rear. Visually and physically inspect the chamber.",
             "hint":        "Press the magazine release, pull the charging handle, and lock the bolt open. Look into the ejection port.",
-            "hotspot":     {"x": 480, "y": 200, "w": 280, "h": 120},
+            "hotspot":     {"x": 480, "y": 265, "w": 220, "h": 100},
             "feedback":    "Weapon verified clear. Magazine removed, bolt locked, chamber empty.",
             "consequence": "Skipping clearance verification is the #1 cause of negligent discharges during maintenance. Every cleaning-related accident starts with someone who 'knew' it was unloaded.",
             "explore_info": [
@@ -64,7 +70,7 @@ SCENARIO = {
             "goal":        "Push out the takedown pins",
             "instruction": "Push the rear takedown pin from left to right, then the front pivot pin. Separate upper and lower receivers.",
             "hint":        "Use your thumb or a punch. Rear pin first, then front. They only need to go halfway — don't force them all the way out.",
-            "hotspot":     {"x": 540, "y": 340, "w": 180, "h": 60},
+            "hotspot":     {"x": 360, "y": 345, "w": 385, "h": 55},
             "feedback":    "Pins pushed. Upper and lower receivers separated cleanly.",
             "consequence": "Forcing the pins with a hard tool can wallop the finish and deform the pin holes. Over time, loose pin holes cause receiver wobble and accuracy loss. Always push — never hammer.",
             "explore_info": [
@@ -81,7 +87,7 @@ SCENARIO = {
             "goal":        "Remove the bolt carrier group and charging handle",
             "instruction": "With the upper receiver separated, pull the charging handle rearward and lift out the bolt carrier group (BCG).",
             "hint":        "Tilt the upper receiver so the BCG slides toward you. Pull the charging handle partway back, then slide it out from its channel.",
-            "hotspot":     {"x": 300, "y": 180, "w": 320, "h": 140},
+            "hotspot":     {"x": 320, "y": 155, "w": 155, "h": 65},
             "feedback":    "BCG and charging handle removed. Upper receiver is now empty.",
             "consequence": "Yanking the BCG without tilting the receiver can gouge the inside of the upper. Carbon buildup makes it sticky — patience prevents scratches on the bearing surfaces.",
             "explore_info": [
@@ -98,7 +104,7 @@ SCENARIO = {
             "goal":        "Remove the firing pin and cam pin from the bolt carrier",
             "instruction": "Push out the firing pin retaining pin, remove the firing pin, then lift out the cam pin. Slide the bolt out last.",
             "hint":        "Retaining pin first (it's the small cotter pin at the rear). Then the firing pin drops out. Rotate the cam pin 90° and lift.",
-            "hotspot":     {"x": 400, "y": 260, "w": 240, "h": 100},
+            "hotspot":     {"x": 320, "y": 220, "w": 400, "h": 90},
             "feedback":    "Bolt disassembled. Firing pin, cam pin, and bolt separated for inspection.",
             "consequence": "Removing the cam pin before the firing pin bends the retaining pin and can crack the carrier. Sequence matters: retaining pin → firing pin → cam pin → bolt. Every time.",
             "explore_info": [
@@ -116,7 +122,7 @@ SCENARIO = {
             "goal":        "Inspect bolt face and lugs for wear or damage",
             "instruction": "Examine the bolt face for pitting, cracks, or carbon buildup. Check all locking lugs for even wear. Clean with solvent and a brush.",
             "hint":        "Look at the bolt face straight-on under good light. Carbon on the lugs is normal — cracks or chips are not.",
-            "hotspot":     {"x": 380, "y": 200, "w": 260, "h": 200},
+            "hotspot":     {"x": 530, "y": 230, "w": 200, "h": 100},
             "feedback":    "Bolt face and lugs inspected. No cracks. Carbon removed. Ready for lubrication.",
             "consequence": "A cracked bolt lug can shear off under pressure, causing a catastrophic failure. A pitted bolt face causes poor primer strikes and misfires. 30 seconds of inspection prevents a malfunction under fire.",
             "explore_info": [
@@ -133,7 +139,7 @@ SCENARIO = {
             "goal":        "Apply lubricant to the bolt carrier group",
             "instruction": "Apply a thin film of CLP to the bolt body, cam pin channel, and bolt carrier rails. Don't over-lubricate.",
             "hint":        "A few drops on each contact surface. Wipe excess. The bolt carrier rails and cam pin slot are the critical friction points.",
-            "hotspot":     {"x": 320, "y": 280, "w": 300, "h": 80},
+            "hotspot":     {"x": 330, "y": 230, "w": 310, "h": 80},
             "feedback":    "BCG lubricated. Thin film on all bearing surfaces. No excess pooling.",
             "consequence": "Too little lube causes metal-on-metal wear and premature part failure. Too much attracts dust and carbon, creating an abrasive paste. The bolt carrier rails and cam pin slot are where most friction occurs — focus there.",
             "explore_info": [
@@ -150,7 +156,7 @@ SCENARIO = {
             "goal":        "Reassemble the bolt carrier group",
             "instruction": "Slide bolt into carrier, insert cam pin (rotate 90°), drop firing pin in from the rear, replace retaining pin.",
             "hint":        "Reverse order: bolt → cam pin → firing pin → retaining pin. The cam pin only goes in one way — align the hole.",
-            "hotspot":     {"x": 380, "y": 240, "w": 280, "h": 120},
+            "hotspot":     {"x": 300, "y": 200, "w": 440, "h": 120},
             "feedback":    "BCG reassembled. All pins seated. Bolt rotates freely in the carrier.",
             "consequence": "Forgetting the firing pin retaining pin means the firing pin can walk out under recoil. Best case: misfires. Worst case: the pin drops into the trigger group and the rifle goes full-auto uncontrolled. Always verify the retaining pin is seated.",
             "explore_info": [
@@ -167,7 +173,7 @@ SCENARIO = {
             "goal":        "Rejoin receivers and perform a function check",
             "instruction": "Seat the BCG and charging handle in the upper. Pivot the upper onto the lower and push both pins home. Perform a function check.",
             "hint":        "Front pivot pin first, then rear takedown pin. Pull charging handle to charge. Pull trigger — hammer should fall. Safety on, pull trigger — nothing. Safety off, pull trigger — hammer falls.",
-            "hotspot":     {"x": 500, "y": 310, "w": 240, "h": 80},
+            "hotspot":     {"x": 370, "y": 340, "w": 370, "h": 70},
             "feedback":    "Receivers joined. Function check passed: trigger, safety, bolt release all verified. Weapon is clean, lubed, and mission-ready.",
             "consequence": "Skipping the function check means you won't know if you reassembled something wrong until the rifle fails at the worst possible moment. A 15-second function check catches 99% of reassembly errors — trigger reset, safety engagement, and bolt lockback.",
             "explore_info": [
@@ -195,245 +201,149 @@ SCENARIO = {
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# SCREEN GENERATORS — placeholder diagrams (replace with real photos later)
+# SCREEN GENERATORS — real AR-15 parts breakdown diagram
 # ═════════════════════════════════════════════════════════════════════════════
 
-def _draw_rifle_silhouette(d, x=100, y=200, w=1000, h=250, label="AR-15 / M4"):
-    """Draw a simplified rifle outline as a placeholder base."""
-    # Stock
-    d.rounded_rectangle([x, y + 60, x + 180, y + h - 30], radius=8,
-                        fill=(200, 200, 200), outline=HW_BORDER, width=2)
-    d.text((x + 20, y + 100), "Stock / Buffer Tube", font=fnt(10), fill=HW_LABEL)
-    # Lower receiver
-    d.rounded_rectangle([x + 170, y + 40, x + 480, y + h - 10], radius=6,
-                        fill=(210, 210, 210), outline=HW_BORDER, width=2)
-    d.text((x + 200, y + 55), "Lower Receiver", font=fnt(11, bold=True), fill=HW_LABEL)
-    # Trigger guard
-    d.rounded_rectangle([x + 280, y + h - 50, x + 380, y + h + 10], radius=10,
-                        fill=(220, 220, 220), outline=HW_BORDER, width=1)
-    d.text((x + 285, y + h - 35), "Trigger", font=fnt(9), fill=HW_LABEL)
-    # Magazine well
-    d.rectangle([x + 320, y + h + 5, x + 380, y + h + 80],
-                fill=(195, 195, 195), outline=HW_BORDER, width=1)
-    d.text((x + 325, y + h + 15), "Mag\nWell", font=fnt(9), fill=HW_LABEL)
-    # Upper receiver
-    d.rounded_rectangle([x + 170, y, x + 700, y + 80], radius=6,
-                        fill=(190, 190, 190), outline=HW_BORDER, width=2)
-    d.text((x + 200, y + 10), "Upper Receiver", font=fnt(11, bold=True), fill=HW_LABEL)
-    # Barrel + handguard
-    d.rounded_rectangle([x + 480, y + 10, x + w, y + 70], radius=4,
-                        fill=(180, 180, 180), outline=HW_BORDER, width=2)
-    d.text((x + 520, y + 25), "Handguard / Barrel", font=fnt(11, bold=True), fill=HW_LABEL)
-    # Ejection port
-    d.rectangle([x + 420, y + 20, x + 480, y + 65],
-                fill=(160, 160, 160), outline=HW_STEEL, width=1)
-    d.text((x + 425, y + 30), "Ejection\nPort", font=fnt(9), fill=HW_LABEL)
-    # Charging handle
-    d.rectangle([x + 170, y - 15, x + 240, y + 5],
-                fill=(175, 175, 175), outline=HW_BORDER, width=1)
-    d.text((x + 175, y - 12), "CH", font=fnt(9, bold=True), fill=HW_LABEL)
-    # Forward assist
-    d.ellipse([x + 395, y + 20, x + 420, y + 50],
-              fill=(170, 170, 170), outline=HW_BORDER, width=1)
-    d.text((x + 398, y + 28), "FA", font=fnt(8), fill=HW_LABEL)
+def _diagram_screen(title):
+    """Load the real AR-15 diagram as a base, overlay the steel shell bar.
 
-
-def _draw_bcg(d, x=300, y=180, w=600, h=280):
-    """Draw a simplified bolt carrier group diagram."""
-    # Carrier body
-    d.rounded_rectangle([x, y + 60, x + w, y + 180], radius=8,
-                        fill=(200, 200, 200), outline=HW_BORDER, width=2)
-    d.text((x + 20, y + 80), "Bolt Carrier", font=fnt(13, bold=True), fill=HW_LABEL)
-    # Gas key
-    d.rectangle([x + 80, y + 30, x + 180, y + 65],
-                fill=(185, 185, 185), outline=HW_BORDER, width=2)
-    d.text((x + 90, y + 40), "Gas Key", font=fnt(10, bold=True), fill=HW_LABEL)
-    # Bolt (front)
-    d.ellipse([x - 40, y + 70, x + 40, y + 170],
-              fill=(180, 180, 180), outline=HW_STEEL, width=2)
-    d.text((x - 30, y + 105), "Bolt\nFace", font=fnt(10, bold=True), fill=HW_LABEL)
-    # Cam pin
-    d.rectangle([x + 60, y + 100, x + 100, y + 145],
-                fill=(170, 170, 170), outline=HW_STEEL, width=1)
-    d.text((x + 63, y + 108), "Cam\nPin", font=fnt(9), fill=HW_LABEL)
-    # Firing pin channel (line through carrier)
-    d.line([(x + w - 20, y + 120), (x - 30, y + 120)],
-           fill=HW_STEEL, width=1)
-    d.text((x + w - 100, y + 125), "Firing Pin", font=fnt(10), fill=HW_LABEL)
-    # Retaining pin
-    d.ellipse([x + w - 25, y + 110, x + w - 5, y + 130],
-              fill=HW_ORANGE, outline=HW_STEEL, width=1)
-    d.text((x + w + 5, y + 110), "Ret. Pin", font=fnt(9), fill=HW_LABEL)
-    # Carrier rails
-    d.rectangle([x + 10, y + 175, x + w - 10, y + 190],
-                fill=(175, 175, 175), outline=HW_BORDER, width=1)
-    d.text((x + 200, y + 176), "Carrier Rails (lube here)", font=fnt(10), fill=HW_LABEL)
+    Returns (img, draw) — same contract as new_hardware_screen().
+    """
+    img = load_base_image(str(_DIAGRAM_PATH))
+    d = ImageDraw.Draw(img)
+    # Steel-grey shell bar with title
+    d.rectangle([0, 0, W, 48], fill=HW_STEEL)
+    d.text((20, 14), title, font=fnt(16, bold=True), fill=HW_WHITE)
+    return img, d
 
 
 def screen_step1_verify_clear(hl=True):
-    """Full rifle view with ejection port / chamber as target."""
-    img, d = new_hardware_screen("AR-15 Field Strip — Step 1: Verify Clear")
-    _draw_rifle_silhouette(d)
-    # Hotspot on ejection port / chamber area
+    """Full rifle — ejection port / magazine release as target."""
+    img, d = _diagram_screen("AR-15 Field Strip — Step 1: Verify Clear")
     hs = SCENARIO["tutorial"][0]["hotspot"]
     annotate_region(img, hs, label="1", hl=hl)
+    if hl:
+        draw_callout(img, 650, 280, "Ejection Port", anchor="right")
+        draw_callout(img, 500, 310, "Magazine Release", anchor="left")
     if not hl:
-        # Decoys: magazine release and forward assist
-        annotate_region(img, {"x": 380, "y": 350, "w": 80, "h": 60}, label="?", hl=False, decoy=True)
-        annotate_region(img, {"x": 200, "y": 200, "w": 120, "h": 50}, label="?", hl=False, decoy=True)
+        # Decoys: forward assist and trigger area
+        annotate_region(img, {"x": 420, "y": 100, "w": 100, "h": 60}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 510, "y": 400, "w": 100, "h": 60}, label="?", hl=False, decoy=True)
     hardware_status_banner(d, "SAFETY FIRST: Remove magazine. Lock bolt open. Inspect chamber." if hl
                            else "Verify the weapon is clear before proceeding.", ok=True)
-    placeholder_note(d)
     return img
 
 
 def screen_step2_takedown_pins(hl=True):
-    """Rifle view focusing on takedown pins between upper and lower."""
-    img, d = new_hardware_screen("AR-15 Field Strip — Step 2: Takedown Pins")
-    _draw_rifle_silhouette(d)
+    """Full rifle — takedown pins between upper and lower receivers."""
+    img, d = _diagram_screen("AR-15 Field Strip — Step 2: Takedown Pins")
     hs = SCENARIO["tutorial"][1]["hotspot"]
     annotate_region(img, hs, label="2", hl=hl)
-    if not hl:
-        annotate_region(img, {"x": 280, "y": 420, "w": 100, "h": 50}, label="?", hl=False, decoy=True)
-    # Draw pin callouts
     if hl:
-        draw_callout(img, 580, 345, "Rear Takedown Pin", anchor="right")
-        draw_callout(img, 550, 380, "Front Pivot Pin", anchor="right")
+        draw_callout(img, 390, 370, "Rear Takedown Pin", anchor="left")
+        draw_callout(img, 710, 375, "Front Pivot Pin", anchor="right")
+    if not hl:
+        annotate_region(img, {"x": 510, "y": 420, "w": 100, "h": 60}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 180, "y": 300, "w": 100, "h": 60}, label="?", hl=False, decoy=True)
     hardware_status_banner(d, "Push pins left-to-right. Rear first, then front." if hl
                            else "Separate the upper and lower receivers.", ok=True)
-    placeholder_note(d)
     return img
 
 
 def screen_step3_remove_bcg(hl=True):
-    """Upper receiver with BCG visible, target on BCG."""
-    img, d = new_hardware_screen("AR-15 Field Strip — Step 3: Remove BCG")
-    # Draw just the upper receiver portion
-    d.rounded_rectangle([60, 160, 1200, 400], radius=8,
-                        fill=(220, 220, 220), outline=HW_BORDER, width=2)
-    d.text((80, 170), "Upper Receiver (separated)", font=fnt(13, bold=True), fill=HW_LABEL)
-    # BCG inside
-    d.rounded_rectangle([280, 200, 900, 360], radius=6,
-                        fill=(195, 195, 195), outline=HW_STEEL, width=2)
-    d.text((300, 210), "Bolt Carrier Group (BCG)", font=fnt(12, bold=True), fill=HW_LABEL)
-    # Charging handle
-    d.rectangle([100, 180, 290, 220], fill=(185, 185, 185), outline=HW_BORDER, width=1)
-    d.text((110, 190), "Charging Handle", font=fnt(11), fill=HW_LABEL)
+    """Full rifle — charging handle and upper receiver as target for BCG removal."""
+    img, d = _diagram_screen("AR-15 Field Strip — Step 3: Remove BCG")
     hs = SCENARIO["tutorial"][2]["hotspot"]
     annotate_region(img, hs, label="3", hl=hl)
+    if hl:
+        draw_callout(img, 370, 170, "Charging Handle", anchor="right")
+        draw_callout(img, 430, 200, "BCG exits here", anchor="right")
     if not hl:
-        annotate_region(img, {"x": 100, "y": 180, "w": 190, "h": 40}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 430, "y": 100, "w": 100, "h": 50}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 750, "y": 250, "w": 120, "h": 60}, label="?", hl=False, decoy=True)
     hardware_status_banner(d, "Tilt upper, slide BCG rearward, then remove charging handle." if hl
                            else "Remove the bolt carrier group and charging handle.", ok=True)
-    placeholder_note(d)
     return img
 
 
 def screen_step4_disassemble_bolt(hl=True):
-    """BCG exploded view with firing pin, cam pin, bolt."""
-    img, d = new_hardware_screen("AR-15 Field Strip — Step 4: Disassemble Bolt")
-    _draw_bcg(d)
+    """Full rifle — upper receiver area where BCG components are."""
+    img, d = _diagram_screen("AR-15 Field Strip — Step 4: Disassemble Bolt")
     hs = SCENARIO["tutorial"][3]["hotspot"]
     annotate_region(img, hs, label="4", hl=hl)
-    if not hl:
-        # Decoy on gas key and carrier rails
-        annotate_region(img, {"x": 380, "y": 210, "w": 100, "h": 35}, label="?", hl=False, decoy=True)
-        annotate_region(img, {"x": 310, "y": 355, "w": 280, "h": 35}, label="?", hl=False, decoy=True)
     if hl:
-        draw_callout(img, 365, 300, "Ret.Pin → FP → Cam → Bolt", anchor="left")
+        draw_callout(img, 500, 250, "Ret.Pin → FP → Cam → Bolt", anchor="right")
+    if not hl:
+        annotate_region(img, {"x": 750, "y": 260, "w": 140, "h": 60}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 400, "y": 400, "w": 120, "h": 50}, label="?", hl=False, decoy=True)
     hardware_status_banner(d, "Order: Retaining pin → Firing pin → Cam pin → Bolt" if hl
                            else "Disassemble the bolt carrier group.", ok=True)
-    placeholder_note(d)
     return img
 
 
 def screen_step5_inspect_clean(hl=True):
-    """Close-up of bolt face and locking lugs."""
-    img, d = new_hardware_screen("AR-15 Field Strip — Step 5: Inspect & Clean")
-    # Large bolt face close-up
-    cx, cy, r = 640, 360, 180
-    d.ellipse([cx - r, cy - r, cx + r, cy + r],
-              fill=(190, 190, 190), outline=HW_STEEL, width=3)
-    d.text((cx - 40, cy - 10), "Bolt Face", font=fnt(14, bold=True), fill=HW_LABEL)
-    # Locking lugs (star pattern)
-    import math
-    for i in range(7):
-        angle = i * (2 * math.pi / 7) - math.pi / 2
-        lx = cx + int(r * 0.7 * math.cos(angle))
-        ly = cy + int(r * 0.7 * math.sin(angle))
-        d.rounded_rectangle([lx - 15, ly - 8, lx + 15, ly + 8], radius=3,
-                            fill=(175, 175, 175), outline=HW_BORDER, width=1)
-    d.text((cx - 60, cy + r + 10), "Locking Lugs (7)", font=fnt(11), fill=HW_LABEL)
-    # Extractor
-    d.rectangle([cx + r - 30, cy - 20, cx + r + 20, cy + 20],
-                fill=(170, 170, 170), outline=HW_STEEL, width=1)
-    d.text((cx + r + 25, cy - 8), "Extractor", font=fnt(10), fill=HW_LABEL)
-    # Ejector
-    d.ellipse([cx - 5, cy + 40, cx + 5, cy + 50],
-              fill=HW_ORANGE, outline=HW_STEEL, width=1)
-    d.text((cx + 10, cy + 38), "Ejector", font=fnt(10), fill=HW_LABEL)
-
+    """Full rifle — front upper area where bolt face and barrel extension meet."""
+    img, d = _diagram_screen("AR-15 Field Strip — Step 5: Inspect & Clean")
     hs = SCENARIO["tutorial"][4]["hotspot"]
     annotate_region(img, hs, label="5", hl=hl)
+    if hl:
+        draw_callout(img, 680, 260, "Bolt Face & Lugs", anchor="right")
+        draw_callout(img, 560, 310, "Check for cracks / pitting", anchor="left")
     if not hl:
-        annotate_region(img, {"x": cx + r - 30, "y": cy - 20, "w": 50, "h": 40},
-                        label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 330, "y": 155, "w": 120, "h": 50}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 800, "y": 260, "w": 120, "h": 60}, label="?", hl=False, decoy=True)
     hardware_status_banner(d, "Check for cracks, pitting, carbon. Clean with solvent and brush." if hl
                            else "Inspect the bolt face and locking lugs.", ok=True)
-    placeholder_note(d)
     return img
 
 
 def screen_step6_lubricate(hl=True):
-    """BCG with lube points highlighted."""
-    img, d = new_hardware_screen("AR-15 Field Strip — Step 6: Lubricate")
-    _draw_bcg(d)
+    """Full rifle — BCG area with lube point callouts."""
+    img, d = _diagram_screen("AR-15 Field Strip — Step 6: Lubricate")
     hs = SCENARIO["tutorial"][5]["hotspot"]
     annotate_region(img, hs, label="6", hl=hl)
     if hl:
-        # Draw lube point indicators
-        lube_points = [(340, 265), (500, 265), (660, 265)]
-        for lx, ly in lube_points:
+        # Draw lube point indicators on the upper receiver area
+        lube_pts = [(370, 260), (460, 260), (580, 260)]
+        for lx, ly in lube_pts:
             d.ellipse([lx - 6, ly - 6, lx + 6, ly + 6], fill=HW_GREEN, outline=HW_WHITE, width=1)
-        d.text((340, 300), "← lube points (carrier rails + cam slot)", font=fnt(10), fill=HW_GREEN)
+        draw_callout(img, 470, 290, "CLP on rails + cam slot", anchor="right")
     if not hl:
-        annotate_region(img, {"x": 380, "y": 210, "w": 100, "h": 35}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 700, "y": 230, "w": 140, "h": 60}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 420, "y": 400, "w": 100, "h": 50}, label="?", hl=False, decoy=True)
     hardware_status_banner(d, "Thin film of CLP on carrier rails, cam slot, bolt body. Wipe excess." if hl
                            else "Lubricate the bolt carrier group.", ok=True)
-    placeholder_note(d)
     return img
 
 
 def screen_step7_reassemble(hl=True):
-    """BCG assembly view — reverse order."""
-    img, d = new_hardware_screen("AR-15 Field Strip — Step 7: Reassemble BCG")
-    _draw_bcg(d)
+    """Full rifle — upper receiver area for BCG reassembly."""
+    img, d = _diagram_screen("AR-15 Field Strip — Step 7: Reassemble BCG")
     hs = SCENARIO["tutorial"][6]["hotspot"]
     annotate_region(img, hs, label="7", hl=hl)
     if hl:
-        draw_callout(img, 380, 380, "Bolt → Cam → FP → Ret.Pin", anchor="right")
+        draw_callout(img, 500, 250, "Bolt → Cam → FP → Ret.Pin", anchor="right")
     if not hl:
-        annotate_region(img, {"x": 860, "y": 290, "w": 50, "h": 40}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 750, "y": 240, "w": 140, "h": 60}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 130, "y": 300, "w": 100, "h": 50}, label="?", hl=False, decoy=True)
     hardware_status_banner(d, "Reverse order: Bolt → Cam pin → Firing pin → Retaining pin." if hl
                            else "Reassemble the bolt carrier group.", ok=True)
-    placeholder_note(d)
     return img
 
 
 def screen_step8_function_check(hl=True):
-    """Full rifle reassembled, target on takedown pin area."""
-    img, d = new_hardware_screen("AR-15 Field Strip — Step 8: Close & Function Check")
-    _draw_rifle_silhouette(d)
+    """Full rifle — rejoin receivers at takedown pins, function check."""
+    img, d = _diagram_screen("AR-15 Field Strip — Step 8: Close & Function Check")
     hs = SCENARIO["tutorial"][7]["hotspot"]
     annotate_region(img, hs, label="8", hl=hl)
-    if not hl:
-        annotate_region(img, {"x": 280, "y": 420, "w": 100, "h": 50}, label="?", hl=False, decoy=True)
-        annotate_region(img, {"x": 200, "y": 200, "w": 120, "h": 50}, label="?", hl=False, decoy=True)
     if hl:
-        draw_callout(img, 500, 400, "Push pins home", anchor="right")
+        draw_callout(img, 400, 360, "Push pins home", anchor="left")
+        draw_callout(img, 700, 365, "Function check", anchor="right")
+    if not hl:
+        annotate_region(img, {"x": 510, "y": 420, "w": 100, "h": 60}, label="?", hl=False, decoy=True)
+        annotate_region(img, {"x": 180, "y": 170, "w": 100, "h": 50}, label="?", hl=False, decoy=True)
     hardware_status_banner(d, "Pivot upper onto lower. Pins home. Function check: trigger, safety, bolt catch." if hl
                            else "Rejoin receivers and perform function check.", ok=True)
-    placeholder_note(d)
     return img
 
 
@@ -452,7 +362,7 @@ SCREEN_GENERATORS = {
 
 
 def generate_screens(screens_dir):
-    """Generate placeholder PNGs into screens_dir/ and screens_neutral/."""
+    """Generate annotated diagram PNGs into screens_dir/ and screens_neutral/."""
     screens_dir.mkdir(parents=True, exist_ok=True)
     neutral_dir = screens_dir.parent / "screens_neutral"
     neutral_dir.mkdir(parents=True, exist_ok=True)

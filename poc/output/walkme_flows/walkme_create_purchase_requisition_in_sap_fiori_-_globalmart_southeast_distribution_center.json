@@ -1,0 +1,401 @@
+{
+  "walkthru": {
+    "name": "Purchase Requisition to Goods Receipt — Buyer Guide",
+    "description": "Step-by-step in-app guidance for Purchase Requisition to Goods Receipt at Southeast Distribution Center",
+    "transaction": "",
+    "site": "SE-DC",
+    "role": "Buyer",
+    "version": "1.0",
+    "generated_from": "tosca_test_script",
+    "steps": [
+      {
+        "step_number": 1,
+        "type": "balloon",
+        "title": "Navigate to SAP Fiori Launchpad",
+        "content": "Open SAP Fiori Launchpad to begin your Purchase Requisition process.",
+        "element_selector": "url",
+        "element_description": "SAP Fiori Launchpad homepage",
+        "action": "navigate",
+        "expected_value": "https://sap.globalmart.com/fiori",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "page_load",
+          "delay_ms": 0
+        }
+      },
+      {
+        "step_number": 2,
+        "type": "tooltip",
+        "title": "Search for Create Purchase Requisition App",
+        "content": "Type 'Create Purchase Requisition' in the search box to find the ME51N app.",
+        "element_selector": "id://searchInput",
+        "element_description": "Fiori Launchpad search box",
+        "action": "input",
+        "expected_value": "Create Purchase Requisition",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 3,
+        "type": "tooltip",
+        "title": "Click Create Purchase Requisition App",
+        "content": "Click on the 'Create Purchase Requisition' app tile to open the ME51N transaction.",
+        "element_selector": "xpath://div[@class='sapMTile' and contains(.//span[@class='sapMTileContent'], 'Create Purchase Requisition')]",
+        "element_description": "ME51N app tile",
+        "action": "click",
+        "expected_value": "",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 1000
+        }
+      },
+      {
+        "step_number": 4,
+        "type": "tooltip",
+        "title": "Select Purchase Requisition Type",
+        "content": "Select 'NB - Normally' as the Purchase Requisition type from the dropdown.",
+        "element_selector": "id://PRType",
+        "element_description": "PR Type dropdown",
+        "action": "select",
+        "expected_value": "NB",
+        "validation": {
+          "enabled": true,
+          "rule": "Field value must equal NB",
+          "error_message": "Please select 'NB - Normally' as the PR type"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 5,
+        "type": "popup",
+        "title": "Select Purchasing Group - SE DC Restriction",
+        "content": "⚠️ IMPORTANT: At SE DC, you must select either 'R-SE - Regional Southeast' or 'R-NAT - National'. This ensures compliance with regional supplier agreements and GlobalMart procurement policy.",
+        "element_selector": "id://PurchasingGroup",
+        "element_description": "Purchasing Group dropdown",
+        "action": "select",
+        "expected_value": "R-SE",
+        "validation": {
+          "enabled": true,
+          "rule": "Value must be R-SE or R-NAT",
+          "error_message": "SE DC is restricted to R-SE (Regional Southeast) or R-NAT (National) purchasing groups only"
+        },
+        "site_specific": {
+          "is_site_specific": true,
+          "site_rule": "SE DC restricted to regional (R-SE) or national (R-NAT) supplier programs for compliance with regional supplier agreements",
+          "enterprise_default": "Enterprise default allows any valid purchasing group"
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 6,
+        "type": "tooltip",
+        "title": "Select Purchasing Organization",
+        "content": "Select '2000 - GlobalMart Procurement - Southeast Region' as your purchasing organization.",
+        "element_selector": "id://PurchasingOrganization",
+        "element_description": "Purchasing Organization dropdown",
+        "action": "select",
+        "expected_value": "2000",
+        "validation": {
+          "enabled": true,
+          "rule": "Field value must equal 2000",
+          "error_message": "Please select '2000 - GlobalMart Procurement - Southeast Region'"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 7,
+        "type": "tooltip",
+        "title": "Enter Material Number",
+        "content": "Enter the material number for the item you want to requisition.",
+        "element_selector": "id://MaterialNumber_Item1",
+        "element_description": "Material Number field for line item 1",
+        "action": "input",
+        "expected_value": "SKU-DRY-78432",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 8,
+        "type": "tooltip",
+        "title": "Enter Quantity",
+        "content": "Enter the quantity needed for this requisition.",
+        "element_selector": "id://Quantity_Item1",
+        "element_description": "Quantity field",
+        "action": "input",
+        "expected_value": "500",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 9,
+        "type": "tooltip",
+        "title": "Select Unit of Measure",
+        "content": "Select the appropriate unit of measure from the dropdown.",
+        "element_selector": "id://UnitOfMeasure_Item1",
+        "element_description": "Unit of Measure dropdown",
+        "action": "select",
+        "expected_value": "CS",
+        "validation": {
+          "enabled": true,
+          "rule": "Field value must equal CS",
+          "error_message": "Please select 'CS - Case' as the unit of measure"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 10,
+        "type": "tooltip",
+        "title": "Select Delivery Date",
+        "content": "Select the requested delivery date. For perishables, ensure compliance with lead time requirements.",
+        "element_selector": "id://DeliveryDate_Item1",
+        "element_description": "Requested Delivery Date field",
+        "action": "input",
+        "expected_value": "2026-02-18",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 11,
+        "type": "tooltip",
+        "title": "Select Plant",
+        "content": "Select 'SE-DC - Southeast Distribution Center (Atlanta, GA)' as the receiving plant.",
+        "element_selector": "id://Plant_Item1",
+        "element_description": "Plant dropdown",
+        "action": "select",
+        "expected_value": "SE-DC",
+        "validation": {
+          "enabled": true,
+          "rule": "Field value must equal SE-DC",
+          "error_message": "Please select 'SE-DC - Southeast Distribution Center'"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 12,
+        "type": "tooltip",
+        "title": "Select Storage Location",
+        "content": "Select the appropriate storage location for the material type.",
+        "element_selector": "id://StorageLocation_Item1",
+        "element_description": "Storage Location dropdown for perishables",
+        "action": "select",
+        "expected_value": "Zone-R",
+        "validation": {
+          "enabled": true,
+          "rule": "Field value must equal Zone-R",
+          "error_message": "Please select 'Zone-R - Refrigerated Zone (38°F)'"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 13,
+        "type": "tooltip",
+        "title": "Enter Cost Center",
+        "content": "Enter the cost center for account assignment.",
+        "element_selector": "id://CostCenter_Item1",
+        "element_description": "Cost Center field for account assignment",
+        "action": "input",
+        "expected_value": "CC-SEDC-4200",
+        "validation": {
+          "enabled": true,
+          "rule": "Cost center must be valid",
+          "error_message": "Please enter a valid cost center"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 14,
+        "type": "popup",
+        "title": "Enter Lot/Batch Number - SE DC Mandatory",
+        "content": "⚠️ MANDATORY AT SE DC: Enter the lot/batch number for perishable items. This is required for food safety traceability per GlobalMart cold chain policy. Format: LOT-YYYY-MMDD-XX where XX identifies the processing facility.",
+        "element_selector": "id://LotBatchNumber_Item1",
+        "element_description": "Lot/Batch Number field",
+        "action": "input",
+        "expected_value": "LOT-2026-0215-MK",
+        "validation": {
+          "enabled": true,
+          "rule": "Lot/Batch Number is mandatory for perishables at SE DC",
+          "error_message": "Lot/Batch Number is required for all perishable items at SE DC for food safety traceability"
+        },
+        "site_specific": {
+          "is_site_specific": true,
+          "site_rule": "Lot/batch tracking is mandatory at SE DC for all perishable category items for food safety traceability per GlobalMart cold chain policy",
+          "enterprise_default": "Enterprise default is optional"
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 15,
+        "type": "tooltip",
+        "title": "Enter GL Account",
+        "content": "Enter the General Ledger account for accounting assignment.",
+        "element_selector": "id://GLAccount_Item1",
+        "element_description": "GL Account field for accounting assignment",
+        "action": "input",
+        "expected_value": "510200",
+        "validation": {
+          "enabled": true,
+          "rule": "GL Account must be valid",
+          "error_message": "Please enter a valid GL Account"
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "auto",
+          "delay_ms": 500
+        }
+      },
+      {
+        "step_number": 16,
+        "type": "tooltip",
+        "title": "Save Purchase Requisition",
+        "content": "Click Save to create the Purchase Requisition. The system will display a PR number upon successful creation.",
+        "element_selector": "id://SaveButton",
+        "element_description": "Save button on PR creation form",
+        "action": "click",
+        "expected_value": "",
+        "validation": {
+          "enabled": false,
+          "rule": "",
+          "error_message": ""
+        },
+        "site_specific": {
+          "is_site_specific": false,
+          "site_rule": "",
+          "enterprise_default": ""
+        },
+        "trigger": {
+          "type": "click",
+          "delay_ms": 1000
+        }
+      }
+    ],
+    "completion": {
+      "message": "Purchase Requisition created successfully! You can now proceed with the approval workflow and subsequent goods receipt process.",
+      "next_suggested": "Purchase Order Creation and Goods Receipt Processing"
+    }
+  }
+}
