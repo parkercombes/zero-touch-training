@@ -20,6 +20,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 from scenarios.base import (
+    SAP_BRANDING,
     W, H, fnt, new_screen, placeholder_note,
     draw_shell_bar, draw_subheader, draw_card, draw_field, draw_dropdown,
     draw_button, draw_table_header, draw_table_row, draw_checkbox,
@@ -38,6 +39,8 @@ SCENARIO = {
     "site":             "Apex Auto Parts DC · Memphis, TN",
     "role":             "Receiving Associate",
     "handling_profile": "standard_dry",
+    "training_domain":  "software",
+    "branding":         SAP_BRANDING,
     "tutorial": [
         {
             "screen":      "fiori_home.png",

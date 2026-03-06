@@ -21,9 +21,23 @@ const SCREENS_NEUTRAL = window.__SCREENS_NEUTRAL__;  // neutral    (L2, L3)
 const steps   = SCENARIO.tutorial;
 const mission = SCENARIO.mission;
 
-// ── Constants ───────────────────────────────────────────────────────────────
-const LEVEL_NAMES  = ["EXPLORE", "GUIDED", "ON YOUR OWN", "CHALLENGE"];
-const LEVEL_COLORS = ["#107E3E", "#0070F2", "#E87600", "#BB000B"];
+// ── Branding (injected from scenario, with SAP defaults as fallback) ────────
+const B = SCENARIO.branding || {};
+const SHELL_COLOR  = B.shell_color  || "#033D80";
+const ACCENT       = B.accent_color || "#E87600";
+const LEVEL_COLORS = B.level_colors || ["#107E3E", "#0070F2", "#E87600", "#BB000B"];
+const LEVEL_NAMES  = B.level_names  || ["EXPLORE", "GUIDED", "ON YOUR OWN", "CHALLENGE"];
+const LEVEL_DESCS  = B.level_descriptions || [
+  "Learn the screen. No pressure. Click around and see what everything does.",
+  "Follow the prompts. Each step is highlighted. Build the right habits.",
+  "No highlights. Hints cost XP. Wrong clicks show you what would have gone wrong.",
+  "Timer on. No help. Real scenario. Score goes on the board.",
+];
+// Derived colours — computed once from the 5 branding primaries
+const hexToRgb = (h) => { const n = parseInt(h.slice(1), 16); return `${(n>>16)&255},${(n>>8)&255},${n&255}`; };
+const SHELL_RGB  = hexToRgb(SHELL_COLOR);
+const ACCENT_RGB = hexToRgb(ACCENT);
+const LC_RGB     = LEVEL_COLORS.map(hexToRgb);  // level colour RGB strings
 
 // ── Audio cues (Web Audio API — no external files needed) ───────────────────
 const AudioCue = (() => {
@@ -260,16 +274,16 @@ function HUD({ state }) {
   const secs = timeRemaining % 60;
   const timerText = `${mins}:${secs.toString().padStart(2, "0")}`;
 
-  let timerBg = "rgba(187,0,11,0.3)";
-  if (timeRemaining <= 30) timerBg = "rgba(187,0,11,0.6)";
-  else if (timeRemaining <= 60) timerBg = "rgba(232,118,0,0.4)";
+  let timerBg = `rgba(${LC_RGB[3]},0.3)`;
+  if (timeRemaining <= 30) timerBg = `rgba(${LC_RGB[3]},0.6)`;
+  else if (timeRemaining <= 60) timerBg = `rgba(${ACCENT_RGB},0.4)`;
 
   return (
     <div style={{
       position: "fixed", top: 0, left: 0, right: 0, height: 52,
-      background: "rgba(3,61,128,0.95)", backdropFilter: "blur(8px)",
+      background: `rgba(${SHELL_RGB},0.95)`, backdropFilter: "blur(8px)",
       display: "flex", alignItems: "center", gap: 16, padding: "0 20px",
-      zIndex: 100, borderBottom: "2px solid rgba(0,112,242,0.6)",
+      zIndex: 100, borderBottom: `2px solid rgba(${LC_RGB[1]},0.6)`,
     }}>
       <a href="../index.html" title="Back to Scenario Selector" style={{
         color: "#c0d4ff", textDecoration: "none", fontSize: 18, lineHeight: 1,
@@ -283,7 +297,7 @@ function HUD({ state }) {
         borderRadius: 12, textTransform: "uppercase",
         border: "1px solid rgba(255,255,255,0.25)", color: "#c0d4ff",
       }}>
-        {SCENARIO.handling_profile.replace(/_/g, " ")}
+        {(SCENARIO.handling_profile || SCENARIO.training_domain || "").replace(/_/g, " ")}
       </div>
       <div style={{
         fontSize: 11, fontWeight: 700, letterSpacing: 1, padding: "3px 10px",
@@ -300,10 +314,10 @@ function HUD({ state }) {
             : `Step ${stepIdx + 1} of ${totalSteps}`}
       </div>
       <div style={{ width: 200, height: 6, background: "rgba(255,255,255,0.15)", borderRadius: 3, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${pct}%`, background: "#E87600", borderRadius: 3, transition: "width 0.4s ease" }} />
+        <div style={{ height: "100%", width: `${pct}%`, background: ACCENT, borderRadius: 3, transition: "width 0.4s ease" }} />
       </div>
       {level >= 2 && (
-        <div style={{ fontSize: 12, background: "rgba(16,126,62,0.3)", padding: "4px 12px", borderRadius: 12, color: "#6ee7a8" }}>
+        <div style={{ fontSize: 12, background: `rgba(${LC_RGB[0]},0.3)`, padding: "4px 12px", borderRadius: 12, color: "#6ee7a8" }}>
           XP: {xp}
         </div>
       )}
@@ -325,16 +339,9 @@ function HUD({ state }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // LEVEL SELECT — 4-card grid
 // ═══════════════════════════════════════════════════════════════════════════════
-const levelCards = [
-  { num: "Level 0", name: "Explore", color: "#107E3E",
-    desc: "Learn the screen. No pressure. Click around and see what everything does." },
-  { num: "Level 1", name: "Guided", color: "#0070F2",
-    desc: "Follow the prompts. Each step is highlighted. Build the right habits." },
-  { num: "Level 2", name: "On Your Own", color: "#E87600",
-    desc: "No highlights. Hints cost XP. Wrong clicks show you what would have gone wrong." },
-  { num: "Level 3", name: "Challenge", color: "#BB000B",
-    desc: "Timer on. No help. Real scenario. Score goes on the board." },
-];
+const levelCards = LEVEL_NAMES.map((name, i) => ({
+  num: `Level ${i}`, name, color: LEVEL_COLORS[i], desc: LEVEL_DESCS[i],
+}));
 
 function LevelSelect({ dispatch }) {
   const [hovered, setHovered] = useState(-1);
@@ -364,8 +371,8 @@ function LevelSelect({ dispatch }) {
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(-1)}
             style={{
-              background: hovered === i ? "rgba(0,112,242,0.12)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${hovered === i ? "rgba(0,112,242,0.5)" : "rgba(255,255,255,0.12)"}`,
+              background: hovered === i ? `rgba(${LC_RGB[1]},0.12)` : "rgba(255,255,255,0.04)",
+              border: `1px solid ${hovered === i ? `rgba(${LC_RGB[1]},0.5)` : "rgba(255,255,255,0.12)"}`,
               borderRadius: 12, padding: "20px 24px", cursor: "pointer",
               transition: "all 0.2s", textAlign: "left",
               transform: hovered === i ? "translateY(-2px)" : "none",
@@ -432,7 +439,7 @@ function ScreenView({ state, dispatch }) {
       ctx.fillStyle = "rgba(0,0,0,0.03)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = "rgba(16,126,62,0.5)";
+      ctx.strokeStyle = `rgba(${LC_RGB[0]},0.5)`;
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 4]);
       ctx.beginPath();
@@ -444,7 +451,7 @@ function ScreenView({ state, dispatch }) {
       ctx.setLineDash([]);
 
       ctx.font = `${Math.round(11 * scale)}px -apple-system, sans-serif`;
-      ctx.fillStyle = "rgba(16,126,62,0.8)";
+      ctx.fillStyle = `rgba(${LC_RGB[0]},0.8)`;
       ctx.fillText("▶ Target element", hs.x * scale - 4, hs.y * scale - 10);
 
     } else if (level === 1) {
@@ -457,9 +464,9 @@ function ScreenView({ state, dispatch }) {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.clearRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2);
 
-      ctx.strokeStyle = "#E87600";
+      ctx.strokeStyle = ACCENT;
       ctx.lineWidth = 3;
-      ctx.shadowColor = "#E87600";
+      ctx.shadowColor = ACCENT;
       ctx.shadowBlur = 18;
       ctx.beginPath();
       ctx.roundRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2, 6);
@@ -514,7 +521,7 @@ function ScreenView({ state, dispatch }) {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.scale(s, s);
-      ctx.strokeStyle = `rgba(232,118,0,${alpha})`;
+      ctx.strokeStyle = `rgba(${ACCENT_RGB},${alpha})`;
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.ellipse(0, 0, rx / s, ry / s, 0, 0, Math.PI * 2);
@@ -591,7 +598,7 @@ function ScreenView({ state, dispatch }) {
         {tooltip && (
           <div style={{
             position: "absolute", left: tooltip.x, top: tooltip.y, zIndex: 250,
-            background: "rgba(3,20,50,0.95)", border: "1px solid #E87600",
+            background: "rgba(3,20,50,0.95)", border: `1px solid ${ACCENT}`,
             borderRadius: 8, padding: "10px 14px", maxWidth: 280,
             fontSize: 13, color: "#fff", lineHeight: 1.5, pointerEvents: "none",
             boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
@@ -620,13 +627,13 @@ function ExplorePanel({ state, dispatch }) {
       position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
       width: "min(780px, 95vw)", maxHeight: "40vh", overflowY: "auto",
       background: "rgba(3,20,50,0.95)", backdropFilter: "blur(12px)",
-      border: "1px solid rgba(16,126,62,0.5)", borderBottom: "none",
+      border: `1px solid rgba(${LC_RGB[0]},0.5)`, borderBottom: "none",
       borderRadius: "12px 12px 0 0", padding: "16px 22px 12px", zIndex: 200,
     }}>
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: "#107E3E", textTransform: "uppercase" }}>
-          Explore Mode
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: LEVEL_COLORS[0], textTransform: "uppercase" }}>
+          {LEVEL_NAMES[0]} Mode
         </div>
         <div style={{ fontSize: 14, fontWeight: 600, color: "#fff", flex: 1 }}>
           {step.goal}
@@ -644,7 +651,7 @@ function ExplorePanel({ state, dispatch }) {
             }}>
               {dashIdx > 0 ? (
                 <>
-                  <span style={{ color: "#E87600", fontWeight: 600 }}>{info.substring(0, dashIdx)}</span>
+                  <span style={{ color: ACCENT, fontWeight: 600 }}>{info.substring(0, dashIdx)}</span>
                   {" — "}{info.substring(dashIdx + 3)}
                 </>
               ) : info}
@@ -666,7 +673,7 @@ function ExplorePanel({ state, dispatch }) {
         <NavBtn
           label="Done Exploring"
           onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
-          style={{ marginLeft: 16, borderColor: "rgba(232,118,0,0.5)", color: "#E87600" }}
+          style={{ marginLeft: 16, borderColor: `rgba(${ACCENT_RGB},0.5)`, color: ACCENT }}
         />
       </div>
     </div>
@@ -733,13 +740,13 @@ function GoalCard({ state, dispatch }) {
       position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)",
       width: "min(680px, 90vw)",
       background: "rgba(3,20,50,0.92)", backdropFilter: "blur(12px)",
-      border: "1px solid rgba(0,112,242,0.5)",
+      border: `1px solid rgba(${LC_RGB[1]},0.5)`,
       borderRadius: 12, padding: "18px 22px", zIndex: 200,
     }}>
       {/* Objective label */}
       <div style={{
         fontSize: 10, fontWeight: 700, letterSpacing: 2,
-        color: "#E87600", textTransform: "uppercase", marginBottom: 6,
+        color: ACCENT, textTransform: "uppercase", marginBottom: 6,
       }}>
         Objective
       </div>
@@ -765,7 +772,7 @@ function GoalCard({ state, dispatch }) {
             disabled={hintPending}
             style={{
               fontSize: 12, padding: "6px 14px", borderRadius: 6,
-              border: `1px solid ${level === 2 ? "rgba(232,118,0,0.5)" : "rgba(255,255,255,0.2)"}`,
+              border: `1px solid ${level === 2 ? `rgba(${ACCENT_RGB},0.5)` : "rgba(255,255,255,0.2)"}`,
               background: "transparent",
               color: level === 2 ? "#ffd080" : "#a0c4ff",
               cursor: hintPending ? "default" : "pointer",
@@ -816,19 +823,19 @@ function FeedbackFlash({ feedback }) {
       display: "flex", alignItems: hasConsequence ? "flex-end" : "center",
       justifyContent: "center",
       paddingBottom: hasConsequence ? 100 : 0,
-      background: isCorrect ? "rgba(16,126,62,0.25)" : "rgba(187,0,11,0.25)",
+      background: isCorrect ? `rgba(${LC_RGB[0]},0.25)` : `rgba(${LC_RGB[3]},0.25)`,
       animation: "feedbackFadeIn 0.15s ease-out",
     }}>
       {hasConsequence ? (
         /* Elaborated consequence panel for L2+ wrong clicks */
         <div style={{
           background: "rgba(10,5,20,0.95)", borderRadius: 12,
-          border: "2px solid #BB000B", maxWidth: 560, width: "90vw",
+          border: `2px solid ${LEVEL_COLORS[3]}`, maxWidth: 560, width: "90vw",
           overflow: "hidden",
         }}>
           <div style={{
-            background: "rgba(187,0,11,0.15)", padding: "12px 20px",
-            borderBottom: "1px solid rgba(187,0,11,0.3)",
+            background: `rgba(${LC_RGB[3]},0.15)`, padding: "12px 20px",
+            borderBottom: `1px solid rgba(${LC_RGB[3]},0.3)`,
             display: "flex", alignItems: "center", gap: 10,
           }}>
             <span style={{ fontSize: 18 }}>⚠</span>
@@ -844,7 +851,7 @@ function FeedbackFlash({ feedback }) {
           <div style={{ padding: "16px 20px" }}>
             <div style={{
               fontSize: 11, fontWeight: 700, letterSpacing: 1,
-              color: "#BB000B", textTransform: "uppercase", marginBottom: 8,
+              color: LEVEL_COLORS[3], textTransform: "uppercase", marginBottom: 8,
             }}>
               What would happen in production
             </div>
@@ -861,7 +868,7 @@ function FeedbackFlash({ feedback }) {
           background: "rgba(0,0,0,0.85)", padding: "20px 32px", borderRadius: 12,
           fontSize: 16, fontWeight: 600, maxWidth: 500, textAlign: "center",
           lineHeight: 1.5,
-          border: `2px solid ${isCorrect ? "#107E3E" : "#BB000B"}`,
+          border: `2px solid ${isCorrect ? LEVEL_COLORS[0] : LEVEL_COLORS[3]}`,
           color: isCorrect ? "#6ee7a8" : "#ff8080",
         }}>
           {feedback.msg}
@@ -887,13 +894,13 @@ function NarrativeScreen({ dispatch }) {
       display: "flex", alignItems: "center", justifyContent: "center",
       zIndex: 500, flexDirection: "column", gap: 24,
     }}>
-      <h2 style={{ fontSize: 28, color: "#E87600", letterSpacing: 2 }}>
-        CHALLENGE MODE
+      <h2 style={{ fontSize: 28, color: ACCENT, letterSpacing: 2 }}>
+        {LEVEL_NAMES[3]} MODE
       </h2>
       <div style={{
         fontSize: 18, lineHeight: 1.8, color: "#c0d4ff", textAlign: "center",
         maxWidth: 600, background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(232,118,0,0.3)", borderRadius: 12,
+        border: `1px solid rgba(${ACCENT_RGB},0.3)`, borderRadius: 12,
         padding: "24px 32px", fontStyle: "italic",
       }}>
         {narrative}
@@ -908,7 +915,7 @@ function NarrativeScreen({ dispatch }) {
         onClick={() => dispatch({ type: "START_CHALLENGE" })}
         style={{
           fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
-          border: "none", background: "#0070F2", color: "#fff", cursor: "pointer",
+          border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
         }}
       >
         Begin
@@ -953,16 +960,16 @@ function DebriefScreen({ state, dispatch }) {
             <div key={item.idx}
               onClick={() => setExpandedIdx(isOpen ? -1 : item.idx)}
               style={{
-                background: isOpen ? "rgba(0,112,242,0.08)" : "rgba(255,255,255,0.03)",
-                border: `1px solid ${isOpen ? "rgba(0,112,242,0.4)" : "rgba(255,255,255,0.08)"}`,
+                background: isOpen ? `rgba(${LC_RGB[1]},0.08)` : "rgba(255,255,255,0.03)",
+                border: `1px solid ${isOpen ? `rgba(${LC_RGB[1]},0.4)` : "rgba(255,255,255,0.08)"}`,
                 borderRadius: 8, padding: "12px 16px", cursor: "pointer",
                 transition: "all 0.2s",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{
-                  fontSize: 11, fontWeight: 700, color: "#E87600",
-                  background: "rgba(232,118,0,0.15)", padding: "2px 8px",
+                  fontSize: 11, fontWeight: 700, color: ACCENT,
+                  background: `rgba(${ACCENT_RGB},0.15)`, padding: "2px 8px",
                   borderRadius: 10, minWidth: 32, textAlign: "center",
                 }}>
                   {item.idx + 1}
@@ -995,7 +1002,7 @@ function DebriefScreen({ state, dispatch }) {
         onClick={() => dispatch({ type: "DEBRIEF_DONE" })}
         style={{
           fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
-          border: "none", background: "#0070F2", color: "#fff", cursor: "pointer",
+          border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
           marginTop: 8,
         }}
       >
@@ -1025,7 +1032,7 @@ function WinScreen({ state, dispatch }) {
   // Confetti for Level 2+
   useEffect(() => {
     if (level < 2) return;
-    const colors = ["#E87600", "#0070F2", "#107E3E", "#6ee7a8", "#ffd080", "#ff8080", "#c0d4ff"];
+    const colors = [ACCENT, LEVEL_COLORS[1], LEVEL_COLORS[0], "#6ee7a8", "#ffd080", "#ff8080", "#c0d4ff"];
     const pieces = [];
     for (let i = 0; i < 60; i++) {
       const piece = document.createElement("div");
@@ -1072,7 +1079,7 @@ function WinScreen({ state, dispatch }) {
           onClick={() => dispatch({ type: "RESTART" })}
           style={{
             fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
-            border: "none", background: "#0070F2", color: "#fff", cursor: "pointer",
+            border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
           }}
         >
           Play Again
@@ -1092,7 +1099,7 @@ function WinScreen({ state, dispatch }) {
           onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
           style={{
             fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
-            border: "none", background: "#033D80", color: "#fff", cursor: "pointer",
+            border: "none", background: SHELL_COLOR, color: "#fff", cursor: "pointer",
           }}
         >
           Change Level
@@ -1126,7 +1133,7 @@ function TimeoutScreen({ state, dispatch }) {
           onClick={() => dispatch({ type: "RESTART" })}
           style={{
             fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
-            border: "none", background: "#0070F2", color: "#fff", cursor: "pointer",
+            border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
           }}
         >
           Try Again
@@ -1135,7 +1142,7 @@ function TimeoutScreen({ state, dispatch }) {
           onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
           style={{
             fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
-            border: "none", background: "#033D80", color: "#fff", cursor: "pointer",
+            border: "none", background: SHELL_COLOR, color: "#fff", cursor: "pointer",
           }}
         >
           Change Level

@@ -24,6 +24,24 @@ SAP_GREEN   = (16,  126,  62)   # #107E3E
 SAP_RED     = (187,   0,  11)   # #BB000B
 
 
+# ── Branding dict — injected into the React trainer for theming ──────────────
+# Hardware (or other domain) scenarios export their own branding dict with
+# the same keys but different colours/names.  The trainer_app.jsx falls back
+# to these SAP defaults when SCENARIO.branding is absent.
+SAP_BRANDING = {
+    "shell_color":   "#033D80",
+    "accent_color":  "#E87600",
+    "level_colors":  ["#107E3E", "#0070F2", "#E87600", "#BB000B"],
+    "level_names":   ["EXPLORE", "GUIDED", "ON YOUR OWN", "CHALLENGE"],
+    "level_descriptions": [
+        "Learn the screen. No pressure. Click around and see what everything does.",
+        "Follow the prompts. Each step is highlighted. Build the right habits.",
+        "No highlights. Hints cost XP. Wrong clicks show you what would have gone wrong.",
+        "Timer on. No help. Real scenario. Score goes on the board.",
+    ],
+}
+
+
 def fnt(size=14, bold=False):
     candidates = [
         "/System/Library/Fonts/Supplemental/Arial Bold.ttf" if bold else
