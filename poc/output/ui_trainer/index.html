@@ -15,6 +15,8 @@
     --sap-text: #333;
     --sap-label: #666;
     --sap-border: #CCC;
+    --hw-steel: #3C3C3C;
+    --hw-orange: #FF8C00;
     --radius: 12px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -51,6 +53,23 @@
   .page-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; color: var(--sap-shell); }
   .page-sub { font-size: 15px; color: var(--sap-label); margin-bottom: 36px; line-height: 1.5; }
 
+  /* ── Domain sections ───────────────────────── */
+  .domain-section { margin-bottom: 40px; }
+  .domain-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 20px; padding-bottom: 14px;
+    border-bottom: 2px solid #e0e4e8;
+  }
+  .domain-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .domain-icon.sw { background: #E0F0FF; }
+  .domain-icon.hw { background: #FFF3E0; }
+  .domain-title { font-size: 20px; font-weight: 700; color: var(--sap-shell); }
+  .domain-sub { font-size: 13px; color: var(--sap-label); margin-top: 2px; }
+
   /* ── Scenario cards grid ───────────────────── */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
 
@@ -71,6 +90,7 @@
     transform: translateY(-3px);
     border-color: var(--sap-blue);
   }
+  .card.hw:hover { border-color: var(--hw-orange); }
 
   .card .stripe { height: 6px; }
 
@@ -122,23 +142,9 @@
     border-top: 1px solid #eee;
     transition: background 0.15s;
   }
+  .card.hw .launch { color: var(--hw-orange); }
   .card:hover .launch { background: #e8f0fe; }
-
-  /* ── Profile-specific colours ──────────────── */
-  .profile-standard_dry  .stripe { background: #6B7280; }
-  .profile-standard_dry  .profile-badge { background: #F3F4F6; color: #374151; }
-
-  .profile-perishable .stripe { background: var(--sap-blue); }
-  .profile-perishable .profile-badge { background: #E0F0FF; color: #004A9E; }
-
-  .profile-regulated_pharma .stripe { background: var(--sap-green); }
-  .profile-regulated_pharma .profile-badge { background: #E6F4EA; color: #0D652D; }
-
-  .profile-hazmat .stripe { background: var(--sap-red); }
-  .profile-hazmat .profile-badge { background: #FDE8E8; color: #9B0000; }
-
-  .profile-serialized .stripe { background: var(--sap-amber); }
-  .profile-serialized .profile-badge { background: #FFF4E5; color: #9A5700; }
+  .card.hw:hover .launch { background: #fff3e0; }
 
   /* ── Footer ────────────────────────────────── */
   .footer {
@@ -159,66 +165,47 @@
 <div class="page">
   <h1 class="page-title">Scenario Packs</h1>
   <p class="page-sub">
-    Each scenario trains a Receiving Associate through a complete SAP MIGO Goods Receipt workflow.
-    Four difficulty levels — Explore, Guided, On Your Own, Challenge — progressively remove scaffolding and add pressure.
-    Pick a handling profile to begin.
+    Four difficulty levels progressively remove scaffolding and add pressure.
+    Software scenarios train SAP workflows. Hardware scenarios train equipment maintenance and assembly.
+    Pick a scenario to begin.
   </p>
 
-  <div class="grid">
-
-    <!-- Standard Dry Goods -->
-    <a class="card profile-standard_dry" href="standard_dry_gr/index.html">
-      <div class="stripe"></div>
-      <div class="card-body">
-        <span class="profile-badge">Standard Dry</span>
-        <h2>Apex Auto Parts DC</h2>
-        <div class="site">Memphis, TN — Receiving Associate</div>
-        <dl class="meta">
-          <dt>Steps</dt><dd>6</dd>
-          <dt>Par</dt><dd>8 clicks</dd>
-          <dt>Time Limit</dt><dd>120 s</dd>
-          <dt>Difficulty</dt><dd>Beginner</dd>
-        </dl>
-        <div class="tags">
-          <span class="tag">No batch</span>
-          <span class="tag">No temp zone</span>
-          <span class="tag">No QI</span>
-          <span class="tag">Simplest flow</span>
+    <div class="domain-section">
+      <div class="domain-header">
+        <div class="domain-icon sw">⚙</div>
+        <div>
+          <h2 class="domain-title">Software Training</h2>
+          <p class="domain-sub">SAP MIGO Goods Receipt — 5 scenarios</p>
         </div>
       </div>
-      <div class="launch">Launch Trainer →</div>
-    </a>
-
-    <!-- SE-DC Perishable -->
-    <a class="card profile-perishable" href="sedc_goods_receipt/index.html">
-      <div class="stripe"></div>
+      <div class="grid">
+    <a class="card" href="hazmat_gr/index.html">
+      <div class="stripe" style="background:#BB000B"></div>
       <div class="card-body">
-        <span class="profile-badge">Perishable / Cold Chain</span>
-        <h2>GlobalMart SE-DC</h2>
-        <div class="site">Atlanta, GA — Receiving Associate</div>
+        <span class="profile-badge" style="background:#FDE8E8;color:#9B0000">Hazmat / DOT-OSHA</span>
+        <h2>Hazmat Goods Receipt in SAP MIGO</h2>
+        <div class="site">ChemCo Industrial DC · Houston, TX — Receiving Associate</div>
         <dl class="meta">
-          <dt>Steps</dt><dd>9</dd>
+          <dt>Steps</dt><dd>8</dd>
           <dt>Par</dt><dd>12 clicks</dd>
           <dt>Time Limit</dt><dd>180 s</dd>
           <dt>Difficulty</dt><dd>Intermediate</dd>
         </dl>
         <div class="tags">
-          <span class="tag">Batch / Lot</span>
-          <span class="tag">Temp zone</span>
-          <span class="tag">QI flag</span>
-          <span class="tag">Cold chain</span>
+          <span class="tag">UN numbers</span>
+          <span class="tag">Hazmat class</span>
+          <span class="tag">Storage segregation</span>
+          <span class="tag">SDS verification</span>
         </div>
       </div>
       <div class="launch">Launch Trainer →</div>
     </a>
-
-    <!-- Regulated Pharma -->
-    <a class="card profile-regulated_pharma" href="pharma_gr/index.html">
-      <div class="stripe"></div>
+    <a class="card" href="pharma_gr/index.html">
+      <div class="stripe" style="background:#107E3E"></div>
       <div class="card-body">
-        <span class="profile-badge">Regulated Pharma / GxP</span>
-        <h2>Cardinal Health DC</h2>
-        <div class="site">Cincinnati, OH — GxP Qualified Associate</div>
+        <span class="profile-badge" style="background:#E6F4EA;color:#0D652D">Regulated Pharma / GxP</span>
+        <h2>Goods Receipt in SAP MIGO (Regulated Pharma)</h2>
+        <div class="site">Cardinal Health DC · Cincinnati, OH — Receiving Associate (GxP Qualified)</div>
         <dl class="meta">
           <dt>Steps</dt><dd>9</dd>
           <dt>Par</dt><dd>12 clicks</dd>
@@ -234,42 +221,38 @@
       </div>
       <div class="launch">Launch Trainer →</div>
     </a>
-
-    <!-- Hazmat -->
-    <a class="card profile-hazmat" href="hazmat_gr/index.html">
-      <div class="stripe"></div>
+    <a class="card" href="sedc_goods_receipt/index.html">
+      <div class="stripe" style="background:#0070F2"></div>
       <div class="card-body">
-        <span class="profile-badge">Hazmat / DOT-OSHA</span>
-        <h2>ChemCo Industrial DC</h2>
-        <div class="site">Houston, TX — Receiving Associate</div>
+        <span class="profile-badge" style="background:#E0F0FF;color:#004A9E">Perishable / Cold Chain</span>
+        <h2>Goods Receipt in SAP MIGO</h2>
+        <div class="site">GlobalMart SE-DC · Atlanta, GA — Receiving Associate</div>
         <dl class="meta">
-          <dt>Steps</dt><dd>8</dd>
+          <dt>Steps</dt><dd>9</dd>
           <dt>Par</dt><dd>12 clicks</dd>
           <dt>Time Limit</dt><dd>180 s</dd>
           <dt>Difficulty</dt><dd>Advanced</dd>
         </dl>
         <div class="tags">
-          <span class="tag">UN numbers</span>
-          <span class="tag">Hazmat class</span>
-          <span class="tag">Storage segregation</span>
-          <span class="tag">SDS verification</span>
+          <span class="tag">Batch / Lot</span>
+          <span class="tag">Temp zone</span>
+          <span class="tag">QI flag</span>
+          <span class="tag">Cold chain</span>
         </div>
       </div>
       <div class="launch">Launch Trainer →</div>
     </a>
-
-    <!-- Serialized -->
-    <a class="card profile-serialized" href="serialized_gr/index.html">
-      <div class="stripe"></div>
+    <a class="card" href="serialized_gr/index.html">
+      <div class="stripe" style="background:#E87600"></div>
       <div class="card-body">
-        <span class="profile-badge">Serialized / High-Value</span>
-        <h2>TechVault DC</h2>
-        <div class="site">Austin, TX — Receiving Associate</div>
+        <span class="profile-badge" style="background:#FFF4E5;color:#9A5700">Serialized / High-Value</span>
+        <h2>Goods Receipt for High-Value Serialized Items (SAP MIGO)</h2>
+        <div class="site">TechVault DC · Austin, TX — Receiving Associate</div>
         <dl class="meta">
           <dt>Steps</dt><dd>8</dd>
           <dt>Par</dt><dd>12 clicks</dd>
           <dt>Time Limit</dt><dd>180 s</dd>
-          <dt>Difficulty</dt><dd>Advanced</dd>
+          <dt>Difficulty</dt><dd>Intermediate</dd>
         </dl>
         <div class="tags">
           <span class="tag">Serial capture</span>
@@ -280,12 +263,66 @@
       </div>
       <div class="launch">Launch Trainer →</div>
     </a>
+    <a class="card" href="standard_dry_gr/index.html">
+      <div class="stripe" style="background:#6B7280"></div>
+      <div class="card-body">
+        <span class="profile-badge" style="background:#F3F4F6;color:#374151">Standard Dry</span>
+        <h2>Goods Receipt in SAP MIGO</h2>
+        <div class="site">Apex Auto Parts DC · Memphis, TN — Receiving Associate</div>
+        <dl class="meta">
+          <dt>Steps</dt><dd>6</dd>
+          <dt>Par</dt><dd>8 clicks</dd>
+          <dt>Time Limit</dt><dd>120 s</dd>
+          <dt>Difficulty</dt><dd>Beginner</dd>
+        </dl>
+        <div class="tags">
+          <span class="tag">No batch</span>
+          <span class="tag">No temp zone</span>
+          <span class="tag">No QI</span>
+          <span class="tag">Simplest flow</span>
+        </div>
+      </div>
+      <div class="launch">Launch Trainer →</div>
+    </a>
+      </div>
+    </div>
 
-  </div>
+    <div class="domain-section">
+      <div class="domain-header">
+        <div class="domain-icon hw">🔧</div>
+        <div>
+          <h2 class="domain-title">Hardware Training</h2>
+          <p class="domain-sub">Equipment Maintenance & Assembly — 1 scenario</p>
+        </div>
+      </div>
+      <div class="grid">
+    <a class="card hw" href="ar15_field_strip/index.html">
+      <div class="stripe" style="background:#FF8C00"></div>
+      <div class="card-body">
+        <span class="profile-badge" style="background:#FFF3E0;color:#BF6000">Hardware</span>
+        <h2>AR-15 Safe Field Strip &amp; Cleaning</h2>
+        <div class="site">Range Safety Training Center — Armorer Trainee</div>
+        <dl class="meta">
+          <dt>Steps</dt><dd>8</dd>
+          <dt>Par</dt><dd>12 clicks</dd>
+          <dt>Time Limit</dt><dd>300 s</dd>
+          <dt>Difficulty</dt><dd>Intermediate</dd>
+        </dl>
+        <div class="tags">
+          <span class="tag">Verify the weapon is clear</span>
+          <span class="tag">Push out the takedown pins</span>
+          <span class="tag">Remove the bolt carrier group and charging handle</span>
+          <span class="tag">Remove the firing pin and cam pin from the bolt carrier</span>
+        </div>
+      </div>
+      <div class="launch">Launch Trainer →</div>
+    </a>
+      </div>
+    </div>
 </div>
 
 <div class="footer">
-  Zero-Touch Training POC · 5 Handling Profiles · 4 Difficulty Levels · Open in any browser
+  Zero-Touch Training POC · 6 Scenarios · 4 Difficulty Levels · Open in any browser
 </div>
 
 </body>
