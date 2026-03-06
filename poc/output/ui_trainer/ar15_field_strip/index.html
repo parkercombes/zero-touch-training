@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive UI Trainer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a1a; margin: 0; }
+  #root { height: 100vh; overflow: hidden; }
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+// ── Scenario data (injected by ui_trainer.py) ──
+window.__SCENARIO__        = {
+  "id": "ar15_field_strip",
+  "title": "AR-15 Safe Field Strip & Cleaning",
+  "site": "Range Safety Training Center",
+  "role": "Armorer Trainee",
+  "training_domain": "hardware",
+  "branding": {
+    "shell_color": "#3C3C3C",
+    "accent_color": "#FF8C00",
+    "level_colors": [
+      "#22B14C",
+      "#2196F3",
+      "#FF8C00",
+      "#E53935"
+    ],
+    "level_names": [
+      "OBSERVE",
+      "FOLLOW ALONG",
+      "DO IT",
+      "SPEED RUN"
+    ],
+    "level_descriptions": [
+      "Study the equipment. No time pressure. Click around to learn each part.",
+      "Follow each step with visual guidance. Build proper technique.",
+      "No highlights. Hints cost time. Wrong moves show real consequences.",
+      "Timed scenario. No help. Prove you can do it under pressure."
+    ]
+  },
+  "handling_profile": null,
+  "tutorial": [
+    {
+      "screen": "step1_verify_clear.png",
+      "goal": "Verify the weapon is clear",
+      "instruction": "Remove the magazine and lock the bolt to the rear. Visually and physically inspect the chamber.",
+      "hint": "Press the magazine release, pull the charging handle, and lock the bolt open. Look into the ejection port.",
+      "hotspot": {
+        "x": 480,
+        "y": 200,
+        "w": 280,
+        "h": 120
+      },
+      "feedback": "Weapon verified clear. Magazine removed, bolt locked, chamber empty.",
+      "consequence": "Skipping clearance verification is the #1 cause of negligent discharges during maintenance. Every cleaning-related accident starts with someone who 'knew' it was unloaded.",
+      "explore_info": [
+        "Ejection port \u2014 the opening on the right side of the upper receiver. When the bolt is locked back, you can see directly into the chamber through here.",
+        "Magazine release \u2014 button on the right side, just above the trigger guard. Press to drop the magazine.",
+        "Charging handle \u2014 T-shaped handle at the rear of the upper receiver. Pull rearward to cycle the bolt.",
+        "Bolt catch \u2014 paddle on the left side of the lower receiver. Press upward to lock the bolt to the rear.",
+        "Chamber \u2014 where the round sits. Must be visually AND physically clear (finger check) before any work begins.",
+        "Forward assist \u2014 round button on right side of upper receiver. Not used during clearing. Pushes bolt forward into battery."
+      ]
+    },
+    {
+      "screen": "step2_takedown_pins.png",
+      "goal": "Push out the takedown pins",
+      "instruction": "Push the rear takedown pin from left to right, then the front pivot pin. Separate upper and lower receivers.",
+      "hint": "Use your thumb or a punch. Rear pin first, then front. They only need to go halfway \u2014 don't force them all the way out.",
+      "hotspot": {
+        "x": 540,
+        "y": 340,
+        "w": 180,
+        "h": 60
+      },
+      "feedback": "Pins pushed. Upper and lower receivers separated cleanly.",
+      "consequence": "Forcing the pins with a hard tool can wallop the finish and deform the pin holes. Over time, loose pin holes cause receiver wobble and accuracy loss. Always push \u2014 never hammer.",
+      "explore_info": [
+        "Rear takedown pin \u2014 connects the rear of the upper and lower receivers. Push left-to-right to disengage.",
+        "Front pivot pin \u2014 connects the front of the upper and lower receivers. Push left-to-right after the rear pin.",
+        "Upper receiver \u2014 houses the bolt carrier group, barrel, and handguard. The 'top half.'",
+        "Lower receiver \u2014 houses the trigger group, magazine well, buffer tube, and stock. The serialised part (legally the 'firearm').",
+        "Tip \u2014 if a pin is stiff, tap gently with a brass punch. Never use steel on aluminum."
+      ]
+    },
+    {
+      "screen": "step3_remove_bcg.png",
+      "goal": "Remove the bolt carrier group and charging handle",
+      "instruction": "With the upper receiver separated, pull the charging handle rearward and lift out the bolt carrier group (BCG).",
+      "hint": "Tilt the upper receiver so the BCG slides toward you. Pull the charging handle partway back, then slide it out from its channel.",
+      "hotspot": {
+        "x": 300,
+        "y": 180,
+        "w": 320,
+        "h": 140
+      },
+      "feedback": "BCG and charging handle removed. Upper receiver is now empty.",
+      "consequence": "Yanking the BCG without tilting the receiver can gouge the inside of the upper. Carbon buildup makes it sticky \u2014 patience prevents scratches on the bearing surfaces.",
+      "explore_info": [
+        "Bolt carrier group (BCG) \u2014 the heart of the rifle. Contains the bolt, cam pin, firing pin, and gas key. This is where all the action happens.",
+        "Charging handle \u2014 rides in a channel on top of the upper receiver. Must be pulled back before the BCG can exit.",
+        "Gas key \u2014 the small tube on top of the bolt carrier. Connects to the gas tube. If the screws are loose, you get short-stroking.",
+        "Bolt \u2014 the cylindrical piece at the front of the BCG. Has locking lugs that engage the barrel extension.",
+        "Cam pin \u2014 holds the bolt in the carrier and controls rotation. Remove before the bolt can come out."
+      ]
+    },
+    {
+      "screen": "step4_disassemble_bolt.png",
+      "goal": "Remove the firing pin and cam pin from the bolt carrier",
+      "instruction": "Push out the firing pin retaining pin, remove the firing pin, then lift out the cam pin. Slide the bolt out last.",
+      "hint": "Retaining pin first (it's the small cotter pin at the rear). Then the firing pin drops out. Rotate the cam pin 90\u00b0 and lift.",
+      "hotspot": {
+        "x": 400,
+        "y": 260,
+        "w": 240,
+        "h": 100
+      },
+      "feedback": "Bolt disassembled. Firing pin, cam pin, and bolt separated for inspection.",
+      "consequence": "Removing the cam pin before the firing pin bends the retaining pin and can crack the carrier. Sequence matters: retaining pin \u2192 firing pin \u2192 cam pin \u2192 bolt. Every time.",
+      "explore_info": [
+        "Firing pin retaining pin \u2014 small cotter pin at the rear of the bolt carrier. Prevents the firing pin from falling out. Remove first.",
+        "Firing pin \u2014 long thin pin that strikes the primer. Once the retaining pin is out, it slides out the back of the carrier.",
+        "Cam pin \u2014 sits in a slot in the bolt carrier. Rotate 90\u00b0 to align with the removal slot, then lift straight up.",
+        "Bolt \u2014 after the cam pin is out, the bolt slides forward out of the carrier. Note the extractor and ejector.",
+        "Extractor \u2014 spring-loaded claw on the bolt face. Grips the cartridge rim during extraction. Check the spring tension.",
+        "Ejector \u2014 spring-loaded plunger in the bolt face. Kicks the spent case out the ejection port."
+      ]
+    },
+    {
+      "screen": "step5_inspect_clean.png",
+      "goal": "Inspect bolt face and lugs for wear or damage",
+      "instruction": "Examine the bolt face for pitting, cracks, or carbon buildup. Check all locking lugs for even wear. Clean with solvent and a brush.",
+      "hint": "Look at the bolt face straight-on under good light. Carbon on the lugs is normal \u2014 cracks or chips are not.",
+      "hotspot": {
+        "x": 380,
+        "y": 200,
+        "w": 260,
+        "h": 200
+      },
+      "feedback": "Bolt face and lugs inspected. No cracks. Carbon removed. Ready for lubrication.",
+      "consequence": "A cracked bolt lug can shear off under pressure, causing a catastrophic failure. A pitted bolt face causes poor primer strikes and misfires. 30 seconds of inspection prevents a malfunction under fire.",
+      "explore_info": [
+        "Bolt face \u2014 the flat front surface of the bolt. Should be smooth with no pitting. Carbon buildup here causes headspace issues.",
+        "Locking lugs \u2014 the star-shaped protrusions that lock into the barrel extension. All lugs must show even wear. Uneven wear = alignment problem.",
+        "Extractor \u2014 check for a strong spring. Weak extractors cause failure-to-extract (FTE) malfunctions.",
+        "Gas rings \u2014 three rings on the bolt body (like piston rings). Stack the gaps \u2014 if you can see through all three gaps at once, replace them.",
+        "Firing pin tip \u2014 should be rounded, not mushroomed or flat. A deformed tip causes light strikes."
+      ]
+    },
+    {
+      "screen": "step6_lubricate.png",
+      "goal": "Apply lubricant to the bolt carrier group",
+      "instruction": "Apply a thin film of CLP to the bolt body, cam pin channel, and bolt carrier rails. Don't over-lubricate.",
+      "hint": "A few drops on each contact surface. Wipe excess. The bolt carrier rails and cam pin slot are the critical friction points.",
+      "hotspot": {
+        "x": 320,
+        "y": 280,
+        "w": 300,
+        "h": 80
+      },
+      "feedback": "BCG lubricated. Thin film on all bearing surfaces. No excess pooling.",
+      "consequence": "Too little lube causes metal-on-metal wear and premature part failure. Too much attracts dust and carbon, creating an abrasive paste. The bolt carrier rails and cam pin slot are where most friction occurs \u2014 focus there.",
+      "explore_info": [
+        "Bolt carrier rails \u2014 the two raised tracks on the outside of the bolt carrier. These ride in channels inside the upper receiver. Primary friction surface.",
+        "Cam pin slot \u2014 the channel where the cam pin sits. Rotation here drives the bolt's locking/unlocking cycle. Must be lubricated.",
+        "Bolt body \u2014 the cylindrical section behind the bolt face. Apply a thin film \u2014 it cycles thousands of times per range session.",
+        "CLP (Cleaner, Lubricant, Protectant) \u2014 the standard military-issue all-in-one solution. Apply sparingly.",
+        "Tip \u2014 'If it moves, lube it. If it doesn't move, don't.' Over-lubrication is almost as bad as under-lubrication in a dusty environment."
+      ]
+    },
+    {
+      "screen": "step7_reassemble.png",
+      "goal": "Reassemble the bolt carrier group",
+      "instruction": "Slide bolt into carrier, insert cam pin (rotate 90\u00b0), drop firing pin in from the rear, replace retaining pin.",
+      "hint": "Reverse order: bolt \u2192 cam pin \u2192 firing pin \u2192 retaining pin. The cam pin only goes in one way \u2014 align the hole.",
+      "hotspot": {
+        "x": 380,
+        "y": 240,
+        "w": 280,
+        "h": 120
+      },
+      "feedback": "BCG reassembled. All pins seated. Bolt rotates freely in the carrier.",
+      "consequence": "Forgetting the firing pin retaining pin means the firing pin can walk out under recoil. Best case: misfires. Worst case: the pin drops into the trigger group and the rifle goes full-auto uncontrolled. Always verify the retaining pin is seated.",
+      "explore_info": [
+        "Assembly order \u2014 bolt \u2192 cam pin \u2192 firing pin \u2192 retaining pin. Exact reverse of disassembly. Sequence is critical.",
+        "Cam pin orientation \u2014 the flat side faces outward. If it doesn't drop in smoothly, rotate 90\u00b0. Never force it.",
+        "Firing pin \u2014 slides in from the rear of the bolt carrier. Should move freely. If it sticks, check for carbon in the channel.",
+        "Retaining pin \u2014 snaps into the hole at the rear of the carrier. Verify it's fully seated (flush with the carrier surface).",
+        "Function check \u2014 after assembly, push the bolt tail. The bolt should rotate and extend smoothly. If it binds, disassemble and re-check."
+      ]
+    },
+    {
+      "screen": "step8_function_check.png",
+      "goal": "Rejoin receivers and perform a function check",
+      "instruction": "Seat the BCG and charging handle in the upper. Pivot the upper onto the lower and push both pins home. Perform a function check.",
+      "hint": "Front pivot pin first, then rear takedown pin. Pull charging handle to charge. Pull trigger \u2014 hammer should fall. Safety on, pull trigger \u2014 nothing. Safety off, pull trigger \u2014 hammer falls.",
+      "hotspot": {
+        "x": 500,
+        "y": 310,
+        "w": 240,
+        "h": 80
+      },
+      "feedback": "Receivers joined. Function check passed: trigger, safety, bolt release all verified. Weapon is clean, lubed, and mission-ready.",
+      "consequence": "Skipping the function check means you won't know if you reassembled something wrong until the rifle fails at the worst possible moment. A 15-second function check catches 99% of reassembly errors \u2014 trigger reset, safety engagement, and bolt lockback.",
+      "explore_info": [
+        "Pivot pin (front) \u2014 seat first. Aligns the front lug of the upper into the lower receiver.",
+        "Takedown pin (rear) \u2014 push home last. Locks the receivers together.",
+        "Function check procedure \u2014 (1) Charge the weapon. (2) Point safe direction, pull trigger: click. (3) Safety ON, pull trigger: no click. (4) Safety OFF, pull trigger: click. (5) Lock bolt back, release with bolt catch: bolt goes forward.",
+        "Charging handle \u2014 must be fully seated before closing the receivers. If it's proud, the upper won't pivot down.",
+        "Buffer tube \u2014 houses the buffer and recoil spring in the stock. If the BCG doesn't cycle smoothly, check that the buffer retainer is seated."
+      ]
+    }
+  ],
+  "mission": {
+    "title": "Range Day Prep",
+    "briefing": "Your squad is heading to the range in 15 minutes. Field strip, inspect, clean, lube, and reassemble your M4. Sergeant is watching.",
+    "par_clicks": 12,
+    "time_limit": 300,
+    "narratives": [
+      "Sergeant Rodriguez is doing spot inspections. Your rifle better be spotless.",
+      "Range goes hot in 10 minutes. The rest of the squad is already done.",
+      "New armorer trainee is watching you. Show proper technique \u2014 they're learning from your example.",
+      "Post-deployment maintenance check. Every weapon gets stripped and inspected before turn-in."
+    ]
+  }
+};
+window.__SCREENS__         = {
+  "step1_verify_clear.png": "screens/step1_verify_clear.png",
+  "step2_takedown_pins.png": "screens/step2_takedown_pins.png",
+  "step3_remove_bcg.png": "screens/step3_remove_bcg.png",
+  "step4_disassemble_bolt.png": "screens/step4_disassemble_bolt.png",
+  "step5_inspect_clean.png": "screens/step5_inspect_clean.png",
+  "step6_lubricate.png": "screens/step6_lubricate.png",
+  "step7_reassemble.png": "screens/step7_reassemble.png",
+  "step8_function_check.png": "screens/step8_function_check.png"
+};
+window.__SCREENS_NEUTRAL__ = {
+  "step1_verify_clear.png": "screens_neutral/step1_verify_clear.png",
+  "step2_takedown_pins.png": "screens_neutral/step2_takedown_pins.png",
+  "step3_remove_bcg.png": "screens_neutral/step3_remove_bcg.png",
+  "step4_disassemble_bolt.png": "screens_neutral/step4_disassemble_bolt.png",
+  "step5_inspect_clean.png": "screens_neutral/step5_inspect_clean.png",
+  "step6_lubricate.png": "screens_neutral/step6_lubricate.png",
+  "step7_reassemble.png": "screens_neutral/step7_reassemble.png",
+  "step8_function_check.png": "screens_neutral/step8_function_check.png"
+};
+</script>
+
+<script type="text/babel">
+/**
+ * trainer_app.jsx — React Interactive UI Trainer
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * Four-level progression:
+ *   Level 0 — EXPLORE       Free roam, element descriptions, no pressure
+ *   Level 1 — GUIDED        Spotlight + step-by-step + free hints
+ *   Level 2 — ON YOUR OWN   No spotlight, hints cost XP (10s delay)
+ *   Level 3 — CHALLENGE     Timer, narrative premise, no hints
+ *
+ * Scenario data is injected as window.__SCENARIO__ and window.__SCREENS__
+ * by the Python generator (ui_trainer.py).
+ */
+
+// Hooks from React global (loaded via CDN UMD build)
+const { useState, useReducer, useRef, useEffect, useCallback } = React;
+
+// ── Scenario data (injected by ui_trainer.py into the HTML wrapper) ─────────
+const SCENARIO        = window.__SCENARIO__;
+const SCREENS         = window.__SCREENS__;          // highlighted (L0, L1)
+const SCREENS_NEUTRAL = window.__SCREENS_NEUTRAL__;  // neutral    (L2, L3)
+const steps   = SCENARIO.tutorial;
+const mission = SCENARIO.mission;
+
+// ── Branding (injected from scenario, with SAP defaults as fallback) ────────
+const B = SCENARIO.branding || {};
+const SHELL_COLOR  = B.shell_color  || "#033D80";
+const ACCENT       = B.accent_color || "#E87600";
+const LEVEL_COLORS = B.level_colors || ["#107E3E", "#0070F2", "#E87600", "#BB000B"];
+const LEVEL_NAMES  = B.level_names  || ["EXPLORE", "GUIDED", "ON YOUR OWN", "CHALLENGE"];
+const LEVEL_DESCS  = B.level_descriptions || [
+  "Learn the screen. No pressure. Click around and see what everything does.",
+  "Follow the prompts. Each step is highlighted. Build the right habits.",
+  "No highlights. Hints cost XP. Wrong clicks show you what would have gone wrong.",
+  "Timer on. No help. Real scenario. Score goes on the board.",
+];
+// Derived colours — computed once from the 5 branding primaries
+const hexToRgb = (h) => { const n = parseInt(h.slice(1), 16); return `${(n>>16)&255},${(n>>8)&255},${n&255}`; };
+const SHELL_RGB  = hexToRgb(SHELL_COLOR);
+const ACCENT_RGB = hexToRgb(ACCENT);
+const LC_RGB     = LEVEL_COLORS.map(hexToRgb);  // level colour RGB strings
+
+// ── Audio cues (Web Audio API — no external files needed) ───────────────────
+const AudioCue = (() => {
+  let ctx = null;
+  const getCtx = () => {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return ctx;
+  };
+
+  const play = (freq, duration, type = "sine", gain = 0.15) => {
+    try {
+      const ac = getCtx();
+      const osc = ac.createOscillator();
+      const g = ac.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(gain, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + duration);
+      osc.connect(g);
+      g.connect(ac.destination);
+      osc.start();
+      osc.stop(ac.currentTime + duration);
+    } catch (e) { /* audio not available */ }
+  };
+
+  return {
+    correct() { play(880, 0.12, "sine", 0.12); setTimeout(() => play(1100, 0.18, "sine", 0.10), 120); },
+    wrong()   { play(220, 0.25, "square", 0.08); },
+    tick()    { play(1000, 0.05, "sine", 0.06); },
+    win()     { [0, 100, 200, 300].forEach((d, i) => setTimeout(() => play(660 + i * 110, 0.2, "sine", 0.10), d)); },
+    timeout() { play(180, 0.5, "sawtooth", 0.08); },
+  };
+})();
+
+// ── State machine via useReducer ────────────────────────────────────────────
+const initialState = {
+  screen: "level-select",   // "level-select" | "play" | "narrative" | "debrief" | "win" | "timeout" | "review"
+  level: -1,                // 0-3
+  stepIdx: 0,
+  exploreIdx: 0,
+  score: 0,
+  xp: 0,
+  wrongClicks: 0,
+  totalClicks: 0,
+  hintVisible: false,
+  hintPending: false,
+  hintCountdown: 0,
+  timeRemaining: 0,
+  timerRunning: false,
+  feedback: null,           // { type: "correct"|"wrong", msg: string, consequence?, goal? } | null
+  // Review mode
+  reviewOrder: [],          // shuffled step indices
+  reviewIdx: 0,             // position within reviewOrder
+  consecutiveErrors: 0,     // for adaptive hints (Gap #5a)
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "SELECT_LEVEL":
+      return {
+        ...initialState,
+        screen: action.level === 3 ? "narrative" : "play",
+        level: action.level,
+        timeRemaining: mission.time_limit || 180,
+      };
+
+    case "START_CHALLENGE":
+      return { ...state, screen: "play", timerRunning: true };
+
+    case "NEXT_STEP": {
+      const bonus = action.skip ? 0 : 50;
+      const xpBonus = action.skip ? 0 : 5;
+      const nextIdx = state.stepIdx + 1;
+      if (nextIdx >= steps.length) {
+        // Show debrief after levels 1-2; skip for L0 (explore) and L3 (speed run)
+        const nextScreen = (state.level === 1 || state.level === 2) ? "debrief" : "win";
+        return {
+          ...state, screen: nextScreen, timerRunning: false,
+          score: state.score + bonus, xp: state.xp + xpBonus,
+        };
+      }
+      return {
+        ...state, stepIdx: nextIdx,
+        score: state.score + bonus, xp: state.xp + xpBonus,
+        hintVisible: false, hintPending: false, hintCountdown: 0,
+        wrongClicks: 0, feedback: null, consecutiveErrors: 0,
+      };
+    }
+
+    case "DEBRIEF_DONE":
+      return { ...state, screen: "win" };
+
+    case "START_REVIEW": {
+      // Pick up to 5 random steps, shuffled
+      const indices = steps.map((_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      const reviewOrder = indices.slice(0, Math.min(5, indices.length));
+      return {
+        ...initialState,
+        screen: "review",
+        level: 2, // use L2 mechanics (neutral screens, no spotlight)
+        stepIdx: reviewOrder[0],
+        reviewOrder,
+        reviewIdx: 0,
+        score: 0, xp: 0,
+      };
+    }
+
+    case "REVIEW_NEXT": {
+      const nextRI = state.reviewIdx + 1;
+      if (nextRI >= state.reviewOrder.length) {
+        return { ...state, screen: "win" };
+      }
+      return {
+        ...state,
+        reviewIdx: nextRI,
+        stepIdx: state.reviewOrder[nextRI],
+        wrongClicks: 0, feedback: null,
+        hintVisible: false, hintPending: false, hintCountdown: 0,
+        consecutiveErrors: 0,
+      };
+    }
+
+    case "CORRECT_CLICK": {
+      const base = state.level === 3 ? 200 : state.level === 2 ? 150 : 100;
+      const penalty = state.wrongClicks * 25;
+      const pts = Math.max(base - penalty, 10);
+      const xpGain = state.level === 3 ? 30 : state.level === 2 ? 20 : 10;
+      return {
+        ...state,
+        score: state.score + pts, xp: state.xp + xpGain,
+        totalClicks: state.totalClicks + 1,
+        consecutiveErrors: 0,
+        feedback: {
+          type: "correct",
+          msg: state.level === 3 ? "✓ Correct!" : steps[state.stepIdx].feedback,
+        },
+      };
+    }
+
+    case "WRONG_CLICK": {
+      const step = steps[state.stepIdx];
+      const newConsec = state.consecutiveErrors + 1;
+      let msg = "Wrong element. Try again.";
+      let consequence = null;
+      if (state.level >= 2 && step.consequence) {
+        msg = "Wrong element.";
+        consequence = step.consequence;
+      } else if (state.level === 1) {
+        msg = "Not quite — look for the highlighted area.";
+      }
+      // Adaptive: after 3 consecutive errors on L2, grant a free hint
+      const adaptiveHint = (state.level === 2 && newConsec >= 3 && !state.hintVisible);
+      return {
+        ...state,
+        wrongClicks: state.wrongClicks + 1,
+        totalClicks: state.totalClicks + 1,
+        consecutiveErrors: newConsec,
+        hintVisible: adaptiveHint ? true : state.hintVisible,
+        feedback: {
+          type: "wrong", msg, consequence, goal: step.goal,
+          adaptive: adaptiveHint,
+        },
+      };
+    }
+
+    case "CLEAR_FEEDBACK":
+      return { ...state, feedback: null };
+
+    case "SHOW_HINT":
+      return { ...state, hintVisible: true };
+
+    case "HIDE_HINT":
+      return { ...state, hintVisible: false };
+
+    case "REQUEST_COSTLY_HINT":
+      return {
+        ...state, hintPending: true, hintCountdown: 10,
+        xp: Math.max(state.xp - 50, 0),
+        feedback: { type: "wrong", msg: "−50 XP for hint. Revealing in 10 seconds..." },
+      };
+
+    case "HINT_COUNTDOWN_TICK": {
+      const next = state.hintCountdown - 1;
+      if (next <= 0) {
+        return { ...state, hintCountdown: 0, hintPending: false, hintVisible: true };
+      }
+      return { ...state, hintCountdown: next };
+    }
+
+    case "TIMER_TICK": {
+      const t = state.timeRemaining - 1;
+      if (t <= 0) return { ...state, timeRemaining: 0, timerRunning: false, screen: "timeout" };
+      return { ...state, timeRemaining: t };
+    }
+
+    case "EXPLORE_NAV": {
+      const next = state.exploreIdx + action.dir;
+      if (next < 0 || next >= steps.length) return state;
+      return { ...state, exploreIdx: next };
+    }
+
+    case "BACK_TO_LEVELS":
+      return { ...initialState };
+
+    case "RESTART":
+      return {
+        ...initialState,
+        screen: state.level === 3 ? "narrative" : "play",
+        level: state.level,
+        timeRemaining: mission.time_limit || 180,
+      };
+
+    default:
+      return state;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HUD — top bar
+// ═══════════════════════════════════════════════════════════════════════════════
+function HUD({ state }) {
+  const { level, stepIdx, exploreIdx, score, xp, timeRemaining, timerRunning } = state;
+  const lv = level >= 0 ? level : 0;
+  const isReview = state.screen === "review";
+  const totalSteps = isReview ? state.reviewOrder.length : steps.length;
+  const currentStep = isReview ? state.reviewIdx : (level === 0 ? exploreIdx : stepIdx);
+  const pct = ((currentStep + 1) / totalSteps) * 100;
+
+  const mins = Math.floor(timeRemaining / 60);
+  const secs = timeRemaining % 60;
+  const timerText = `${mins}:${secs.toString().padStart(2, "0")}`;
+
+  let timerBg = `rgba(${LC_RGB[3]},0.3)`;
+  if (timeRemaining <= 30) timerBg = `rgba(${LC_RGB[3]},0.6)`;
+  else if (timeRemaining <= 60) timerBg = `rgba(${ACCENT_RGB},0.4)`;
+
+  return (
+    <div style={{
+      position: "fixed", top: 0, left: 0, right: 0, height: 52,
+      background: `rgba(${SHELL_RGB},0.95)`, backdropFilter: "blur(8px)",
+      display: "flex", alignItems: "center", gap: 16, padding: "0 20px",
+      zIndex: 100, borderBottom: `2px solid rgba(${LC_RGB[1]},0.6)`,
+    }}>
+      <a href="../index.html" title="Back to Scenario Selector" style={{
+        color: "#c0d4ff", textDecoration: "none", fontSize: 18, lineHeight: 1,
+        marginRight: 4, display: "inline-flex", alignItems: "center",
+      }}>←</a>
+      <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", flex: 1 }}>
+        {SCENARIO.title} · {SCENARIO.site}
+      </div>
+      <div style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: 1, padding: "3px 10px",
+        borderRadius: 12, textTransform: "uppercase",
+        border: "1px solid rgba(255,255,255,0.25)", color: "#c0d4ff",
+      }}>
+        {(SCENARIO.handling_profile || SCENARIO.training_domain || "").replace(/_/g, " ")}
+      </div>
+      <div style={{
+        fontSize: 11, fontWeight: 700, letterSpacing: 1, padding: "3px 10px",
+        borderRadius: 12, textTransform: "uppercase",
+        background: isReview ? "#6B21A8" : LEVEL_COLORS[lv], color: "#fff",
+      }}>
+        {isReview ? "REVIEW" : LEVEL_NAMES[lv]}
+      </div>
+      <div style={{ fontSize: 13, color: "#a0c4ff" }}>
+        {state.screen === "review"
+          ? `Review ${state.reviewIdx + 1} of ${state.reviewOrder.length}`
+          : level === 0
+            ? `Screen ${exploreIdx + 1} of ${totalSteps}`
+            : `Step ${stepIdx + 1} of ${totalSteps}`}
+      </div>
+      <div style={{ width: 200, height: 6, background: "rgba(255,255,255,0.15)", borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: ACCENT, borderRadius: 3, transition: "width 0.4s ease" }} />
+      </div>
+      {level >= 2 && (
+        <div style={{ fontSize: 12, background: `rgba(${LC_RGB[0]},0.3)`, padding: "4px 12px", borderRadius: 12, color: "#6ee7a8" }}>
+          XP: {xp}
+        </div>
+      )}
+      {level === 3 && (
+        <div style={{
+          fontSize: 12, background: timerBg, padding: "4px 12px",
+          borderRadius: 12, color: "#ff8080", fontVariantNumeric: "tabular-nums",
+        }}>
+          {timerText}
+        </div>
+      )}
+      <div style={{ fontSize: 12, background: "rgba(255,255,255,0.1)", padding: "4px 12px", borderRadius: 12, color: "#e0e0e0" }}>
+        Score: {score}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LEVEL SELECT — 4-card grid
+// ═══════════════════════════════════════════════════════════════════════════════
+const levelCards = LEVEL_NAMES.map((name, i) => ({
+  num: `Level ${i}`, name, color: LEVEL_COLORS[i], desc: LEVEL_DESCS[i],
+}));
+
+function LevelSelect({ dispatch }) {
+  const [hovered, setHovered] = useState(-1);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,10,30,0.98)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 500, flexDirection: "column", gap: 32,
+    }}>
+      <a href="../index.html" style={{
+        color: "#a0c4ff", textDecoration: "none", fontSize: 13,
+        alignSelf: "flex-start", marginLeft: "5vw", marginBottom: -16,
+      }}>← All Scenarios</a>
+      <h1 style={{ fontSize: 32, color: "#fff", letterSpacing: 1 }}>Choose Your Level</h1>
+      <div style={{ fontSize: 14, color: "#a0c4ff", marginTop: -20 }}>
+        {SCENARIO.title} · {SCENARIO.role}
+      </div>
+      <div style={{
+        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16,
+        maxWidth: 640, width: "90vw",
+      }}>
+        {levelCards.map((card, i) => (
+          <div
+            key={i}
+            onClick={() => dispatch({ type: "SELECT_LEVEL", level: i })}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(-1)}
+            style={{
+              background: hovered === i ? `rgba(${LC_RGB[1]},0.12)` : "rgba(255,255,255,0.04)",
+              border: `1px solid ${hovered === i ? `rgba(${LC_RGB[1]},0.5)` : "rgba(255,255,255,0.12)"}`,
+              borderRadius: 12, padding: "20px 24px", cursor: "pointer",
+              transition: "all 0.2s", textAlign: "left",
+              transform: hovered === i ? "translateY(-2px)" : "none",
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6, color: card.color }}>
+              {card.num}
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
+              {card.name}
+            </div>
+            <div style={{ fontSize: 13, color: "#a0c4ff", lineHeight: 1.5 }}>
+              {card.desc}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PLACEHOLDER COMPONENTS — filled in by subsequent chunks
+// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+// SCREEN VIEW — image + overlay canvas + click layer
+// ═══════════════════════════════════════════════════════════════════════════════
+function ScreenView({ state, dispatch }) {
+  const canvasRef = useRef(null);
+  const imgRef = useRef(null);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [tooltip, setTooltip] = useState(null); // { text, x, y }
+
+  const { level, stepIdx, exploreIdx } = state;
+  const currentStep = level === 0 ? steps[exploreIdx] : steps[stepIdx];
+  // L0/L1 use highlighted screens; L2/L3 use neutral (no visual hints baked in)
+  const screenMap = (level <= 1) ? SCREENS : SCREENS_NEUTRAL;
+  const screenSrc = screenMap[currentStep.screen];
+
+  // Reset imgLoaded when screen changes so overlay redraws on new image
+  useEffect(() => { setImgLoaded(false); setTooltip(null); }, [screenSrc]);
+
+  // Get scale factor from rendered image vs 1280px source
+  const getScale = useCallback(() => {
+    if (!imgRef.current) return 1;
+    return imgRef.current.getBoundingClientRect().width / 1280;
+  }, []);
+
+  // ── Draw overlay on canvas ──────────────────────────────────────────────
+  const drawOverlay = useCallback(() => {
+    const canvas = canvasRef.current;
+    const img = imgRef.current;
+    if (!canvas || !img) return;
+
+    const rect = img.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    const ctx = canvas.getContext("2d");
+    const scale = getScale();
+    const hs = currentStep.hotspot;
+
+    if (level === 0) {
+      // Explore: light tint + dashed hotspot outline + label
+      ctx.fillStyle = "rgba(0,0,0,0.03)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = `rgba(${LC_RGB[0]},0.5)`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.roundRect(
+        hs.x * scale - 4, hs.y * scale - 4,
+        hs.w * scale + 8, hs.h * scale + 8, 6
+      );
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.font = `${Math.round(11 * scale)}px -apple-system, sans-serif`;
+      ctx.fillStyle = `rgba(${LC_RGB[0]},0.8)`;
+      ctx.fillText("▶ Target element", hs.x * scale - 4, hs.y * scale - 10);
+
+    } else if (level === 1) {
+      // Guided: dark overlay with spotlight cutout + orange border
+      const hx = hs.x * scale, hy = hs.y * scale;
+      const hw = hs.w * scale, hh = hs.h * scale;
+      const pad = 12 * scale;
+
+      ctx.fillStyle = "rgba(0,0,0,0.62)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2);
+
+      ctx.strokeStyle = ACCENT;
+      ctx.lineWidth = 3;
+      ctx.shadowColor = ACCENT;
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.roundRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2, 6);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+    } else {
+      // Level 2+: subtle overlay only
+      ctx.fillStyle = "rgba(0,0,0,0.06)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  }, [level, currentStep, getScale]);
+
+  // Redraw overlay when image loads or step changes
+  useEffect(() => {
+    if (imgLoaded) drawOverlay();
+  }, [imgLoaded, drawOverlay]);
+
+  // Redraw on window resize
+  useEffect(() => {
+    const handleResize = () => drawOverlay();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [drawOverlay]);
+
+  // Pulse animation for Level 1
+  const pulseRef = useRef(null);
+  const pulsePhase = useRef(0);
+
+  useEffect(() => {
+    if (level !== 1 || !imgLoaded) {
+      if (pulseRef.current) cancelAnimationFrame(pulseRef.current);
+      return;
+    }
+    const hs = currentStep.hotspot;
+    const animate = () => {
+      const canvas = canvasRef.current;
+      const img = imgRef.current;
+      if (!canvas || !img) return;
+      const scale = getScale();
+      const cx = (hs.x + hs.w / 2) * scale;
+      const cy = (hs.y + hs.h / 2) * scale;
+      const rx = (hs.w / 2 + 16) * scale;
+      const ry = (hs.h / 2 + 16) * scale;
+
+      pulsePhase.current = (pulsePhase.current + 0.04) % (Math.PI * 2);
+      const s = 1 + Math.sin(pulsePhase.current) * 0.08;
+      const alpha = 0.5 + Math.sin(pulsePhase.current) * 0.3;
+
+      drawOverlay();
+      const ctx = canvas.getContext("2d");
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(s, s);
+      ctx.strokeStyle = `rgba(${ACCENT_RGB},${alpha})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx / s, ry / s, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      pulseRef.current = requestAnimationFrame(animate);
+    };
+    pulseRef.current = requestAnimationFrame(animate);
+    return () => { if (pulseRef.current) cancelAnimationFrame(pulseRef.current); };
+  }, [level, currentStep, imgLoaded, drawOverlay, getScale]);
+
+  // ── Click handler ───────────────────────────────────────────────────────
+  const handleClick = useCallback((e) => {
+    const img = imgRef.current;
+    if (!img) return;
+    const rect = img.getBoundingClientRect();
+    const scale = getScale();
+    const mx = (e.clientX - rect.left) / scale;
+    const my = (e.clientY - rect.top) / scale;
+    const hs = currentStep.hotspot;
+    const tol = 20;
+    const hit = mx >= hs.x - tol && mx <= hs.x + hs.w + tol &&
+                my >= hs.y - tol && my <= hs.y + hs.h + tol;
+
+    if (level === 0) {
+      // Explore: clicking hotspot shows a brief tooltip
+      if (hit) {
+        const tx = Math.min(e.clientX - rect.left + 16, rect.width - 300);
+        const ty = Math.max(e.clientY - rect.top - 60, 10);
+        setTooltip({
+          text: "✓ " + currentStep.goal + " — this is the correct element for this step.",
+          x: tx, y: ty,
+        });
+        setTimeout(() => setTooltip(null), 2500);
+      }
+    } else {
+      // Levels 1-3 + Review: score hits/misses
+      if (hit) {
+        dispatch({ type: "CORRECT_CLICK" });
+        const isReview = state.screen === "review";
+        const delay = level === 3 ? 800 : level === 2 ? 1200 : 2200;
+        const nextAction = isReview ? "REVIEW_NEXT" : "NEXT_STEP";
+        setTimeout(() => dispatch({ type: nextAction, skip: false }), delay);
+      } else {
+        dispatch({ type: "WRONG_CLICK" });
+        // Level 1: auto-show hint on wrong click
+        if (level === 1) {
+          setTimeout(() => dispatch({ type: "SHOW_HINT" }), 400);
+        }
+      }
+    }
+  }, [level, state.screen, currentStep, getScale, dispatch]);
+
+  return (
+    <>
+      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair" }}>
+        <img
+          ref={imgRef}
+          src={screenSrc}
+          alt="Application screen"
+          draggable={false}
+          onLoad={() => setImgLoaded(true)}
+          style={{ display: "block", width: "100%", height: "auto", userSelect: "none" }}
+        />
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
+        </div>
+        <div
+          style={{ position: "absolute", inset: 0, cursor: "crosshair" }}
+          onClick={handleClick}
+        />
+        {/* Tooltip (Explore mode click feedback) */}
+        {tooltip && (
+          <div style={{
+            position: "absolute", left: tooltip.x, top: tooltip.y, zIndex: 250,
+            background: "rgba(3,20,50,0.95)", border: `1px solid ${ACCENT}`,
+            borderRadius: 8, padding: "10px 14px", maxWidth: 280,
+            fontSize: 13, color: "#fff", lineHeight: 1.5, pointerEvents: "none",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+          }}>
+            {tooltip.text}
+          </div>
+        )}
+      </div>
+
+      {/* Explore panel (Level 0 only) */}
+      {level === 0 && <ExplorePanel state={state} dispatch={dispatch} />}
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EXPLORE PANEL — bottom card with element descriptions + nav
+// ═══════════════════════════════════════════════════════════════════════════════
+function ExplorePanel({ state, dispatch }) {
+  const { exploreIdx } = state;
+  const step = steps[exploreIdx];
+  const infos = step.explore_info || [step.instruction];
+
+  return (
+    <div style={{
+      position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+      width: "min(780px, 95vw)", maxHeight: "40vh", overflowY: "auto",
+      background: "rgba(3,20,50,0.95)", backdropFilter: "blur(12px)",
+      border: `1px solid rgba(${LC_RGB[0]},0.5)`, borderBottom: "none",
+      borderRadius: "12px 12px 0 0", padding: "16px 22px 12px", zIndex: 200,
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: LEVEL_COLORS[0], textTransform: "uppercase" }}>
+          {LEVEL_NAMES[0]} Mode
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#fff", flex: 1 }}>
+          {step.goal}
+        </div>
+      </div>
+
+      {/* Element descriptions */}
+      <div style={{ margin: "8px 0" }}>
+        {infos.map((info, i) => {
+          const dashIdx = info.indexOf(" — ");
+          return (
+            <div key={i} style={{
+              fontSize: 13, color: "#c0d4ff", lineHeight: 1.6, padding: "4px 0",
+              borderBottom: i < infos.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+            }}>
+              {dashIdx > 0 ? (
+                <>
+                  <span style={{ color: ACCENT, fontWeight: 600 }}>{info.substring(0, dashIdx)}</span>
+                  {" — "}{info.substring(dashIdx + 3)}
+                </>
+              ) : info}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Navigation */}
+      <div style={{
+        marginTop: 10, display: "flex", justifyContent: "center", gap: 12,
+        borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 10,
+      }}>
+        <NavBtn label="← Prev Screen" onClick={() => dispatch({ type: "EXPLORE_NAV", dir: -1 })} disabled={exploreIdx === 0} />
+        <span style={{ color: "#666", fontSize: 12, lineHeight: "32px" }}>
+          {exploreIdx + 1} / {steps.length}
+        </span>
+        <NavBtn label="Next Screen →" onClick={() => dispatch({ type: "EXPLORE_NAV", dir: 1 })} disabled={exploreIdx >= steps.length - 1} />
+        <NavBtn
+          label="Done Exploring"
+          onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
+          style={{ marginLeft: 16, borderColor: `rgba(${ACCENT_RGB},0.5)`, color: ACCENT }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function NavBtn({ label, onClick, disabled, style = {} }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        fontSize: 12, padding: "6px 16px", borderRadius: 6,
+        border: "1px solid rgba(255,255,255,0.2)", background: "transparent",
+        color: disabled ? "#444" : "#a0c4ff", cursor: disabled ? "default" : "pointer",
+        opacity: disabled ? 0.5 : 1, transition: "all 0.2s", ...style,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GOAL CARD — objective, instruction, hint, skip (Levels 1-3)
+// ═══════════════════════════════════════════════════════════════════════════════
+function GoalCard({ state, dispatch }) {
+  const { level, stepIdx, hintVisible, hintPending, hintCountdown, consecutiveErrors } = state;
+  const step = steps[stepIdx];
+  const isStruggling = level === 2 && consecutiveErrors >= 3;
+
+  const handleHint = () => {
+    if (level === 1) {
+      // Free toggle in guided mode
+      dispatch({ type: hintVisible ? "HIDE_HINT" : "SHOW_HINT" });
+    } else if (level === 2 && !hintPending && !hintVisible) {
+      if (isStruggling) {
+        // Adaptive: free hint after 3+ consecutive errors
+        dispatch({ type: "SHOW_HINT" });
+      } else {
+        // Costly hint with countdown
+        dispatch({ type: "REQUEST_COSTLY_HINT" });
+      }
+    }
+  };
+
+  // Determine what instruction text to show based on level
+  let instrText = "";
+  if (level === 1) instrText = step.instruction;
+  else if (level === 2) instrText = "You know this process. Find the right element.";
+  // Level 3: no instruction text
+
+  // Hint button label
+  let hintLabel = "💡 Hint";
+  if (level === 2) {
+    if (hintPending) hintLabel = `⏳ ${hintCountdown}s...`;
+    else if (hintVisible) hintLabel = "💡 Hint (shown)";
+    else if (isStruggling) hintLabel = "💡 Free Hint (struggling)";
+    else hintLabel = "💡 Hint (−50 XP)";
+  }
+
+  return (
+    <div style={{
+      position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)",
+      width: "min(680px, 90vw)",
+      background: "rgba(3,20,50,0.92)", backdropFilter: "blur(12px)",
+      border: `1px solid rgba(${LC_RGB[1]},0.5)`,
+      borderRadius: 12, padding: "18px 22px", zIndex: 200,
+    }}>
+      {/* Objective label */}
+      <div style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: 2,
+        color: ACCENT, textTransform: "uppercase", marginBottom: 6,
+      }}>
+        Objective
+      </div>
+
+      {/* Goal text */}
+      <div style={{ fontSize: 17, fontWeight: 600, color: "#fff", marginBottom: 10, lineHeight: 1.4 }}>
+        {step.goal}
+      </div>
+
+      {/* Instruction text */}
+      {instrText && (
+        <div style={{ fontSize: 13, color: "#a0c4ff", marginBottom: 12, lineHeight: 1.5 }}>
+          {instrText}
+        </div>
+      )}
+
+      {/* Footer: hint + skip */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Hint button (L1 + L2 only; L3 has no hints) */}
+        {level <= 2 && (
+          <button
+            onClick={handleHint}
+            disabled={hintPending}
+            style={{
+              fontSize: 12, padding: "6px 14px", borderRadius: 6,
+              border: `1px solid ${level === 2 ? `rgba(${ACCENT_RGB},0.5)` : "rgba(255,255,255,0.2)"}`,
+              background: "transparent",
+              color: level === 2 ? "#ffd080" : "#a0c4ff",
+              cursor: hintPending ? "default" : "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            {hintLabel}
+          </button>
+        )}
+
+        {/* Hint text (shown when revealed) */}
+        {hintVisible && (
+          <div style={{ fontSize: 12, color: "#ffd080", flex: 1 }}>
+            {step.hint}
+          </div>
+        )}
+
+        {/* Skip button (L1 only) */}
+        {level === 1 && (
+          <button
+            onClick={() => dispatch({ type: "NEXT_STEP", skip: true })}
+            style={{
+              marginLeft: "auto", fontSize: 12, padding: "6px 14px", borderRadius: 6,
+              border: "1px solid rgba(255,255,255,0.1)", background: "transparent",
+              color: "#666", cursor: "pointer",
+            }}
+          >
+            Skip →
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEEDBACK FLASH — correct/wrong overlay
+// ═══════════════════════════════════════════════════════════════════════════════
+function FeedbackFlash({ feedback }) {
+  if (!feedback) return null;
+
+  const isCorrect = feedback.type === "correct";
+  const hasConsequence = !isCorrect && feedback.consequence;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, pointerEvents: "none", zIndex: 300,
+      display: "flex", alignItems: hasConsequence ? "flex-end" : "center",
+      justifyContent: "center",
+      paddingBottom: hasConsequence ? 100 : 0,
+      background: isCorrect ? `rgba(${LC_RGB[0]},0.25)` : `rgba(${LC_RGB[3]},0.25)`,
+      animation: "feedbackFadeIn 0.15s ease-out",
+    }}>
+      {hasConsequence ? (
+        /* Elaborated consequence panel for L2+ wrong clicks */
+        <div style={{
+          background: "rgba(10,5,20,0.95)", borderRadius: 12,
+          border: `2px solid ${LEVEL_COLORS[3]}`, maxWidth: 560, width: "90vw",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            background: `rgba(${LC_RGB[3]},0.15)`, padding: "12px 20px",
+            borderBottom: `1px solid rgba(${LC_RGB[3]},0.3)`,
+            display: "flex", alignItems: "center", gap: 10,
+          }}>
+            <span style={{ fontSize: 18 }}>⚠</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#ff8080" }}>
+              Wrong Element
+            </span>
+            {feedback.goal && (
+              <span style={{ fontSize: 12, color: "#a0c4ff", marginLeft: "auto" }}>
+                Target: {feedback.goal}
+              </span>
+            )}
+          </div>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: 1,
+              color: LEVEL_COLORS[3], textTransform: "uppercase", marginBottom: 8,
+            }}>
+              What would happen in production
+            </div>
+            <div style={{
+              fontSize: 14, color: "#e0e0e0", lineHeight: 1.6,
+            }}>
+              {feedback.consequence}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Simple feedback for correct clicks and L0/L1 wrong clicks */
+        <div style={{
+          background: "rgba(0,0,0,0.85)", padding: "20px 32px", borderRadius: 12,
+          fontSize: 16, fontWeight: 600, maxWidth: 500, textAlign: "center",
+          lineHeight: 1.5,
+          border: `2px solid ${isCorrect ? LEVEL_COLORS[0] : LEVEL_COLORS[3]}`,
+          color: isCorrect ? "#6ee7a8" : "#ff8080",
+        }}>
+          {feedback.msg}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NARRATIVE SCREEN — Challenge mode intro (Level 3)
+// ═══════════════════════════════════════════════════════════════════════════════
+function NarrativeScreen({ dispatch }) {
+  const narratives = (mission.narratives && mission.narratives.length > 0)
+    ? mission.narratives : [mission.briefing];
+  const [narrative] = useState(
+    () => narratives[Math.floor(Math.random() * narratives.length)]
+  );
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,10,30,0.97)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 500, flexDirection: "column", gap: 24,
+    }}>
+      <h2 style={{ fontSize: 28, color: ACCENT, letterSpacing: 2 }}>
+        {LEVEL_NAMES[3]} MODE
+      </h2>
+      <div style={{
+        fontSize: 18, lineHeight: 1.8, color: "#c0d4ff", textAlign: "center",
+        maxWidth: 600, background: "rgba(255,255,255,0.05)",
+        border: `1px solid rgba(${ACCENT_RGB},0.3)`, borderRadius: 12,
+        padding: "24px 32px", fontStyle: "italic",
+      }}>
+        {narrative}
+      </div>
+      <div style={{
+        fontSize: 14, color: "#a0c4ff", textAlign: "center",
+        maxWidth: 600, whiteSpace: "pre-line", marginTop: -8,
+      }}>
+        {mission.briefing}
+      </div>
+      <button
+        onClick={() => dispatch({ type: "START_CHALLENGE" })}
+        style={{
+          fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+          border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
+        }}
+      >
+        Begin
+      </button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DEBRIEF SCREEN — post-level reflection ("why it matters")
+// ═══════════════════════════════════════════════════════════════════════════════
+function DebriefScreen({ state, dispatch }) {
+  const [expandedIdx, setExpandedIdx] = useState(-1);
+
+  // Build debrief items from steps that have consequences
+  const items = steps
+    .map((step, i) => ({ idx: i, goal: step.goal, consequence: step.consequence }))
+    .filter(item => item.consequence);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,10,30,0.98)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 500, flexDirection: "column", gap: 20,
+    }}>
+      <h2 style={{ fontSize: 24, color: "#6ee7a8", letterSpacing: 1 }}>
+        Why Each Step Matters
+      </h2>
+      <p style={{ fontSize: 13, color: "#a0c4ff", marginTop: -12, maxWidth: 600, textAlign: "center" }}>
+        You completed {steps.length} steps. Here's what would happen in production if any of them were done wrong.
+        Click a step to see the real-world consequence.
+      </p>
+
+      <div style={{
+        maxWidth: 640, width: "90vw", maxHeight: "50vh", overflowY: "auto",
+        display: "flex", flexDirection: "column", gap: 6,
+        padding: "0 4px",
+      }}>
+        {items.map((item) => {
+          const isOpen = expandedIdx === item.idx;
+          return (
+            <div key={item.idx}
+              onClick={() => setExpandedIdx(isOpen ? -1 : item.idx)}
+              style={{
+                background: isOpen ? `rgba(${LC_RGB[1]},0.08)` : "rgba(255,255,255,0.03)",
+                border: `1px solid ${isOpen ? `rgba(${LC_RGB[1]},0.4)` : "rgba(255,255,255,0.08)"}`,
+                borderRadius: 8, padding: "12px 16px", cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{
+                  fontSize: 11, fontWeight: 700, color: ACCENT,
+                  background: `rgba(${ACCENT_RGB},0.15)`, padding: "2px 8px",
+                  borderRadius: 10, minWidth: 32, textAlign: "center",
+                }}>
+                  {item.idx + 1}
+                </span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#fff", flex: 1 }}>
+                  {item.goal}
+                </span>
+                <span style={{ fontSize: 12, color: "#666", transform: isOpen ? "rotate(90deg)" : "none", transition: "transform 0.2s" }}>
+                  ▸
+                </span>
+              </div>
+              {isOpen && (
+                <div style={{
+                  marginTop: 10, paddingTop: 10,
+                  borderTop: "1px solid rgba(255,255,255,0.08)",
+                  fontSize: 13, color: "#c0d4ff", lineHeight: 1.6,
+                }}>
+                  <span style={{ color: "#ff8080", fontWeight: 600, fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
+                    If done wrong:
+                  </span>
+                  <div style={{ marginTop: 4 }}>{item.consequence}</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        onClick={() => dispatch({ type: "DEBRIEF_DONE" })}
+        style={{
+          fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+          border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
+          marginTop: 8,
+        }}
+      >
+        Continue →
+      </button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WIN SCREEN — completion stats + confetti
+// ═══════════════════════════════════════════════════════════════════════════════
+function WinScreen({ state, dispatch }) {
+  const { level, score, xp, totalClicks, wrongClicks, timeRemaining } = state;
+
+  const accuracy = totalClicks > 0
+    ? Math.max(0, Math.round((totalClicks - wrongClicks * 2) / totalClicks * 100))
+    : 100;
+
+  const levelMsg = [
+    "Nice exploring! Ready to try Guided mode?",
+    'Tutorial complete! Try "On Your Own" next.',
+    "Great work without the safety net! Ready for the Challenge?",
+    `${SCENARIO.title} — challenge crushed!`,
+  ];
+
+  // Confetti for Level 2+
+  useEffect(() => {
+    if (level < 2) return;
+    const colors = [ACCENT, LEVEL_COLORS[1], LEVEL_COLORS[0], "#6ee7a8", "#ffd080", "#ff8080", "#c0d4ff"];
+    const pieces = [];
+    for (let i = 0; i < 60; i++) {
+      const piece = document.createElement("div");
+      Object.assign(piece.style, {
+        position: "fixed", width: `${6 + Math.random() * 8}px`, height: `${6 + Math.random() * 8}px`,
+        zIndex: "700", pointerEvents: "none", opacity: "0",
+        left: `${Math.random() * 100}vw`, top: "-20px",
+        background: colors[Math.floor(Math.random() * colors.length)],
+        borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+        animation: `confetti-fall ${2 + Math.random() * 2}s ease-out ${Math.random() * 1.5}s forwards`,
+      });
+      document.body.appendChild(piece);
+      pieces.push(piece);
+    }
+    return () => pieces.forEach(p => p.remove());
+  }, [level]);
+
+  // Build stats line
+  let stats = `Level: ${LEVEL_NAMES[level]}`;
+  if (level >= 1) stats += ` | Score: ${score} | Accuracy: ${accuracy}%`;
+  if (level >= 2) stats += ` | XP: ${xp}`;
+  if (level === 3 && timeRemaining > 0) {
+    const elapsed = (mission.time_limit || 180) - timeRemaining;
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    stats += ` | Time: ${m}:${s.toString().padStart(2, "0")}`;
+  }
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,20,10,0.97)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 600, flexDirection: "column", gap: 20,
+    }}>
+      <h1 style={{ fontSize: 48, color: "#6ee7a8" }}>Complete!</h1>
+      <p style={{ fontSize: 18, color: "#a0c4ff", textAlign: "center", maxWidth: 480 }}>
+        {levelMsg[level] || "Complete!"}
+      </p>
+      <div style={{ fontSize: 15, color: "#e0e0e0", textAlign: "center" }}>
+        {stats}
+      </div>
+      <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+        <button
+          onClick={() => dispatch({ type: "RESTART" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
+          }}
+        >
+          Play Again
+        </button>
+        {level >= 1 && (
+          <button
+            onClick={() => dispatch({ type: "START_REVIEW" })}
+            style={{
+              fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+              border: "none", background: "#6B21A8", color: "#fff", cursor: "pointer",
+            }}
+          >
+            Review (Scrambled)
+          </button>
+        )}
+        <button
+          onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: SHELL_COLOR, color: "#fff", cursor: "pointer",
+          }}
+        >
+          Change Level
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIMEOUT SCREEN — time's up (Level 3)
+// ═══════════════════════════════════════════════════════════════════════════════
+function TimeoutScreen({ state, dispatch }) {
+  const { stepIdx, score, xp } = state;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,20,10,0.97)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 600, flexDirection: "column", gap: 20,
+    }}>
+      <h1 style={{ fontSize: 48, color: "#ff8080" }}>Time's Up!</h1>
+      <p style={{ fontSize: 18, color: "#a0c4ff", textAlign: "center", maxWidth: 480 }}>
+        You made it to step {stepIdx + 1} of {steps.length}. Try again!
+      </p>
+      <div style={{ fontSize: 15, color: "#e0e0e0", textAlign: "center" }}>
+        Score: {score} | XP: {xp}
+      </div>
+      <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+        <button
+          onClick={() => dispatch({ type: "RESTART" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
+          }}
+        >
+          Try Again
+        </button>
+        <button
+          onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: SHELL_COLOR, color: "#fff", cursor: "pointer",
+          }}
+        >
+          Change Level
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// APP — root component + state machine
+// ═══════════════════════════════════════════════════════════════════════════════
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Timer tick effect (Level 3)
+  useEffect(() => {
+    if (!state.timerRunning) return;
+    const id = setInterval(() => dispatch({ type: "TIMER_TICK" }), 1000);
+    return () => clearInterval(id);
+  }, [state.timerRunning]);
+
+  // Hint countdown effect (Level 2)
+  useEffect(() => {
+    if (!state.hintPending || state.hintCountdown <= 0) return;
+    const id = setInterval(() => dispatch({ type: "HINT_COUNTDOWN_TICK" }), 1000);
+    return () => clearInterval(id);
+  }, [state.hintPending, state.hintCountdown]);
+
+  // Auto-clear feedback (longer for consequence panels) + audio cue
+  useEffect(() => {
+    if (!state.feedback) return;
+    // Audio cue on feedback
+    if (state.feedback.type === "correct") AudioCue.correct();
+    else if (state.feedback.type === "wrong") AudioCue.wrong();
+
+    let ms = 1200;
+    if (state.feedback.type === "correct") ms = 2000;
+    else if (state.feedback.consequence) ms = 5000;
+    else if (state.level >= 2) ms = 3000;
+    const id = setTimeout(() => dispatch({ type: "CLEAR_FEEDBACK" }), ms);
+    return () => clearTimeout(id);
+  }, [state.feedback, state.level]);
+
+  // Audio cue for timer countdown (last 10s) and screen transitions
+  useEffect(() => {
+    if (state.timerRunning && state.timeRemaining <= 10 && state.timeRemaining > 0) {
+      AudioCue.tick();
+    }
+  }, [state.timeRemaining, state.timerRunning]);
+
+  useEffect(() => {
+    if (state.screen === "win") AudioCue.win();
+    if (state.screen === "timeout") AudioCue.timeout();
+  }, [state.screen]);
+
+  // Set page title + inject keyframes for confetti animation
+  useEffect(() => {
+    document.title = `${SCENARIO.title} — Interactive Trainer`;
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes confetti-fall {
+        0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+        100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.3); }
+      }
+      @keyframes feedbackFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, []);
+
+  return (
+    <div style={{
+      background: "#0a0a1a", fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+      color: "#fff", height: "100vh", overflow: "hidden",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    }}>
+      {state.screen === "level-select" && (
+        <LevelSelect dispatch={dispatch} />
+      )}
+
+      {(state.screen === "play" || state.screen === "review") && (
+        <>
+          <HUD state={state} />
+          <ScreenView state={state} dispatch={dispatch} />
+          {state.level >= 1 && <GoalCard state={state} dispatch={dispatch} />}
+          <FeedbackFlash feedback={state.feedback} />
+        </>
+      )}
+
+      {state.screen === "narrative" && (
+        <NarrativeScreen dispatch={dispatch} />
+      )}
+
+      {state.screen === "debrief" && (
+        <DebriefScreen state={state} dispatch={dispatch} />
+      )}
+
+      {state.screen === "win" && (
+        <WinScreen state={state} dispatch={dispatch} />
+      )}
+
+      {state.screen === "timeout" && (
+        <TimeoutScreen state={state} dispatch={dispatch} />
+      )}
+    </div>
+  );
+}
+
+// ── Mount ──
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
