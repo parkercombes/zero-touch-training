@@ -864,6 +864,7 @@ Generated Content
 ### 10.2 Extensibility Points
 
 The architecture supports addition of new:
+- **Training domains:** Add a new `base_<domain>.py` with domain-specific drawing helpers and a branding dict, then create scenario packs that import from it. The React game engine requires zero changes.
 - **Source systems:** Add ingestion parsers for new process/test frameworks
 - **Content types:** Implement new output template generators
 - **AI models:** Swap or upgrade underlying language/image models
@@ -969,79 +970,105 @@ Estimated cost: ~$3.60 (Veo 3 Fast, 3 × 8s × $0.15)
 
 ## 12. UI Trainer Architecture
 
-### 12.1 Scenario Pack Pattern
+### 12.1 Overview
 
-The UI trainer (`ui_trainer.py`) is a generic HTML simulation engine. All warehouse-specific content lives in Python modules under `poc/generators/scenarios/`.
+The interactive UI trainer is a React single-page application that supports two training domains — **software** (ERP workflows) and **hardware** (equipment maintenance) — through a single domain-agnostic game engine. The engine reads scenario metadata, screen images, and branding from JSON globals injected at build time.
+
+### 12.2 Architecture
 
 ```
-ui_trainer.py                   # generic engine — HTML player, screen navigation, HUD
+trainer_app.jsx              # React game engine (~1260 lines) — domain-agnostic
      │
-     ├── scenarios/base.py       # shared Pillow drawing helpers (SAP Fiori chrome)
+ui_trainer.py                # build script — loads scenario, generates HTML bundle
      │
-     └── scenarios/<name>.py     # scenario pack
+generate_index.py            # auto-generates scenario selector from all scenario modules
+     │
+     ├── scenarios/base.py            # Software domain: SAP Fiori drawing helpers + SAP_BRANDING
+     ├── scenarios/base_hardware.py   # Hardware domain: photo annotation helpers + HARDWARE_BRANDING
+     │
+     └── scenarios/<name>.py          # scenario pack (software or hardware)
              │
-             ├── SCENARIO dict   # metadata: id, title, site, process, handling_profile
-             ├── SCREEN_GENERATORS  # dict mapping screen names → generator functions
-             └── generate_screens(out_dir)  # calls all generators, writes PNGs
+             ├── SCENARIO dict        # metadata: id, title, site, role, training_domain, branding, tutorial, mission
+             ├── SCREEN_GENERATORS    # dict mapping screen names → generator functions
+             └── generate_screens(out_dir)  # renders highlighted + neutral PNG variants
 ```
 
-The engine loads the scenario module dynamically:
+### 12.3 React Game Engine (trainer_app.jsx)
 
-```python
-import importlib
-mod = importlib.import_module(scenario_module)  # e.g. "scenarios.sedc_goods_receipt"
-scenario = mod.SCENARIO
-mod.generate_screens(screens_dir)
-```
+The game engine is a `useReducer` state machine that drives all four progression levels plus review mode entirely client-side. Key design decisions:
 
-### 12.2 SAP Fiori Chrome (base.py)
+- **Domain-agnostic:** The JSX resolves all colors, level names, and descriptions from `SCENARIO.branding` with SAP defaults as fallback. A `hexToRgb()` helper derives rgba tints from hex primaries at runtime.
+- **Dual-variant screens:** Levels 0–1 use highlighted screens (target area visually indicated). Levels 2–3 use neutral screens with decoy fields (2–3 non-target fields styled with subtle blue borders).
+- **No server required:** The output is a self-contained directory (`index.html` + two screen folders). No API calls, no model inference at runtime.
 
-`scenarios/base.py` provides a consistent SAP Fiori visual language across all scenario packs using Pillow:
+### 12.4 Multi-Domain Branding
 
-- Shell bar (dark blue, hamburger menu, user avatar)
-- Field inputs with label, border, optional amber highlight and underline
-- Dropdown fields with caret arrow
-- Primary/secondary buttons (blue, amber highlight state)
-- Table headers and row rendering with per-column highlight
-- Checkboxes with check mark
-- Card containers with optional title and divider
-- Status banners (green success / red error)
+Each scenario carries a `branding` dict that controls the entire visual identity:
 
-All colors follow the SAP Fiori palette: `#0070F2` (primary blue), `#033D80` (shell), `#E87600` (amber/hotspot), `#107E3E` (success green), `#BB000B` (error red).
+| Property | Software (SAP) | Hardware |
+|---|---|---|
+| `shell_color` | `#033D80` (Fiori blue) | `#3C3C3C` (steel grey) |
+| `accent_color` | `#E87600` (amber) | `#FF8C00` (safety orange) |
+| `level_colors` | green / blue / amber / red | green / blue / orange / red |
+| `level_names` | Explore / Guided / On Your Own / Challenge | OBSERVE / FOLLOW ALONG / DO IT / SPEED RUN |
+| `level_descriptions` | SAP-specific context | Maintenance-specific context |
 
-### 12.3 Handling Profiles
+The branding dict is kept intentionally small (~6 keys). The JSX derives all 47+ color references from these primaries using `hexToRgb()`, so adding a new domain requires only defining a new branding dict.
 
-| Profile | Scenario File | Site Example | Distinguishing Fields |
+### 12.5 Base Modules
+
+**`base.py` (Software):** Provides SAP Fiori drawing primitives using Pillow — shell bar, field inputs, dropdowns, buttons, tables, checkboxes, card containers, status banners. All colors follow the SAP Fiori palette. Exports `SAP_BRANDING`.
+
+**`base_hardware.py` (Hardware):** Provides photo annotation helpers — `load_base_image()` (loads photo or generates placeholder), `annotate_region()` (highlight/decoy regions on photos), `draw_callout()` (arrow + label pointing at component), `draw_component_label()` (labelled rectangle for placeholders), `new_hardware_screen()` (steel-grey shell bar), `hardware_status_banner()`. Exports `HARDWARE_BRANDING`.
+
+### 12.6 Scenario Packs
+
+**Software domain (SAP MIGO Goods Receipt):**
+
+| Profile | Scenario File | Site | Key Layer |
 |---|---|---|---|
-| `perishable` | sedc_goods_receipt.py | GlobalMart SE-DC | Lot/batch, temp zone, cold chain, QI mandatory |
-| `standard_dry` | standard_dry.py | Apex Auto Parts DC | Basic 6-step receipt, no regulatory layer |
-| `regulated_pharma` | regulated_pharma.py | Cardinal Health DC | Lot + expiry + CoA, QI hold, GxP language |
-| `hazmat` | hazmat.py | ChemCo Industrial DC | UN number, hazmat class, DOT/OSHA mandatory fields |
-| `serialized` | serialized.py | TechVault DC | Serial number scan, CAGE-01 secure storage, manager approval |
+| `perishable` | sedc_goods_receipt.py | GlobalMart SE-DC | Cold chain, lot/batch, QI |
+| `standard_dry` | standard_dry.py | Apex Auto Parts DC | None (simplest flow) |
+| `regulated_pharma` | regulated_pharma.py | Cardinal Health DC | GxP, lot + expiry + CoA, QI |
+| `hazmat` | hazmat.py | ChemCo Industrial DC | DOT/OSHA, UN number, hazmat class |
+| `serialized` | serialized.py | TechVault DC | Serial scan, CAGE-01, manager approval |
 
-### 12.4 Adding a New Scenario
+**Hardware domain:**
 
-1. Copy `scenarios/standard_dry.py` as a starting point
-2. Update the `SCENARIO` dict: `id`, `title`, `site`, `process`, `handling_profile`, `num_screens`
-3. Update `SCREEN_GENERATORS` with the screens relevant to the new process
-4. Run: `python3 ui_trainer.py scenarios.<your_module_name>`
-5. Output lands in `poc/output/ui_trainer/<scenario_id>/`
+| Scenario | Scenario File | Site | Key Focus |
+|---|---|---|---|
+| AR-15 Field Strip | ar15_field_strip.py | Range Safety Training Center | 8-step field strip, safety verification, component inspection |
 
-No changes to `ui_trainer.py` or `base.py` are required for a new scenario.
+### 12.7 Adding a New Scenario
 
-### 12.5 Game Layer (Planned)
+**Software:** Copy any existing SAP scenario file, update the `SCENARIO` dict (including `"training_domain": "software"` and `"branding": SAP_BRANDING`), update screen generators, run `python3 ui_trainer.py scenarios.<name>`.
 
-The current UI trainer renders a static HTML simulation. The following game mechanics are planned for the next development phase:
+**Hardware:** Copy `ar15_field_strip.py`, import from `base_hardware` instead of `base`, update steps/screens for the new equipment, set `"training_domain": "hardware"` and `"branding": HARDWARE_BRANDING`. When real photographs are available, swap them in for the Pillow-drawn placeholders.
 
-- **Level system** (0=orientation, 1=guided, 2=semi-guided, 3=challenge/timed)
-- **XP and achievement badges** stored in session JSON
-- **Timer** in Level 3 with score formula: `base × time_bonus × accuracy_multiplier`
-- **Narrative premise cards** before each Level 3 scenario
-- **Error consequence explanations** (Layer 5 content delivered in-moment)
-- **Confetti animation** on successful posting
-- **Site-level leaderboard** via lightweight file-based score store
+After adding or removing scenarios, regenerate the selector: `python3 generate_index.py`.
 
-See `docs/game-design-vision.md` for full design rationale, real-world benchmarks, and implementation priority order.
+### 12.8 Game Mechanics (All Built)
+
+The following are all fully implemented and working in `trainer_app.jsx`:
+
+- **Four-level progression** with domain-specific branding
+- **Consequence-based error feedback** — structured "what would happen in production" panels on wrong clicks (Levels 2–3)
+- **Post-level debrief screens** — expandable "why each step matters" cards (after Levels 1–2)
+- **Audio cues via Web Audio API** — correct/wrong tones, timer tick in last 10 seconds, win fanfare, timeout alert
+- **Review mode** — 5 randomly selected steps in scrambled order, accessible from win screen
+- **Adaptive hint system** — after 3 consecutive wrong clicks in Level 2, next hint is free
+- **Decoy fields** on neutral screens — 2–3 non-target fields with subtle styling
+- **Narrative premise cards** — 2–3 sentence scenario cards before Level 3, rotating from pool of 4
+- **Timer** — visible countdown in Level 3
+- **Confetti animation** on successful completion
+
+**Not yet built:** XP persistence across sessions, achievement badges, site-level leaderboard. These require a lightweight backend or file-based score store.
+
+See `docs/game-design-vision.md` for design rationale and real-world benchmarks.
+
+### 12.9 Scenario Selector
+
+`generate_index.py` auto-discovers all scenario modules under `scenarios/`, reads their `SCENARIO` metadata, groups by `training_domain`, and generates `output/ui_trainer/index.html` with domain sections (Software Training / Hardware Training), profile-colored cards, and inferred tags.
 
 ---
 
@@ -1067,7 +1094,7 @@ See `docs/game-design-vision.md` for full design rationale, real-world benchmark
 
 ## Document Information
 
-**Version:** 1.0
-**Last Updated:** 2024
+**Version:** 2.0
+**Last Updated:** 2025
 **Audience:** Technical architects, system engineers, training operations team
 **Classification:** Technical Architecture Reference

@@ -1,18 +1,14 @@
-# Zero-Touch, AI-Generated ERP Training
+# Zero-Touch, AI-Generated Training
 
 ## The Problem We're Solving
 
-ERP training today is expensive to create, slow to update, quickly outdated, and detached from how the system actually changes.
+Training today is expensive to create, slow to update, quickly outdated, and detached from how the underlying systems and procedures actually change.
 
-This is amplified by:
-
-- Site-specific processes
-- Multiple UI layers (SAP Fiori, Appian Low Code, etc.)
-- High personnel turnover and mixed experience levels
+In ERP environments this is amplified by site-specific processes, multiple UI layers (SAP Fiori, Appian Low Code, etc.), and high personnel turnover. In hardware and maintenance environments the problem is parallel: procedures are taught person-to-person, institutional knowledge walks out the door, and mistakes during maintenance have real safety consequences.
 
 ## The Core Idea
 
-Training should be generated from the same assets that keep the system running.
+Training should be generated from the same assets that keep the system running — or from the same procedures that define correct maintenance technique.
 
 Instead of manually authoring courses and job aids:
 
@@ -21,6 +17,11 @@ Instead of manually authoring courses and job aids:
 - Automatically update training whenever the system changes
 
 This is **Training-as-Code**, embedded in the DevSecOps pipeline.
+
+The platform now supports two training domains through a single domain-agnostic game engine:
+
+- **Software training** — ERP workflows (SAP MIGO Goods Receipt across 5 handling profiles)
+- **Hardware training** — Equipment maintenance and assembly (AR-15 field strip pilot, extensible to automotive, industrial equipment, etc.)
 
 ## How the Training Works (Layered Model)
 
@@ -105,16 +106,23 @@ This allows reuse without ignoring local reality.
 
 Generating accurate training quickly is necessary but not sufficient. If nobody completes the training, accuracy doesn't matter. The engagement problem is as important as the content problem.
 
-The UI trainer is being built as a game, not a tutorial. The design draws on the same mechanics that make mobile games addictive and applies them to SAP task simulation:
+The UI trainer is built as a game, not a tutorial. It is a React single-page application with a `useReducer` state machine driving all game logic entirely client-side. The design draws on the same mechanics that make mobile games addictive and applies them to task simulation — both software (SAP) and hardware (equipment maintenance):
 
-- **Progressive levels:** Level 0 (UI basics) → Level 1 (guided steps with prompts) → Level 2 (semi-guided, hints available but delayed) → Level 3 (challenge/boss-fight mode: real task, timer, no prompts)
-- **XP and achievement badges:** Milestone recognition for first posting, first catch of a discrepancy, fastest goods receipt
-- **Timer:** Visible countdown in challenge mode, score based on speed and accuracy
-- **Leaderboard:** Site-level competition — who cleared goods receipt fastest this week
-- **Narrative stakes:** "The truck has been at the dock for 45 minutes. Dock fees start in 15. Post the goods receipt." Pressure without actual consequences.
-- **Confetti and feedback:** Immediate positive reinforcement on successful posting; empathetic error explanations (not "wrong," but "here's what that would have caused downstream")
+**All of the following are fully built and working:**
 
-Game-based training is not new — products like UKG Pro's learning platform have demonstrated that story mode, character missions, and challenge levels significantly outperform traditional eLearning on completion rates. Nobody has built this for SAP at an affordable price point. That's the gap.
+- **Four-level progression:** Level 0 (explore/orientation) → Level 1 (guided steps with highlights) → Level 2 (no highlights, hints cost XP, wrong clicks show consequences) → Level 3 (timer, no help, score goes on the board)
+- **Domain-specific branding:** Software scenarios use SAP Fiori blue shell and level names (Explore / Guided / On Your Own / Challenge). Hardware scenarios use steel-grey shell with safety-orange accent and level names (OBSERVE / FOLLOW ALONG / DO IT / SPEED RUN). Branding is injected at build time.
+- **Consequence-based error feedback:** Structured "what would happen in production" panels on wrong clicks in Levels 2–3
+- **Timer with audio cues:** Visible countdown in Level 3, tick sounds in the last 10 seconds, timeout alert
+- **Confetti celebration:** Visual celebration on successful completion
+- **Narrative premise cards:** 2–3 sentence scenario cards before each Level 3 challenge, rotating from a pool of 4 per scenario
+- **Post-level debrief screens:** Expandable "why each step matters" cards shown after Levels 1–2
+- **Decoy fields:** 2–3 non-target fields on neutral screens (Levels 2–3) styled with subtle blue borders to create multiple plausible click targets
+- **Adaptive hint system:** After 3 consecutive wrong clicks in Level 2, the next hint becomes free
+- **Review mode:** 5 randomly selected steps in scrambled order, accessible from the win screen
+- **Audio cues via Web Audio API:** Correct/wrong tones, timer tick, win fanfare
+
+Game-based training is not new — products like UKG Pro's learning platform have demonstrated that story mode, character missions, and challenge levels significantly outperform traditional eLearning on completion rates. Nobody has built this for SAP or equipment maintenance at an affordable price point. That's the gap.
 
 The AI-generation capability means the game content (scenarios, screens, scripts) updates automatically when the system changes. A traditional gamified training platform would require manual rework of every level after each ERP upgrade. This one recompiles.
 
@@ -124,15 +132,18 @@ The interactive UI trainer is fully generated from source — no AI is involved 
 
 ### Source Files
 
-Three files comprise the entire source:
+The source is organized into a domain-agnostic game engine, domain-specific base modules, and per-scenario packs:
 
-- **`scenarios/base.py`** — Shared Pillow drawing primitives (fields, dropdowns, buttons, tables, checkboxes, shell bar). This is the visual component library that renders SAP Fiori-style UI elements as static PNGs.
-- **`scenarios/sedc_goods_receipt.py`** — The scenario pack. Contains the complete scenario definition (all steps with goals, instructions, hints, hotspots, consequences, and explore descriptions) plus the screen generator functions that draw each screen using the base helpers. Each scenario pack is self-contained and can be swapped or duplicated for different handling profiles.
-- **`trainer_app.jsx`** — The React application (~46K chars). This is the game engine: a useReducer state machine drives all four progression levels plus review mode. It reads scenario data injected as JSON globals and renders the interactive experience entirely client-side.
+- **`trainer_app.jsx`** — The React game engine (~1260 lines). A `useReducer` state machine drives all four progression levels plus review mode. It reads scenario data and branding injected as JSON globals and renders the interactive experience entirely client-side. The JSX is completely domain-agnostic — it resolves colors and level names from `SCENARIO.branding` with SAP defaults as fallback.
+- **`scenarios/base.py`** — Software domain: shared Pillow drawing primitives (SAP Fiori fields, dropdowns, buttons, tables, checkboxes, shell bar) plus `SAP_BRANDING` dict export.
+- **`scenarios/base_hardware.py`** — Hardware domain: photo annotation helpers (highlight/decoy regions, callout arrows, component labels), placeholder diagram generation, plus `HARDWARE_BRANDING` dict export.
+- **Scenario packs** (e.g. `sedc_goods_receipt.py`, `ar15_field_strip.py`) — Each contains the complete scenario definition (steps, goals, instructions, hints, hotspots, consequences, explore descriptions, branding, mission) plus screen generator functions. Each is self-contained and imports from the appropriate base module.
 
 ### Build Process
 
-The generator script reads the scenario module, calls its `generate_screens()` function (which renders 18 PNGs — 9 highlighted for Levels 0–1 and 9 neutral for Levels 2–3), reads the JSX file, and injects three JSON blobs (scenario data, highlighted screen paths, neutral screen paths) plus the JSX source into a single HTML wrapper. The output is a standalone directory: `index.html` plus two screen folders.
+The generator script (`ui_trainer.py`) reads the scenario module, calls its `generate_screens()` function (which renders highlighted PNGs for Levels 0–1 and neutral PNGs with decoy fields for Levels 2–3), reads the JSX file, and injects three JSON blobs (scenario data including branding, highlighted screen paths, neutral screen paths) plus the JSX source into a single HTML wrapper. The output is a standalone directory: `index.html` plus two screen folders.
+
+A separate script (`generate_index.py`) auto-discovers all scenario modules, groups them by `training_domain` (software/hardware), and generates the scenario selector `index.html` with domain sections and profile-colored cards.
 
 ### Where AI Contributed Content
 
@@ -172,9 +183,13 @@ This PoC uses a fictional company — "GlobalMart Southeast Distribution Center"
 
 ## Current Status
 
-The PoC to date covers Layers 1 through 5 with working code: navigation walkthroughs, AI-generated explainer videos (including a lip-synced Bigfoot character vlog built on Google Veo 3), role-specific job aids, in-app guidance drafts, and process rationale content. Layer 6 (continuous update triggers) is designed but not yet automated. The interactive UI trainer supports five distinct handling profiles (standard dry goods, perishable, pharmaceutical, hazardous materials, and serialized assets), each runnable as a standalone scenario.
+The PoC to date covers Layers 1 through 5 with working code: navigation walkthroughs, AI-generated explainer videos (including a lip-synced Bigfoot character vlog built on Google Veo 3), role-specific job aids, in-app guidance drafts, and process rationale content. Layer 6 (continuous update triggers) is designed but not yet automated.
 
-Total development time: 16 days of off-hours work. Total external API spend: less than $200.
+The interactive UI trainer is a React single-page application with a fully built game engine. It supports two training domains through a branding abstraction layer: software (5 SAP MIGO handling profiles — standard dry, perishable, pharma, hazmat, serialized) and hardware (AR-15 field strip pilot). All game mechanics — four-level progression, consequence feedback, timer with audio cues, confetti, narrative premises, decoy fields, debrief screens, adaptive hints, and review mode — are fully implemented and working.
+
+An auto-generated scenario selector groups all scenarios by domain and provides a landing page with profile-colored cards.
+
+Total development time: 18 days of off-hours work. Total external API spend: less than $200.
 
 ## Executive Soundbite
 

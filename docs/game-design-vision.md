@@ -14,33 +14,40 @@ The answer is the same mechanics that make mobile games work. Not games for thei
 
 ---
 
-## The Four-Level Framework
+## The Four-Level Framework (Fully Built)
 
-The UI trainer is structured as four progressive levels for each process. A learner advances through levels on the same task — Goods Receipt, for example — getting less scaffolding and more pressure as they improve.
+The UI trainer is a React single-page application structured as four progressive levels for each process. A learner advances through levels on the same task — getting less scaffolding and more pressure as they improve.
 
-### Level 0 — UI Orientation
+The level names and descriptions are domain-specific, injected via the branding system:
+
+| Level | Software (SAP) | Hardware |
+|---|---|---|
+| 0 | **EXPLORE** — "Learn the screen" | **OBSERVE** — "Study the equipment" |
+| 1 | **GUIDED** — "Follow the prompts" | **FOLLOW ALONG** — "Follow the prompts" |
+| 2 | **ON YOUR OWN** — "No highlights, hints cost XP" | **DO IT** — "No highlights, hints cost XP" |
+| 3 | **CHALLENGE** — "Timer on, no help" | **SPEED RUN** — "Timer on, no help" |
+
+### Level 0 — Explore / Observe
 "Learn the controls."
 
-The learner explores the SAP Fiori interface with no task pressure. Tooltips explain every field. The goal is just familiarity: where is the transaction code bar, what does a dropdown look like, what does "Post" do. No failure state.
+The learner explores the interface with no task pressure. Clickable explore zones explain every element. The goal is just familiarity. No failure state.
 
-### Level 1 — Guided Execution
+### Level 1 — Guided / Follow Along
 "Follow the steps."
 
-A specific task is presented. Each step is highlighted and prompted. Clicking the wrong field shows a gentle redirect. The learner succeeds as long as they follow. The emphasis is on building correct muscle memory — not testing it.
+A specific task is presented. Each step is highlighted. Clicking the wrong field shows a gentle redirect. The emphasis is on building correct muscle memory — not testing it.
 
-This is where most existing SAP training products stop.
+This is where most existing training products stop.
 
-### Level 2 — Semi-Guided
+### Level 2 — Semi-Guided / Do It
 "You know this. Try it."
 
-The same task, but prompts are removed. If the learner gets stuck, they can request a hint — but hints are delayed by 10 seconds and cost XP. The learner must think, not just follow. Errors trigger an explanation of the downstream consequence, not just a "wrong" indicator.
+The same task, but highlights are removed. Neutral screens include 2–3 decoy fields styled with subtle blue borders to create multiple plausible click targets. Hints are available but cost XP. After 3 consecutive wrong clicks, the next hint becomes free (adaptive hint system). Errors trigger a structured consequence explanation panel — not just a "wrong" indicator.
 
-### Level 3 — Challenge Mode (Boss Fight)
+### Level 3 — Challenge / Speed Run
 "Real conditions, timer on."
 
-A complete goods receipt scenario with a narrative premise: "The truck has been at the dock for 45 minutes. Dock fees start in 15 minutes. You need to post this receipt and flag the temperature discrepancy before your lead notices." No hints. Timer visible. Score recorded to the leaderboard.
-
-The scenario rotates. One week it's a clean receipt. Next week there's a quantity discrepancy to catch. The week after that, the movement type is wrong in the pre-filled form.
+A narrative premise card sets the scene before the scenario begins. No hints. Visible countdown timer with audio ticks in the last 10 seconds. Score recorded. The narrative rotates from a pool of 4 per scenario.
 
 ---
 
@@ -101,27 +108,45 @@ No vendor currently offers AI-generated, game-based SAP training at an accessibl
 
 ---
 
-## Planned UI Trainer Enhancements
+## UI Trainer Enhancement Status
 
-These are the four highest-impact additions, ordered by implementation priority:
+### Built and Working
 
-**1. Challenge Mode with Timer (Level 3)**
-Add a visible countdown timer to existing Level 3 scenarios. Score based on time and accuracy. This is mechanical — no new content required, just a timer component and score formula.
+| Feature | Status | Notes |
+|---|---|---|
+| Challenge Mode with Timer | ✅ Built | Visible countdown, audio tick in last 10s, timeout alert |
+| Confetti Animation | ✅ Built | Canvas-based confetti burst on successful completion |
+| Narrative Premise Cards | ✅ Built | 4 rotating narratives per scenario, shown before Level 3 |
+| Error Consequence Explanations | ✅ Built | Structured panels on wrong clicks in Levels 2–3 |
+| Post-Level Debrief | ✅ Built | Expandable "why each step matters" cards after Levels 1–2 |
+| Decoy Fields | ✅ Built | 2–3 non-target fields on neutral screens (Levels 2–3) |
+| Adaptive Hints | ✅ Built | After 3 consecutive wrong clicks, next hint is free |
+| Review Mode | ✅ Built | 5 scrambled steps accessible from win screen |
+| Audio Cues | ✅ Built | Web Audio API: correct/wrong tones, timer tick, fanfare |
+| Multi-Domain Branding | ✅ Built | SAP blue vs. steel grey, domain-specific level names |
 
-**2. Achievement Badges**
+### Remaining Enhancements
+
+**1. Achievement Badges**
 Define 8–10 badges with clear unlock conditions. Store in JSON alongside the learner session. Display on the HUD. Zero new scenario content required.
 
-**3. Confetti Animation on Successful Post**
-CSS animation triggered on the "Goods Receipt Posted" screen. Two-second visual celebration. One-day implementation.
+**2. XP Persistence**
+Currently XP resets per session. Requires localStorage or a lightweight backend to persist across sessions.
 
-**4. Narrative Premise Cards**
-Prepend a 2–3 sentence scenario card before each Level 3 challenge. Rotates weekly. Written once per scenario, stored in the scenario pack config. No code changes to the engine required — just data.
-
-**5. Error Consequence Explanations (Deeper Layer 5 Integration)**
-Expand the error feedback in the UI trainer to include the downstream consequence, not just "incorrect." Each wrong step in each scenario needs a one-paragraph consequence explanation. This is the most content-intensive enhancement but also the highest educational value.
-
-**6. Leaderboard (Site-Level)**
+**3. Leaderboard (Site-Level)**
 Requires a minimal backend — a JSON file or lightweight API that stores scores per user per scenario. Can be file-based for the PoC. Weekly reset. Display on the HUD.
+
+---
+
+## Hardware Training Domain
+
+The game engine now supports hardware training scenarios alongside software. The same four-level progression applies — the difference is in the branding (steel grey shell, safety orange accent) and the level nomenclature (OBSERVE / FOLLOW ALONG / DO IT / SPEED RUN).
+
+The first hardware scenario is an AR-15 field strip: 8 steps from verification clear through disassembly, inspection, cleaning, lubrication, reassembly, and function check. The consequence model maps directly: skipping clearance verification → negligent discharge risk; forcing takedown pins with a steel tool → deformed pin holes and receiver wobble.
+
+Hardware scenarios currently use Pillow-drawn placeholder diagrams (rifle silhouettes, BCG exploded views). These can be swapped for real photographs — hotspot coordinates just need to match the photo layout. The `base_hardware.py` module provides annotation helpers that work on any base image (photo or placeholder).
+
+Future hardware scenarios could include: Glock field strip, M4 armorer-level maintenance, oil change procedure, brake pad replacement, industrial equipment lockout/tagout. Each would follow the same scenario pack contract: SCENARIO dict + SCREEN_GENERATORS dict + `generate_screens()` function.
 
 ---
 

@@ -4,7 +4,9 @@
 
 ## What This Is
 
-An AI pipeline that **generates ERP training materials from existing DevSecOps assets** — automated test scripts (Tosca), process models (Signavio/BPMN), and configuration data. No manual authoring. When the system changes, training updates automatically.
+An AI pipeline that **generates training materials from existing DevSecOps assets** — automated test scripts (Tosca), process models (Signavio/BPMN), and configuration data. No manual authoring. When the system changes, training updates automatically.
+
+The platform supports two training domains: **software** (ERP workflows like SAP MIGO Goods Receipt) and **hardware** (equipment maintenance and assembly). Both share the same React game engine and four-level progression system — only the screen generation layer and visual branding differ.
 
 The tagline: *"We're not building training. We're compiling it from the same assets that already keep the system running."*
 
@@ -13,6 +15,8 @@ The tagline: *"We're not building training. We're compiling it from the same ass
 Commercial retail distribution center ERP users (starting at GlobalMart Southeast Distribution Center). The system sits on top of SAP S/4HANA 2023, Fiori, and Appian, with site-specific process overlays.
 
 A near-term target use case is **Anniston Army Depot** — Army supply clerks working with Classes of Supply (I–IX) that map directly to the five handling profiles already built into the UI trainer.
+
+Hardware training extends the platform to physical procedures (weapon maintenance, automotive service, industrial equipment) where the same four-level progression — explore, follow along, do it yourself, timed challenge — builds procedural muscle memory through repetition and consequence-based feedback.
 
 ## Six Training Layers
 
@@ -67,15 +71,19 @@ zero-touch-training/
     │   ├── video_render_veo3.py     # Social video Mark 2: Veo 3 real video + native audio
     │   ├── video_render_veo3_poc.py # 3-scene POC cut (intro + 101 lesson + outro)
     │   ├── veo3_test_clip.py        # Single-clip validator — downloads raw Veo output
-    │   ├── ui_trainer.py            # Interactive SAP UI trainer (HTML, scenario-pack-driven)
+    │   ├── ui_trainer.py            # Interactive UI trainer (HTML + React, scenario-pack-driven)
+    │   ├── generate_index.py        # Auto-generates scenario selector index.html from scenario metadata
+    │   ├── trainer_app.jsx          # React game engine (~1260 lines) — domain-agnostic, branding-injected
     │   └── scenarios/               # Scenario packs for the UI trainer
     │       ├── __init__.py
-    │       ├── base.py              # Shared Pillow drawing helpers (SAP Fiori chrome)
+    │       ├── base.py              # Shared Pillow drawing helpers (SAP Fiori chrome) + SAP_BRANDING
+    │       ├── base_hardware.py     # Hardware domain: photo annotation helpers + HARDWARE_BRANDING
     │       ├── sedc_goods_receipt.py  # SE-DC perishable goods receipt (original scenario)
     │       ├── standard_dry.py        # Apex Auto Parts DC — basic dry goods
     │       ├── regulated_pharma.py    # Cardinal Health DC — pharmaceutical/GxP
     │       ├── hazmat.py              # ChemCo Industrial DC — hazardous materials
-    │       └── serialized.py          # TechVault DC — serialized/high-value assets
+    │       ├── serialized.py          # TechVault DC — serialized/high-value assets
+    │       └── ar15_field_strip.py    # AR-15 field strip (hardware domain pilot)
     ├── prompts/                  # ✅ BUILT — LLM prompt templates
     │   ├── walkthrough.txt      # Prompt: step-by-step navigation walkthrough
     │   ├── video_script.txt     # Prompt: process explainer video script
@@ -110,9 +118,13 @@ zero-touch-training/
 | Social video (Bigfoot — Mark 1) | ✅ Done | `video_render_bigfoot.py` — DALL-E 3 stills + OpenAI TTS. 13 slides, ~$0.90/video. Tagged `cheapest-video-explainer-mark-1`. |
 | Social video (Bigfoot — Veo 3)  | ✅ Done | `video_render_veo3.py` — Veo 3 real video + **native lip-synced audio**. 4-character cast. ~$15.60 Fast / ~$41.60 Standard. |
 | Bigfoot POC cut | ✅ Done | `video_render_veo3_poc.py` — 3 scenes (intro/101/outro), ~$3.60, daily-quota-safe |
-| UI trainer — generic engine | ✅ Done | `ui_trainer.py` — scenario-pack-driven SAP Fiori simulation. Loads any scenario module. |
+| UI trainer — React game engine | ✅ Done | `trainer_app.jsx` — domain-agnostic React SPA with useReducer state machine, 4-level progression, branding injection, audio, confetti, debrief, review mode |
+| UI trainer — branding abstraction | ✅ Done | SAP_BRANDING / HARDWARE_BRANDING dicts injected via SCENARIO.branding; hexToRgb() derives all rgba tints at runtime |
 | UI trainer — SE-DC scenario | ✅ Done | `sedc_goods_receipt.py` — perishable goods receipt, 13 screens, cold chain, lot tracking |
-| UI trainer — 4 additional scenarios | ✅ Done | standard_dry, regulated_pharma, hazmat, serialized |
+| UI trainer — 4 additional SAP scenarios | ✅ Done | standard_dry, regulated_pharma, hazmat, serialized |
+| UI trainer — hardware base module | ✅ Done | `base_hardware.py` — photo annotation helpers, placeholder generation, HARDWARE_BRANDING |
+| UI trainer — AR-15 pilot scenario | ✅ Done | `ar15_field_strip.py` — 8-step field strip, placeholder diagrams, safety-first progression |
+| Scenario selector generator | ✅ Done | `generate_index.py` — auto-discovers scenarios, groups by domain (software/hardware), generates index.html |
 
 ## The Bigfoot Character Cast
 
@@ -142,26 +154,60 @@ Key implementation detail in `compose_scene()`:
 
 The earlier (broken) version used `-map 1:a` to overlay OpenAI TTS, discarding Veo's generated audio entirely. The `veo3_test_clip.py` validator never applied this transform, which is why the test clip sounded correct while the full pipeline didn't.
 
-## UI Trainer Scenario Pack Architecture
+## UI Trainer Architecture
 
-`ui_trainer.py` is a generic HTML simulation engine. All warehouse-specific content lives in a separate scenario module.
+### React Game Engine
+
+The interactive trainer is a React single-page application (`trainer_app.jsx`, ~1260 lines). A `useReducer` state machine drives all four progression levels plus review mode. The engine is completely domain-agnostic — it reads scenario metadata, screen images, and branding from JSON globals injected at build time.
+
+### Multi-Domain Branding
+
+Each scenario carries a `branding` dict that controls the visual identity:
+
+| Property | SAP Software | Hardware |
+|---|---|---|
+| Shell color | `#033D80` (Fiori blue) | `#3C3C3C` (steel grey) |
+| Accent color | `#E87600` (amber) | `#FF8C00` (safety orange) |
+| Level names | Explore / Guided / On Your Own / Challenge | OBSERVE / FOLLOW ALONG / DO IT / SPEED RUN |
+
+The JSX resolves branding at runtime via `SCENARIO.branding || {}` with SAP defaults as fallback. A `hexToRgb()` helper derives all rgba tints from the hex primaries, so the branding dict stays small (~6 keys) while covering 47+ color references throughout the UI.
+
+### Scenario Pack Pattern
+
+`ui_trainer.py` is the build script. It loads a scenario module dynamically, calls `generate_screens()` to render PNGs (highlighted for Levels 0–1, neutral with decoys for Levels 2–3), reads the JSX, injects three JSON blobs (scenario data, highlighted screen paths, neutral screen paths) plus the JSX source into a single HTML wrapper.
 
 **Each scenario module exports:**
-- `SCENARIO` dict — metadata (id, title, site, process, handling_profile, num_screens)
+- `SCENARIO` dict — metadata (id, title, site, role, training_domain, branding, handling_profile, tutorial, mission)
 - `SCREEN_GENERATORS` dict — maps screen names to generator functions
-- `generate_screens(out_dir)` — calls all generators, writes PNGs to output dir
+- `generate_screens(out_dir)` — calls all generators, writes PNGs (highlighted + neutral variants)
 
-**Handling profiles built:**
+### Scenario Packs
 
-| Profile | Example Site | Key Regulatory Layer |
-|---|---|---|
-| `perishable` | GlobalMart SE-DC | Cold chain, lot/batch, QI |
-| `standard_dry` | Apex Auto Parts DC | None |
-| `regulated_pharma` | Cardinal Health DC | GxP, lot + expiry + CoA, QI |
-| `hazmat` | ChemCo Industrial DC | DOT/OSHA, UN number, hazmat class |
-| `serialized` | TechVault DC | Serial scan, CAGE-01, manager approval |
+**Software domain (SAP MIGO):**
 
-Adding a new scenario: copy any existing scenario file, update the `SCENARIO` dict and screen generator functions, then run `python3 ui_trainer.py scenarios.your_new_scenario`.
+| Profile | Scenario File | Site | Key Regulatory Layer |
+|---|---|---|---|
+| `perishable` | sedc_goods_receipt.py | GlobalMart SE-DC | Cold chain, lot/batch, QI |
+| `standard_dry` | standard_dry.py | Apex Auto Parts DC | None |
+| `regulated_pharma` | regulated_pharma.py | Cardinal Health DC | GxP, lot + expiry + CoA, QI |
+| `hazmat` | hazmat.py | ChemCo Industrial DC | DOT/OSHA, UN number, hazmat class |
+| `serialized` | serialized.py | TechVault DC | Serial scan, CAGE-01, manager approval |
+
+**Hardware domain:**
+
+| Scenario | Scenario File | Site | Key Focus |
+|---|---|---|---|
+| AR-15 Field Strip | ar15_field_strip.py | Range Safety Training Center | 8-step field strip, safety verification, component inspection |
+
+### Adding a New Scenario
+
+**Software:** Copy any existing SAP scenario file, update the `SCENARIO` dict and screen generators, then run `python3 ui_trainer.py scenarios.your_new_scenario`.
+
+**Hardware:** Copy `ar15_field_strip.py`, import from `base_hardware` instead of `base`, update steps/screens for the new equipment, run the same command. When real photographs are available, swap them in for the Pillow-drawn placeholders — hotspot coordinates just need to match.
+
+### Scenario Selector
+
+`generate_index.py` auto-discovers all scenario modules, reads their SCENARIO metadata, groups them by `training_domain`, and generates `output/ui_trainer/index.html` with domain sections (Software Training / Hardware Training), profile-colored cards, and inferred tags.
 
 ## Getting Started
 
@@ -201,11 +247,17 @@ python generators/veo3_test_clip.py
 # UI trainer — SE-DC perishable scenario (default)
 python generators/ui_trainer.py
 
-# UI trainer — alternate scenario packs
+# UI trainer — software scenario packs
 python generators/ui_trainer.py scenarios.standard_dry
 python generators/ui_trainer.py scenarios.regulated_pharma
 python generators/ui_trainer.py scenarios.hazmat
 python generators/ui_trainer.py scenarios.serialized
+
+# UI trainer — hardware scenario pack
+python generators/ui_trainer.py scenarios.ar15_field_strip
+
+# Regenerate the scenario selector (index.html) after adding/removing scenarios
+python generators/generate_index.py
 
 # Test parsers
 python parsers/tosca_parser.py data/tosca/purchase_requisition.xml
