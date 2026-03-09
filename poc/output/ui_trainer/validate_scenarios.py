@@ -195,6 +195,89 @@ def check_hotspots(scenario_dir, data):
     return issues
 
 
+def check_highlight_alignment(scenario_dir, data):
+    """
+    Compare highlighted vs neutral screenshots to detect where the visual
+    highlight is, then verify the hotspot actually overlaps it.
+
+    The screen generator bakes highlights (orange borders, tinted cells) into
+    the 'screens/' images. The 'screens_neutral/' images are identical except
+    without those highlights. Diffing the two reveals the highlighted region.
+    If the hotspot doesn't overlap that region, the target is misaligned.
+    """
+    if not HAS_PIL:
+        return [("WARN", "Pillow not installed — skipping highlight alignment check")]
+
+    issues = []
+    scenario = data.get("__SCENARIO__")
+    screens = data.get("__SCREENS__")
+    screens_neutral = data.get("__SCREENS_NEUTRAL__")
+    if not scenario or not screens or not screens_neutral:
+        return [("WARN", "Missing screen maps — skipping highlight alignment")]
+
+    import numpy as np
+
+    tutorial = scenario.get("tutorial", [])
+    for i, step in enumerate(tutorial):
+        screen_name = step.get("screen", "?")
+        hs = step.get("hotspot", {})
+        x, y, w, h = hs.get("x", 0), hs.get("y", 0), hs.get("w", 0), hs.get("h", 0)
+
+        hi_path = os.path.join(scenario_dir, screens.get(screen_name, ""))
+        lo_path = os.path.join(scenario_dir, screens_neutral.get(screen_name, ""))
+        if not os.path.exists(hi_path) or not os.path.exists(lo_path):
+            continue
+
+        hi_img = np.array(Image.open(hi_path).convert("RGB"), dtype=np.int16)
+        lo_img = np.array(Image.open(lo_path).convert("RGB"), dtype=np.int16)
+
+        # Compute per-pixel colour difference
+        diff = np.sqrt(np.sum((hi_img - lo_img).astype(np.float64) ** 2, axis=2))
+
+        # Threshold: pixels with noticeable difference are "highlighted"
+        highlight_mask = diff > 30  # ~30 units of RGB euclidean distance
+
+        highlight_pixels = int(np.sum(highlight_mask))
+        if highlight_pixels < 10:
+            # No visible highlight difference — can't validate alignment
+            issues.append(("PASS", f"Screen {i} ({screen_name}): no highlight diff detected (screens may be identical)"))
+            continue
+
+        # Check how many highlighted pixels fall inside the hotspot
+        hs_mask = highlight_mask[max(0,y):y+h, max(0,x):x+w]
+        inside = int(np.sum(hs_mask))
+
+        # And how many highlighted pixels exist in total
+        pct_inside = (inside / highlight_pixels * 100) if highlight_pixels > 0 else 0
+
+        # Find the bounding box of the highlighted region
+        rows = np.any(highlight_mask, axis=1)
+        cols = np.any(highlight_mask, axis=0)
+        if rows.any() and cols.any():
+            hl_y0, hl_y1 = np.where(rows)[0][[0, -1]]
+            hl_x0, hl_x1 = np.where(cols)[0][[0, -1]]
+
+            # Check overlap between hotspot and highlight bounding box
+            overlap_x = max(0, min(x + w, int(hl_x1)) - max(x, int(hl_x0)))
+            overlap_y = max(0, min(y + h, int(hl_y1)) - max(y, int(hl_y0)))
+            overlap_area = overlap_x * overlap_y
+            hotspot_area = w * h
+
+            if overlap_area == 0:
+                issues.append(("FAIL", f"Screen {i} ({screen_name}): Hotspot ({x},{y}) {w}x{h} has ZERO overlap "
+                              f"with highlight region ({hl_x0},{hl_y0})-({hl_x1},{hl_y1})"))
+            elif pct_inside < 5:
+                issues.append(("WARN", f"Screen {i} ({screen_name}): Only {pct_inside:.0f}% of highlight pixels "
+                              f"inside hotspot — possible misalignment. "
+                              f"Highlight bbox: ({hl_x0},{hl_y0})-({hl_x1},{hl_y1})"))
+            else:
+                issues.append(("PASS", f"Screen {i} ({screen_name}): {pct_inside:.0f}% highlight overlap ✓"))
+        else:
+            issues.append(("PASS", f"Screen {i} ({screen_name}): highlight check OK"))
+
+    return issues
+
+
 def check_explore_data(data):
     """Check explore_info completeness."""
     issues = []
@@ -412,6 +495,7 @@ def validate_scenario(scenario_dir):
     checks = [
         ("Structure & Files", check_structural(scenario_dir, data)),
         ("Hotspot Bounds & Alignment", check_hotspots(scenario_dir, data)),
+        ("Highlight Alignment", check_highlight_alignment(scenario_dir, data)),
         ("Explore Mode Data", check_explore_data(data)),
         ("Navigation Links", check_back_links(scenario_dir)),
     ]
