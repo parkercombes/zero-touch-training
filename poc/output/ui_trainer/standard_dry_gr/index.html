@@ -783,7 +783,7 @@ function ScreenView({ state, dispatch }) {
 
   return (
     <>
-      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair" }}>
+      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair", marginBottom: level === 0 ? "28vh" : 0, transition: "margin-bottom 0.3s" }}>
         <img
           ref={imgRef}
           src={screenSrc}
@@ -830,7 +830,7 @@ function ExplorePanel({ state, dispatch }) {
   return (
     <div style={{
       position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-      width: "min(780px, 95vw)", maxHeight: "40vh", overflowY: "auto",
+      width: "min(780px, 95vw)", maxHeight: "26vh", overflowY: "auto",
       background: "rgba(3,20,50,0.95)", backdropFilter: "blur(12px)",
       border: `1px solid rgba(${LC_RGB[0]},0.5)`, borderBottom: "none",
       borderRadius: "12px 12px 0 0", padding: "16px 22px 12px", zIndex: 200,

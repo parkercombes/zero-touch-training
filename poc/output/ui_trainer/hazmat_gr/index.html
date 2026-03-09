@@ -135,10 +135,10 @@ window.__SCENARIO__        = {
       "instruction": "Check the Qty and UN No. columns. Confirm the chemicals and quantities match the packing list.",
       "hint": "Compare each quantity and UN number against your delivery paperwork before proceeding.",
       "hotspot": {
-        "x": 416,
+        "x": 400,
         "y": 272,
-        "w": 100,
-        "h": 34
+        "w": 72,
+        "h": 62
       },
       "feedback": "Quantities and UN numbers verified. Never post hazmat without confirming UN classification.",
       "consequence": "Posting the wrong quantity for hazmat means your facility's Tier II report to the fire department is inaccurate. If acetone inventory exceeds threshold quantities without reporting, that's an OSHA/EPA violation.",
@@ -830,7 +830,7 @@ function ScreenView({ state, dispatch }) {
 
   return (
     <>
-      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair" }}>
+      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair", marginBottom: level === 0 ? "28vh" : 0, transition: "margin-bottom 0.3s" }}>
         <img
           ref={imgRef}
           src={screenSrc}
@@ -877,7 +877,7 @@ function ExplorePanel({ state, dispatch }) {
   return (
     <div style={{
       position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-      width: "min(780px, 95vw)", maxHeight: "40vh", overflowY: "auto",
+      width: "min(780px, 95vw)", maxHeight: "26vh", overflowY: "auto",
       background: "rgba(3,20,50,0.95)", backdropFilter: "blur(12px)",
       border: `1px solid rgba(${LC_RGB[0]},0.5)`, borderBottom: "none",
       borderRadius: "12px 12px 0 0", padding: "16px 22px 12px", zIndex: 200,
