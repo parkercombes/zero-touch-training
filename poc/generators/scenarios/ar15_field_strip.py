@@ -196,6 +196,144 @@ SCENARIO = {
             "New armorer trainee is watching you. Show proper technique — they're learning from your example.",
             "Post-deployment maintenance check. Every weapon gets stripped and inspected before turn-in.",
         ],
+        "learning_objectives": {
+            0: [
+                "Identify every major component on the AR-15",
+                "Understand how the 8-step field strip sequence flows",
+                "Learn where each part lives on the diagram",
+            ],
+            1: [
+                "Follow the correct 8-step disassembly/reassembly sequence",
+                "Build muscle memory for the procedure with guided prompts",
+                "Understand why each step matters for safety",
+            ],
+            2: [
+                "Perform the full procedure from memory",
+                "Identify the real-world consequences of each mistake",
+                "Complete the sequence with minimal hint usage",
+            ],
+            3: [
+                "Execute the full field strip under time pressure",
+                "Demonstrate procedural mastery with zero assists",
+                "Beat the par time for your unit's readiness standard",
+            ],
+        },
+    },
+    # ── 3D Exploded View ─────────────────────────────────────────────────
+    # Component data for the interactive Three.js briefing screen.
+    # Each component has a shape type, geometry parameters, colors,
+    # assembled/exploded positions, and step association.
+    "exploded_view": {
+        "components": [
+            # ── Buttstock (Step 8) ───────────────────────────────────────
+            {"name": "Buttstock", "shape": "extrude", "step": 8, "color": 0x3a3a3a,
+             "depth": 1.0, "translate": [0, 0, -0.5],
+             "points": [[-1.8,-0.9],[-1.6,-1.0],[0.0,-1.0],[0.3,-0.7],[0.3,-0.3],[0.3,0.3],[0.3,0.7],[0.0,1.0],[-0.4,1.0],[-1.2,0.7],[-1.7,0.5],[-2.0,0.1],[-2.0,-0.3],[-1.9,-0.7]],
+             "assembledPos": [-9.5, -0.5, 0], "explodedPos": [-13.5, -0.5, 0]},
+            # ── Buffer Tube (Step 8) ─────────────────────────────────────
+            {"name": "Buffer Tube", "shape": "cylinder", "step": 8, "color": 0xa8a8a8,
+             "radiusTop": 0.45, "radiusBottom": 0.45, "height": 5.5, "segments": 16,
+             "rotateZ": 1.5708,
+             "assembledPos": [-6, -0.5, 0], "explodedPos": [-9, -0.5, 0]},
+            # ── Upper Receiver (Step 3) ──────────────────────────────────
+            {"name": "Upper Receiver", "shape": "extrude", "step": 3, "color": 0xa8a8a8,
+             "depth": 1.3, "translate": [0, 0, -0.65],
+             "points": [[-3.5,-0.6],[3.5,-0.6],[3.5,-0.2],[3.5,0.2],[3.5,0.4],[3.4,0.45],[3.3,0.55],[2.8,0.55],[2.7,0.60],[2.5,0.60],[2.4,0.55],[2.0,0.55],[1.9,0.60],[1.7,0.60],[1.6,0.55],[1.2,0.55],[1.1,0.60],[0.9,0.60],[0.8,0.55],[0.4,0.55],[0.3,0.60],[0.1,0.60],[0.0,0.55],[-0.4,0.55],[-0.5,0.60],[-0.7,0.60],[-0.8,0.55],[-1.2,0.55],[-1.3,0.60],[-1.5,0.60],[-1.6,0.55],[-2.0,0.55],[-2.1,0.60],[-2.3,0.60],[-2.4,0.55],[-2.8,0.55],[-2.9,0.60],[-3.1,0.60],[-3.2,0.55],[-3.5,0.50],[-3.5,0.0]],
+             "assembledPos": [0, 0.3, 0], "explodedPos": [0, 2.5, 0]},
+            # ── Lower Receiver (Step 2) ──────────────────────────────────
+            {"name": "Lower Receiver", "shape": "extrude", "step": 2, "color": 0xa8a8a8,
+             "depth": 1.3, "translate": [0, 0, -0.65],
+             "points": [[-3.0,0.5],[2.5,0.5],[2.5,0.2],[2.3,-0.1],[2.0,-0.2],[2.0,-2.0],[1.8,-2.3],[1.0,-2.3],[0.8,-2.0],[0.8,-1.0],[0.7,-1.3],[0.5,-1.5],[0.2,-1.6],[-0.1,-1.5],[-0.3,-1.3],[-0.4,-1.0],[-0.4,-0.5],[-0.6,-0.3],[-0.8,-0.2],[-1.5,-0.2],[-2.0,-0.1],[-2.8,0.0],[-3.0,0.1]],
+             "assembledPos": [-0.5, -0.5, 0], "explodedPos": [-0.5, -0.5, -3.0]},
+            # ── Pistol Grip (Step 8) ─────────────────────────────────────
+            {"name": "Pistol Grip", "shape": "extrude", "step": 8, "color": 0x3a3a3a,
+             "depth": 1.0, "translate": [0, 0, -0.5],
+             "points": [[-0.1,0.3],[0.4,0.3],[0.5,0.1],[0.55,-0.3],[0.5,-0.8],[0.45,-1.2],[0.4,-1.6],[0.35,-1.9],[0.2,-2.1],[0.0,-2.2],[-0.2,-2.1],[-0.35,-1.9],[-0.4,-1.5],[-0.4,-1.0],[-0.35,-0.5],[-0.2,-0.1],[-0.1,0.1]],
+             "assembledPos": [-1.0, -1.5, 0], "explodedPos": [-1.0, -1.5, -3.0]},
+            # ── Trigger (Step 8) ─────────────────────────────────────────
+            {"name": "Trigger", "shape": "extrude", "step": 8, "color": 0x505050,
+             "depth": 0.25, "translate": [0, 0, -0.125],
+             "points": [[-0.06,0.0],[0.06,0.0],[0.08,-0.2],[0.10,-0.5],[0.06,-0.6],[-0.06,-0.6],[-0.10,-0.5],[-0.08,-0.2]],
+             "assembledPos": [0.2, -1.1, 0], "explodedPos": [0.2, -1.1, -3.0]},
+            # ── Magazine (Step 1) ────────────────────────────────────────
+            {"name": "Magazine", "shape": "extrude", "step": 1, "color": 0x505050,
+             "depth": 0.8, "translate": [0, 0, -0.4],
+             "points": [[-0.45,0.0],[0.45,0.0],[0.42,-0.8],[0.38,-1.8],[0.33,-2.8],[0.25,-3.2],[0.10,-3.4],[-0.10,-3.4],[-0.25,-3.2],[-0.33,-2.8],[-0.38,-1.8],[-0.42,-0.8]],
+             "assembledPos": [1.2, -1.5, 0], "explodedPos": [1.2, -1.5, -4.0]},
+            # ── Handguard (Step 5) ───────────────────────────────────────
+            {"name": "Handguard", "shape": "extrude", "step": 5, "color": 0x505050,
+             "depth": 1.2, "translate": [0, 0, -0.6],
+             "points": [[0.0,-0.7],[10.0,-0.65],[10.0,-0.55],[10.2,-0.45],[10.2,0.45],[10.0,0.55],[10.0,0.65],[9.5,0.65],[9.5,0.72],[9.0,0.72],[9.0,0.65],[8.2,0.65],[8.2,0.72],[7.7,0.72],[7.7,0.65],[6.9,0.65],[6.9,0.72],[6.4,0.72],[6.4,0.65],[5.6,0.65],[5.6,0.72],[5.1,0.72],[5.1,0.65],[4.3,0.65],[4.3,0.72],[3.8,0.72],[3.8,0.65],[3.0,0.65],[3.0,0.72],[2.5,0.72],[2.5,0.65],[1.5,0.65],[1.5,0.72],[1.0,0.72],[1.0,0.65],[0.0,0.7]],
+             "holes": [[[0.3,-0.4],[9.7,-0.4],[9.7,0.4],[0.3,0.4]]],
+             "assembledPos": [3.0, 0.3, 0], "explodedPos": [6.0, 0.3, 2.5]},
+            # ── Barrel (Step 5) ──────────────────────────────────────────
+            {"name": "Barrel", "shape": "extrude", "step": 5, "color": 0x8a8a8a,
+             "depth": 0.5, "translate": [0, 0, -0.25],
+             "points": [[0.0,-0.3],[4.0,-0.3],[4.5,-0.28],[10.0,-0.22],[13.0,-0.20],[13.0,0.20],[10.0,0.22],[4.5,0.28],[4.0,0.3],[0.0,0.3]],
+             "assembledPos": [3.5, 0.3, 0], "explodedPos": [9.0, 0.3, 0]},
+            # ── Muzzle Brake (Step 5) ────────────────────────────────────
+            {"name": "Muzzle Brake", "shape": "extrude", "step": 5, "color": 0x606060,
+             "depth": 0.5, "translate": [0, 0, -0.25],
+             "points": [[0.0,-0.22],[0.1,-0.35],[0.3,-0.35],[0.4,-0.30],[0.5,-0.35],[0.6,-0.30],[0.7,-0.35],[0.8,-0.30],[0.9,-0.35],[1.0,-0.30],[1.1,-0.25],[1.2,-0.10],[1.2,0.10],[1.1,0.25],[1.0,0.30],[0.9,0.35],[0.8,0.30],[0.7,0.35],[0.6,0.30],[0.5,0.35],[0.4,0.30],[0.3,0.35],[0.1,0.35],[0.0,0.22]],
+             "assembledPos": [16.5, 0.3, 0], "explodedPos": [22, 0.3, 0]},
+            # ── Gas Tube (Step 5) ────────────────────────────────────────
+            {"name": "Gas Tube", "shape": "cylinder", "step": 5, "color": 0x8a8a8a,
+             "radiusTop": 0.06, "radiusBottom": 0.06, "height": 8, "segments": 8,
+             "rotateZ": 1.5708,
+             "assembledPos": [6, 0.9, 0], "explodedPos": [12, 1.8, 0]},
+            # ── Front Sight (Step 5) ─────────────────────────────────────
+            {"name": "Front Sight", "shape": "extrude", "step": 5, "color": 0x505050,
+             "depth": 0.15, "translate": [0, 0, -0.075],
+             "points": [[-0.25,0.0],[0.25,0.0],[0.20,0.2],[0.12,0.6],[0.08,0.8],[0.04,0.95],[0.02,1.1],[-0.02,1.1],[-0.04,0.95],[-0.08,0.8],[-0.12,0.6],[-0.20,0.2]],
+             "assembledPos": [13.5, 0.9, 0], "explodedPos": [19, 2.0, 0]},
+            # ── Bolt Carrier Group (Step 4) ──────────────────────────────
+            {"name": "Bolt Carrier Group", "shape": "extrude", "step": 4, "color": 0x8a8a8a,
+             "depth": 0.6, "translate": [0, 0, -0.3],
+             "points": [[-2.8,-0.30],[2.2,-0.30],[2.4,-0.28],[2.6,-0.20],[2.7,-0.10],[2.7,0.10],[2.6,0.20],[2.4,0.28],[2.2,0.30],[0.8,0.30],[0.7,0.45],[0.5,0.48],[-0.5,0.48],[-0.7,0.45],[-0.8,0.30],[-2.8,0.30],[-2.8,0.15],[-2.9,0.05],[-2.9,-0.05],[-2.8,-0.15]],
+             "assembledPos": [0, 0.3, 0], "explodedPos": [0, 5.0, 0]},
+            # ── Cam Pin (Step 4) ─────────────────────────────────────────
+            {"name": "Cam Pin", "shape": "cylinder", "step": 4, "color": 0x8a8a8a,
+             "radiusTop": 0.08, "radiusBottom": 0.08, "height": 0.6, "segments": 6,
+             "assembledPos": [1.5, 0.3, 0], "explodedPos": [3.0, 7.5, 1.0]},
+            # ── Firing Pin (Step 4) ──────────────────────────────────────
+            {"name": "Firing Pin", "shape": "cylinder", "step": 4, "color": 0x8a8a8a,
+             "radiusTop": 0.04, "radiusBottom": 0.04, "height": 4.5, "segments": 6,
+             "rotateZ": 1.5708,
+             "assembledPos": [0, 0.3, 0], "explodedPos": [0, 8.0, 0]},
+            # ── Retaining Pin (Step 4) ───────────────────────────────────
+            {"name": "Retaining Pin", "shape": "cylinder", "step": 4, "color": 0xd4a840,
+             "radiusTop": 0.03, "radiusBottom": 0.03, "height": 0.5, "segments": 6,
+             "rotateX": 1.5708,
+             "assembledPos": [-2.2, 0.3, 0], "explodedPos": [-2.2, 8.5, 1.5]},
+            # ── Charging Handle (Step 3) ─────────────────────────────────
+            {"name": "Charging Handle", "shape": "extrude", "step": 3, "color": 0xa8a8a8,
+             "depth": 0.6, "translate": [0, 0, -0.3],
+             "points": [[-1.5,-0.08],[1.5,-0.08],[1.5,0.08],[-1.0,0.08],[-1.0,0.18],[-1.2,0.22],[-1.6,0.22],[-1.8,0.18],[-1.8,-0.18],[-1.6,-0.22],[-1.2,-0.22],[-1.0,-0.18],[-1.0,-0.08],[-1.5,-0.08]],
+             "assembledPos": [-2, 0.85, 0], "explodedPos": [-2, 4.0, -2.5]},
+            # ── Takedown Pins (Step 2) ───────────────────────────────────
+            {"name": "Rear Takedown Pin", "shape": "cylinder", "step": 2, "color": 0x8a8a8a,
+             "radiusTop": 0.09, "radiusBottom": 0.09, "height": 1.4, "segments": 8,
+             "rotateX": 1.5708,
+             "assembledPos": [-2.5, 0.0, 0], "explodedPos": [-2.5, 0.0, -4.5]},
+            {"name": "Front Pivot Pin", "shape": "cylinder", "step": 2, "color": 0x8a8a8a,
+             "radiusTop": 0.09, "radiusBottom": 0.09, "height": 1.4, "segments": 8,
+             "rotateX": 1.5708,
+             "assembledPos": [2.0, 0.0, 0], "explodedPos": [2.0, 0.0, -4.5]},
+            # ── Safety Selector (Step 8) ─────────────────────────────────
+            {"name": "Safety Selector", "shape": "cylinder", "step": 8, "color": 0x505050,
+             "radiusTop": 0.2, "radiusBottom": 0.2, "height": 0.1, "segments": 8,
+             "rotateX": 1.5708,
+             "assembledPos": [-1.5, -0.2, 0.66], "explodedPos": [-1.5, -0.2, -2.3]},
+            # ── Shell Deflector (Step 1) ─────────────────────────────────
+            {"name": "Shell Deflector", "shape": "sphere", "step": 1, "color": 0xa8a8a8,
+             "radius": 0.3, "arc": 3.14159,
+             "assembledPos": [0.5, 0.5, 0.65], "explodedPos": [0.5, 2.8, 1.8]},
+            # ── Bolt Catch (Step 1) ──────────────────────────────────────
+            {"name": "Bolt Catch", "shape": "extrude", "step": 1, "color": 0x505050,
+             "depth": 0.08,
+             "points": [[0,0],[0.15,0],[0.15,0.5],[0.1,0.6],[0.05,0.6],[0,0.5]],
+             "assembledPos": [1.0, -0.2, -0.66], "explodedPos": [1.0, -0.2, -3.7]},
+        ],
     },
 }
 
