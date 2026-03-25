@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiori In-App Training Panel — Mock</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --shell-bg:    #1d2d3e;
+  --shell-h:     44px;
+  --sap-blue:    #0070f2;
+  --sap-blue-d:  #0057c2;
+  --page-bg:     #f0f2f4;
+  --white:       #ffffff;
+  --border:      #d9dde2;
+  --label-gray:  #6a6d70;
+  --text:        #32363a;
+  --navy:        #1d2d3e;
+  --amber:       #e87600;
+  --green:       #107e3e;
+  --green-bg:    #e6f4ea;
+  --red:         #bb0000;
+  --panel-w:     368px;
+  --fab-size:    52px;
+}
+
+body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflow-x: hidden; }
+
+/* ── SHELL ─────────────────────────────────────────────────────────────────── */
+.shell {
+  height: var(--shell-h); background: var(--shell-bg);
+  display: flex; align-items: center; padding: 0 16px; gap: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35); position: sticky; top: 0; z-index: 300;
+}
+.shell-logo {
+  display:flex;align-items:center;gap:8px;color:#fff;
+  font-size:14px;font-weight:700;text-decoration:none;
+}
+.shell-divider { width:1px;height:22px;background:#3d5166; }
+.shell-back {
+  display:flex;align-items:center;gap:5px;color:#90afc8;
+  font-size:12px;cursor:pointer;border:none;background:none;font-family:inherit;
+}
+.shell-back:hover { color: #fff; }
+.shell-breadcrumb { color:#90afc8; font-size:12px; }
+.shell-breadcrumb span { color: #d0e4f7; font-weight:600; }
+.shell-spacer { flex:1; }
+.shell-avatar {
+  width:32px;height:32px;border-radius:50%;background:#0070f2;color:#fff;
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(255,255,255,.2); cursor:pointer;
+}
+
+/* ── SUB-HEADER (app chrome) ──────────────────────────────────────────────── */
+.subheader {
+  background: #fff; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px; height: 48px; gap: 12px;
+  position: sticky; top: var(--shell-h); z-index: 200;
+}
+.subheader-title {
+  font-size: 15px; font-weight: 700; color: var(--text); flex:1;
+}
+.subheader-meta { font-size: 12px; color: var(--label-gray); }
+.subheader-actions { display:flex; gap:8px; align-items:center; }
+.sub-btn {
+  padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); background: #fff;
+  color: var(--text); font-family: inherit; transition: background .12s;
+}
+.sub-btn:hover { background: #f0f2f4; }
+.sub-btn.primary { background: var(--sap-blue); color: #fff; border-color: var(--sap-blue); }
+.sub-btn.primary:hover { background: var(--sap-blue-d); }
+
+/* ── MESSAGE STRIP ────────────────────────────────────────────────────────── */
+.msg-strip {
+  background: #fff3cd; border-left: 4px solid #e87600;
+  padding: 8px 20px; font-size: 12px; color: #4a3200;
+  display: flex; align-items: center; gap: 8px;
+}
+.msg-strip svg { flex-shrink: 0; }
+
+/* ── PAGE LAYOUT ──────────────────────────────────────────────────────────── */
+.page-layout {
+  display: flex;
+  min-height: calc(100vh - var(--shell-h) - 48px);
+  transition: all .28s cubic-bezier(.4,0,.2,1);
+}
+
+/* The SAP app content area */
+.app-content {
+  flex: 1; min-width: 0;
+  padding: 20px;
+  transition: margin-right .28s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+}
+.page-layout.panel-open .app-content {
+  margin-right: var(--panel-w);
+}
+
+/* ── SAP FORM STYLES ──────────────────────────────────────────────────────── */
+.section-card {
+  background: #fff; border-radius: 6px;
+  border: 1px solid var(--border);
+  margin-bottom: 16px; overflow: hidden;
+}
+.section-header {
+  background: #f5f7f9; border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+}
+.section-header-title {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+}
+.section-arrow {
+  transition: transform .2s;
+  color: var(--label-gray);
+}
+.section-body { padding: 16px; }
+
+.form-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px;
+  margin-bottom: 4px;
+}
+.form-row.two-col { grid-template-columns: repeat(2, 1fr); }
+.form-row.three-col { grid-template-columns: repeat(3, 1fr); }
+
+.form-field { display: flex; flex-direction: column; gap: 4px; }
+.field-label {
+  font-size: 11px; color: var(--label-gray); font-weight: 600;
+  white-space: nowrap;
+}
+.field-label.required::after {
+  content: " *"; color: var(--red); font-weight: 400;
+}
+.field-input {
+  height: 32px; border: 1px solid var(--border); border-radius: 4px;
+  padding: 0 8px; font-size: 12px; color: var(--text);
+  background: #fff; font-family: inherit;
+  display: flex; align-items: center;
+}
+.field-input.filled { border-color: #b0b8c4; }
+.field-input.error { border-color: var(--red); background: #fff5f5; }
+.field-input.highlight {
+  border: 2px solid var(--amber);
+  background: #fff8f0;
+  box-shadow: 0 0 0 3px rgba(232,118,0,.15);
+  animation: pulse-field 2s ease-in-out infinite;
+}
+@keyframes pulse-field {
+  0%,100% { box-shadow: 0 0 0 3px rgba(232,118,0,.15); }
+  50%      { box-shadow: 0 0 0 5px rgba(232,118,0,.08); }
+}
+.field-value { font-size: 12px; color: var(--text); }
+.field-input-with-icon {
+  position: relative;
+}
+.field-input-with-icon .field-input { padding-right: 28px; }
+.field-icon {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  color: var(--label-gray); cursor: pointer;
+}
+
+/* Step callout that appears over the highlighted field */
+.step-callout {
+  position: absolute;
+  background: #1d2d3e; color: #fff;
+  font-size: 11px; padding: 7px 11px; border-radius: 6px;
+  white-space: nowrap; z-index: 50;
+  top: -42px; left: 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,.3);
+  animation: pop-in .2s ease-out;
+}
+.step-callout::after {
+  content: ''; position: absolute;
+  bottom: -6px; left: 16px;
+  border: 6px solid transparent;
+  border-top-color: #1d2d3e;
+  border-bottom: none;
+}
+@keyframes pop-in {
+  from { opacity:0; transform:translateY(-4px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── INLINE TABLE (line items) ──────────────────────────────────────────── */
+.items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.items-table th {
+  background: #f5f7f9; border-bottom: 1px solid var(--border);
+  padding: 8px 10px; text-align: left; font-size: 11px;
+  font-weight: 700; color: var(--label-gray); white-space: nowrap;
+}
+.items-table td {
+  padding: 8px 10px; border-bottom: 1px solid #eef0f3;
+  color: var(--text); vertical-align: middle;
+}
+.items-table tr:last-child td { border-bottom: none; }
+.items-table tr:hover td { background: #f8fafc; }
+.qty-input {
+  width: 70px; border: 1px solid var(--border); border-radius: 3px;
+  padding: 3px 6px; font-size: 12px; font-family: inherit;
+  text-align: right;
+}
+
+/* ── FLOATING ACTION BUTTON (FAB) ─────────────────────────────────────── */
+.fab-wrap {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  z-index: 400;
+  transition: right .28s cubic-bezier(.4,0,.2,1);
+}
+.page-layout.panel-open ~ .fab-wrap {
+  right: calc(var(--panel-w) + 16px);
+}
+.fab {
+  width: var(--fab-size); height: var(--fab-size);
+  border-radius: 50%;
+  background: var(--amber);
+  border: 3px solid #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.08);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, background .15s;
+  flex-direction: column; gap: 1px;
+  position: relative;
+}
+.fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+}
+.fab.done { background: var(--green); }
+.fab.none { background: #8696a9; }
+.fab-level {
+  color: #fff; font-size: 11px; font-weight: 900; line-height: 1;
+}
+.fab-label {
+  color: rgba(255,255,255,.85); font-size: 7.5px; font-weight: 700;
+  letter-spacing: .04em; line-height: 1;
+}
+/* Tooltip on hover */
+.fab-tooltip {
+  position: absolute; right: calc(100% + 10px); top: 50%;
+  transform: translateY(-50%);
+  background: #1d2d3e; color: #fff;
+  font-size: 11px; font-weight: 600;
+  padding: 5px 10px; border-radius: 5px;
+  white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity .15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.fab-tooltip::after {
+  content: ''; position: absolute;
+  left: 100%; top: 50%; transform: translateY(-50%);
+  border: 5px solid transparent; border-left-color: #1d2d3e;
+}
+.fab:hover .fab-tooltip { opacity: 1; }
+
+/* ── TRAINING PANEL ──────────────────────────────────────────────────── */
+.training-panel {
+  position: fixed;
+  top: var(--shell-h); right: 0;
+  width: var(--panel-w);
+  height: calc(100vh - var(--shell-h));
+  background: #fff;
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 20px rgba(0,0,0,.12);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  z-index: 350;
+  overflow: hidden;
+}
+.training-panel.open { transform: translateX(0); }
+
+/* Panel header */
+.panel-header {
+  background: var(--navy); color: #fff;
+  padding: 12px 14px 10px;
+  display: flex; flex-direction: column; gap: 8px;
+  flex-shrink: 0;
+}
+.panel-header-top {
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-icon {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.panel-title { font-size: 13px; font-weight: 700; flex: 1; }
+.panel-close {
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,.7); font-size: 18px; line-height: 1;
+  padding: 2px 4px; border-radius: 3px;
+  transition: color .1s, background .1s;
+}
+.panel-close:hover { color: #fff; background: rgba(255,255,255,.15); }
+.panel-scenario-name {
+  font-size: 11px; color: rgba(255,255,255,.75);
+  font-weight: 400;
+}
+
+/* Mode toggle */
+.mode-toggle {
+  display: flex; background: rgba(255,255,255,.12); border-radius: 6px; padding: 2px;
+  gap: 2px;
+}
+.mode-btn {
+  flex: 1; padding: 6px 8px; border-radius: 4px; border: none;
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: background .15s, color .15s;
+  font-family: inherit; color: rgba(255,255,255,.7); background: transparent;
+}
+.mode-btn.active {
+  background: #fff; color: var(--navy);
+}
+
+/* Panel body */
+.panel-body {
+  flex: 1; overflow-y: auto; overflow-x: hidden;
+}
+
+/* ── HELP NOW MODE ────────────────────────────────────────────────────── */
+.help-mode { display: flex; flex-direction: column; }
+
+/* Step list */
+.step-list { padding: 14px; display: flex; flex-direction: column; gap: 0; }
+.step-item {
+  display: flex; gap: 10px; padding: 10px 0;
+  border-bottom: 1px solid #f0f2f4; cursor: pointer;
+  transition: background .12s; border-radius: 4px; padding: 10px 8px;
+  position: relative;
+}
+.step-item:hover { background: #f8fafc; }
+.step-item.active { background: #fff8f0; }
+.step-item:last-child { border-bottom: none; }
+.step-num {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid #d0d8e0;
+  background: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: var(--label-gray);
+  flex-shrink: 0; margin-top: 1px;
+}
+.step-num.done { background: var(--green); border-color: var(--green); color: #fff; }
+.step-num.active { background: var(--amber); border-color: var(--amber); color: #fff; animation: pulse-step 1.8s ease-in-out infinite; }
+@keyframes pulse-step {
+  0%,100% { box-shadow: 0 0 0 0 rgba(232,118,0,.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(232,118,0,0); }
+}
+.step-content { flex: 1; }
+.step-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.step-desc { font-size: 11px; color: var(--label-gray); line-height: 1.4; }
+.step-hint {
+  margin-top: 6px; font-size: 11px; color: var(--amber);
+  background: #fff8f0; border-left: 3px solid var(--amber);
+  padding: 5px 8px; border-radius: 0 4px 4px 0;
+  line-height: 1.4;
+}
+.step-check {
+  color: var(--green); flex-shrink: 0; margin-top: 2px;
+}
+
+/* Section divider in panel */
+.panel-section-label {
+  font-size: 10px; font-weight: 700; color: var(--label-gray);
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 10px 14px 4px; background: #f8fafc;
+  border-top: 1px solid #eef0f3; border-bottom: 1px solid #eef0f3;
+}
+
+/* Quick tip */
+.quick-tip {
+  margin: 10px 14px; background: #f0f7ff; border: 1px solid #c0daff;
+  border-radius: 6px; padding: 10px 12px;
+}
+.quick-tip-title { font-size: 11px; font-weight: 700; color: #0057c2; margin-bottom: 4px; }
+.quick-tip-text { font-size: 11px; color: #1d2d3e; line-height: 1.5; }
+
+/* ── PRACTICE MODE ────────────────────────────────────────────────────── */
+.practice-mode { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+
+.level-card {
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+  cursor: pointer; transition: box-shadow .15s, border-color .15s;
+}
+.level-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.10); border-color: #b0b8c4; }
+.level-card.current { border-color: var(--amber); }
+.level-card.completed { border-color: var(--green); }
+.level-card.locked { opacity: .55; cursor: not-allowed; }
+
+.level-card-header {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border);
+}
+.level-badge {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; flex-shrink: 0; color: #fff;
+}
+.lb-done    { background: var(--green); }
+.lb-active  { background: var(--amber); }
+.lb-locked  { background: #b0b8c4; }
+.level-name { font-size: 12px; font-weight: 700; color: var(--text); flex: 1; }
+.level-status-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+  white-space: nowrap;
+}
+.lst-done { background: var(--green-bg); color: var(--green); }
+.lst-active { background: #fff3e0; color: var(--amber); }
+.lst-locked { background: #f0f2f4; color: #8696a9; }
+.level-card-body { padding: 10px 12px; }
+.level-desc { font-size: 11px; color: var(--label-gray); line-height: 1.5; margin-bottom: 8px; }
+.level-meta {
+  display: flex; gap: 12px;
+}
+.level-meta-item {
+  font-size: 10px; color: #8696a9;
+  display: flex; align-items: center; gap: 4px;
+}
+.level-cta {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 12px; border-top: 1px solid #eef0f3;
+  background: #fff;
+}
+.level-cta-btn {
+  width: 100%; padding: 8px; border-radius: 6px; border: none;
+  font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: background .12s;
+}
+.lcb-primary { background: var(--amber); color: #fff; }
+.lcb-primary:hover { background: #cf6a00; }
+.lcb-ghost { background: #f0f2f4; color: var(--text); border: 1px solid var(--border); }
+.lcb-ghost:hover { background: #e4e8ec; }
+.lcb-green { background: var(--green); color: #fff; }
+.lcb-green:hover { background: #0a5c2d; }
+
+/* ── PANEL FOOTER ─────────────────────────────────────────────────────── */
+.panel-footer {
+  border-top: 1px solid var(--border); padding: 10px 14px;
+  background: #f8fafc; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-footer-left { font-size: 10px; color: var(--label-gray); }
+.panel-footer-link {
+  font-size: 11px; color: var(--sap-blue); cursor: pointer; font-weight: 600;
+  background: none; border: none; font-family: inherit;
+}
+.panel-footer-link:hover { text-decoration: underline; }
+
+/* ── ANNOTATION SYSTEM ─────────────────────────────────────────────────── */
+.ann {
+  position: fixed; background: #1d2d3e; color: #fff;
+  font-size: 10px; font-weight: 700; letter-spacing: .03em;
+  padding: 3px 8px; border-radius: 4px; pointer-events: none;
+  z-index: 600; white-space: nowrap;
+}
+.ann::before {
+  content: ''; position: absolute; border: 5px solid transparent;
+}
+.ann-r::before { right:-10px; top:50%; transform:translateY(-50%); border-left-color:#1d2d3e; }
+.ann-l::before { left:-10px;  top:50%; transform:translateY(-50%); border-right-color:#1d2d3e; }
+.ann-b::before { top:-10px;   left:50%;transform:translateX(-50%); border-bottom-color:#1d2d3e; }
+
+/* Design notes at bottom */
+.design-notes {
+  background: #fffbe6; border: 1px solid #ffe082;
+  border-radius: 8px; padding: 16px 20px;
+  margin: 20px; font-size: 12px; color: #4a3800; line-height: 1.6;
+}
+.design-notes h4 { font-weight:700; margin-bottom:8px; font-size:12px; color:#2d2200; }
+.design-notes ul { margin-left:16px; }
+.design-notes li { margin-bottom:4px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ SHELL ════════════════════════════════════ -->
+<header class="shell">
+  <a class="shell-logo" href="#">
+    <svg width="28" height="18" viewBox="0 0 32 20">
+      <rect width="32" height="20" rx="2" fill="#fff"/>
+      <text x="4" y="15" font-family="Arial" font-weight="900" font-size="13" fill="#0070f2">SAP</text>
+    </svg>
+    S/4HANA
+  </a>
+  <div class="shell-divider"></div>
+  <button class="shell-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    Home
+  </button>
+  <span class="shell-breadcrumb">/ Receiving &amp; Purchasing / <span>Goods Receipt</span></span>
+  <div class="shell-spacer"></div>
+  <div class="shell-avatar">BC</div>
+</header>
+
+<!-- ════════════════════════════ APP SUB-HEADER ══════════════════════════════ -->
+<div class="subheader">
+  <div class="subheader-title">Goods Receipt — Post Goods Receipt (MIGO)</div>
+  <div class="subheader-meta">Document: pending · Plant: 1010</div>
+  <div class="subheader-actions">
+    <button class="sub-btn">Check</button>
+    <button class="sub-btn">Hold</button>
+    <button class="sub-btn primary">Post</button>
+  </div>
+</div>
+
+<!-- Message strip: something went wrong →  user needs help -->
+<div class="msg-strip">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e87600" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  Enter a <strong>Movement Type</strong> and at least one <strong>Purchase Order</strong> number to continue.
+</div>
+
+<!-- ═══════════════════════════ PAGE LAYOUT ══════════════════════════════════ -->
+<div class="page-layout panel-open" id="layout">
+
+  <!-- ─────────────── MIGO FORM ──────────────────────────────────────────── -->
+  <div class="app-content">
+
+    <!-- SECTION 1: Header Data -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-header-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a6d70" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Header Data
+        </div>
+        <svg class="section-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+      <div class="section-body">
+        <div class="form-row">
+          <!-- Highlighted field: Movement Type — Step 1 of guide -->
+          <div class="form-field" style="position:relative;">
+            <div class="field-label required">Movement Type</div>
+            <div class="field-input-with-icon">
+              <div class="field-input highlight" style="color:#c0392b;font-style:italic;font-size:11px;">Select…</div>
+              <span class="field-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </span>
+            </div>
+            <!-- Step callout bubble -->
+            <div class="step-callout">Step 1 — Choose 101 (GR for Purchase Order)</div>
+          </div>
+
+          <div class="form-field">
+            <div class="field-label">Document Date</div>
+            <div class="field-input filled">03/25/2026</div>
+          </div>
+          <div class="form-field">
+            <div class="field-label">Posting Date</div>
+            <div class="field-input filled">03/25/2026</div>
+          </div>
+          <div class="form-field">
+            <div class="field-label">Delivery Note</div>
+            <div class="field-input">—</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <div class="field-label required">Purchase Order</div>
+            <div class="field-input-with-icon">
+              <div class="field-input error">Enter PO number</div>
+              <span class="field-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="17" y1="17" x2="22" y2="22"/></svg>
+              </span>
+            </div>
+          </div>
+          <div class="form-field">
+            <div class="field-label">Vendor</div>
+            <div class="field-input" style="color:#8696a9;font-size:11px;">Auto-filled from PO</div>
+          </div>
+          <div class="form-field">
+            <div class="field-label">Bill of Lading</div>
+            <div class="field-input">—</div>
+          </div>
+          <div class="form-field">
+            <div class="field-label">Reference</div>
+            <div class="field-input">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Line Items -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-header-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a6d70" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Line Items
+        </div>
+        <svg class="section-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+      </div>
+      <div class="section-body" style="padding:0;">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Item</th><th>Material</th><th>Description</th>
+              <th>PO Qty</th><th>GR Qty</th><th>UoM</th>
+              <th>Plant</th><th>Storage Loc.</th><th>Batch</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background:#fff8f0;">
+              <td>001</td>
+              <td style="font-family:monospace;">MAT-4421</td>
+              <td>Hydraulic Valve Assembly</td>
+              <td style="text-align:right;">50</td>
+              <td><input class="qty-input" value="50" style="border-color:#e87600;"/></td>
+              <td>EA</td>
+              <td>1010</td>
+              <td style="color:#c0392b;">— required</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>002</td>
+              <td style="font-family:monospace;">MAT-8803</td>
+              <td>O-Ring Kit 15mm</td>
+              <td style="text-align:right;">200</td>
+              <td><input class="qty-input" value="200"/></td>
+              <td>EA</td>
+              <td>1010</td>
+              <td>SL01</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>003</td>
+              <td style="font-family:monospace;">MAT-2290</td>
+              <td>Pressure Gauge 0-100 PSI</td>
+              <td style="text-align:right;">10</td>
+              <td><input class="qty-input" value="10"/></td>
+              <td>EA</td>
+              <td>1010</td>
+              <td>SL02</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Where Tab -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-header-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a6d70" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Where (Storage Location &amp; Batch)
+        </div>
+        <svg class="section-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 9 12 15 6 9"/></svg>
+      </div>
+      <!-- collapsed -->
+    </div>
+
+  </div>
+  <!-- /app-content -->
+
+</div>
+<!-- /page-layout -->
+
+<!-- ══════════════════════════ FLOATING ACTION BUTTON ═══════════════════════ -->
+<div class="fab-wrap" id="fabWrap">
+  <div class="fab" id="fab" onclick="togglePanel()" title="Training">
+    <div class="fab-tooltip">Training — step 1 of 5</div>
+    <div class="fab-level">1</div>
+    <div class="fab-label">ON YOUR<br>OWN</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ TRAINING PANEL ═══════════════════════════════ -->
+<aside class="training-panel open" id="panel">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-header-top">
+      <div class="panel-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </div>
+      <div class="panel-title">Zero-Touch Training</div>
+      <button class="panel-close" onclick="togglePanel()">×</button>
+    </div>
+    <div class="panel-scenario-name">Receiving a Regular Shipment · MIGO Goods Receipt · Level 2 — ON YOUR OWN</div>
+    <!-- Mode toggle -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnHelp" onclick="setMode('help')">🆘  Help right now</button>
+      <button class="mode-btn" id="btnPractice" onclick="setMode('practice')">📚  Practice / learn</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="panel-body" id="panelBody">
+
+    <!-- ── HELP NOW MODE (default when opened from inside app) ─────────── -->
+    <div id="helpMode" class="help-mode">
+
+      <div class="panel-section-label">You are on: Goods Receipt · MIGO · Step 1 of 5</div>
+
+      <div class="step-list">
+        <!-- Step 1: active -->
+        <div class="step-item active">
+          <div class="step-num active">1</div>
+          <div class="step-content">
+            <div class="step-title">Set Movement Type to 101</div>
+            <div class="step-desc">Click the <strong>Movement Type</strong> dropdown (top-left of the header section) and select <strong>101 — Goods Receipt for Purchase Order</strong>.</div>
+            <div class="step-hint">💡 101 is always used when receiving against a PO. If you don't see a PO number field after selecting, check that "Purchase Order" is also selected in the reference document type.</div>
+          </div>
+        </div>
+
+        <!-- Step 2: upcoming -->
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Enter the Purchase Order number</div>
+            <div class="step-desc">Type the PO number in the <strong>Purchase Order</strong> field and press Enter or click the search icon. Line items will auto-populate.</div>
+          </div>
+        </div>
+
+        <!-- Step 3: upcoming -->
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Verify quantities against the packing slip</div>
+            <div class="step-desc">Check each line item quantity in the <strong>GR Qty</strong> column. Change only if the actual received quantity differs from the PO.</div>
+          </div>
+        </div>
+
+        <!-- Step 4: upcoming -->
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Enter Storage Location for each line item</div>
+            <div class="step-desc">Click into each line item's <strong>Storage Loc.</strong> field (or use the Where tab) and enter the bin/location where the goods are physically placed.</div>
+          </div>
+        </div>
+
+        <!-- Step 5: upcoming -->
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-title">Post the goods receipt</div>
+            <div class="step-desc">Click <strong>Post</strong> in the top toolbar. A material document number will appear confirming the GR is recorded.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section-label">Quick reference</div>
+      <div class="quick-tip">
+        <div class="quick-tip-title">Common errors on this screen</div>
+        <div class="quick-tip-text">
+          <strong>No storage location:</strong> Required for all lines — check the packing slip or ask your supervisor for the bin number.<br><br>
+          <strong>Quantity mismatch:</strong> If you receive fewer items, enter actual count and flag the shortage to Purchasing before posting.
+        </div>
+      </div>
+
+    </div>
+    <!-- /helpMode -->
+
+    <!-- ── PRACTICE MODE (hidden by default in in-app context) ─────────── -->
+    <div id="practiceMode" class="practice-mode" style="display:none;">
+
+      <!-- Level 0: EXPLORE — done -->
+      <div class="level-card completed">
+        <div class="level-card-header">
+          <div class="level-badge lb-done">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="level-name">EXPLORE — Watch it happen</div>
+          <div class="level-status-tag lst-done">Complete</div>
+        </div>
+        <div class="level-card-body">
+          <div class="level-desc">See the full process with all clicks highlighted. No pressure — just observe.</div>
+          <div class="level-meta">
+            <div class="level-meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~4 min
+            </div>
+            <div class="level-meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              Watch only
+            </div>
+          </div>
+        </div>
+        <div class="level-cta">
+          <button class="level-cta-btn lcb-ghost">Watch again</button>
+        </div>
+      </div>
+
+      <!-- Level 1: GUIDED — done -->
+      <div class="level-card completed">
+        <div class="level-card-header">
+          <div class="level-badge lb-done">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="level-name">GUIDED — Follow the prompts</div>
+          <div class="level-status-tag lst-done">Complete</div>
+        </div>
+        <div class="level-card-body">
+          <div class="level-desc">Step-by-step hints shown. Click the highlighted target to advance.</div>
+          <div class="level-meta">
+            <div class="level-meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~6 min
+            </div>
+            <div class="level-meta-item">5 clicks</div>
+          </div>
+        </div>
+        <div class="level-cta">
+          <button class="level-cta-btn lcb-ghost">Redo level</button>
+        </div>
+      </div>
+
+      <!-- Level 2: ON YOUR OWN — current -->
+      <div class="level-card current">
+        <div class="level-card-header">
+          <div class="level-badge lb-active">2</div>
+          <div class="level-name">ON YOUR OWN — No hints</div>
+          <div class="level-status-tag lst-active">In progress</div>
+        </div>
+        <div class="level-card-body">
+          <div class="level-desc">Complete the full transaction with no guidance. Timer running. Get it done.</div>
+          <div class="level-meta">
+            <div class="level-meta-item">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ~8 min
+            </div>
+            <div class="level-meta-item">Target: 5 clicks</div>
+          </div>
+        </div>
+        <div class="level-cta">
+          <button class="level-cta-btn lcb-primary">▶  Resume Practice</button>
+        </div>
+      </div>
+
+      <!-- Level 3: CHALLENGE — locked -->
+      <div class="level-card locked">
+        <div class="level-card-header">
+          <div class="level-badge lb-locked">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="level-name">CHALLENGE — Beat the clock</div>
+          <div class="level-status-tag lst-locked">Locked</div>
+        </div>
+        <div class="level-card-body">
+          <div class="level-desc">Under time pressure with deliberate errors injected. Prove you know it cold.</div>
+          <div class="level-meta">
+            <div class="level-meta-item">Complete Level 2 to unlock</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- /practiceMode -->
+
+  </div>
+  <!-- /panel-body -->
+
+  <!-- Panel footer -->
+  <div class="panel-footer">
+    <div class="panel-footer-left">Scenario: Receiving a Regular Shipment</div>
+    <button class="panel-footer-link">Open full trainer →</button>
+  </div>
+
+</aside>
+<!-- /training-panel -->
+
+<!-- ═══════════════════════ DESIGN NOTES ═══════════════════════════════════ -->
+<div class="design-notes" style="position:relative;z-index:1;">
+  <h4>Design decisions reflected in this mock  (see docs/design-decisions.md)</h4>
+  <ul>
+    <li><strong>FAB (floating action button)</strong> carries the same badge state as the launchpad tile — amber "1" here means Level 2 in progress. Moving the FAB mirrors the panel as it opens (right position shifts left by panel width).</li>
+    <li><strong>Panel defaults to Help Now mode</strong> when opened from inside an app (DDR-006: context-driven default). The step list shows the user exactly where they are in the real transaction, with the active step pulsing.</li>
+    <li><strong>Step callout bubble</strong> appears over the highlighted field in the SAP form simultaneously — both the panel step and the field highlight update together as the user progresses.</li>
+    <li><strong>App content compresses</strong> when panel opens (margin-right = panel width). No overlay/dim — the user should be able to read the real SAP fields while following the steps.</li>
+    <li><strong>Practice mode</strong> in the panel shows the 4-level card stack — the user can jump to any completed level or resume from the current one.</li>
+    <li><strong>"Open full trainer →"</strong> in the footer escalates to the full-page standalone trainer if the panel is too narrow for complex steps.</li>
+    <li><strong>DDR-003</strong> (FAB vs. header icon): FAB used here. Note that it sits above any SAP footer bar — check for footer conflicts in production SAP environments.</li>
+    <li><strong>DDR-004</strong> (side panel vs. bottom drawer): Right slide-in shown here. At &lt;768 px viewport, this panel should switch to a bottom drawer.</li>
+  </ul>
+</div>
+
+<script>
+  function togglePanel() {
+    const layout = document.getElementById('layout');
+    const panel  = document.getElementById('panel');
+    const fab    = document.getElementById('fab');
+    const fabWrap = document.getElementById('fabWrap');
+    const isOpen = panel.classList.contains('open');
+    panel.classList.toggle('open', !isOpen);
+    layout.classList.toggle('panel-open', !isOpen);
+    // FAB shifts left when panel is open
+    fabWrap.style.right = !isOpen ? `calc(var(--panel-w) + 16px)` : '28px';
+  }
+
+  function setMode(mode) {
+    const help = document.getElementById('helpMode');
+    const prac = document.getElementById('practiceMode');
+    const btnH = document.getElementById('btnHelp');
+    const btnP = document.getElementById('btnPractice');
+    if (mode === 'help') {
+      help.style.display = '';
+      prac.style.display = 'none';
+      btnH.classList.add('active');
+      btnP.classList.remove('active');
+    } else {
+      help.style.display = 'none';
+      prac.style.display = '';
+      btnH.classList.remove('active');
+      btnP.classList.add('active');
+    }
+  }
+</script>
+</body>
+</html>

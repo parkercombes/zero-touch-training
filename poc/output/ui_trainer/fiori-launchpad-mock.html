@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fiori Launchpad — Training Badge Mock</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* SAP Horizon shell */
+    --shell-bg:     #1d2d3e;
+    --shell-h:      44px;
+    --shell-icon:   #d1e4ff;
+    /* Page */
+    --page-bg:      #f0f2f4;
+    --group-label:  #32363a;
+    /* Tile */
+    --tile-bg:      #ffffff;
+    --tile-r:       8px;
+    --tile-shadow:  0 1px 4px rgba(0,0,0,.18), 0 0 0 1px rgba(0,0,0,.06);
+    --tile-shadow-hover: 0 4px 16px rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.09);
+    --tile-w:       178px;
+    --tile-h:       148px;
+    --tile-title:   #32363a;
+    --tile-sub:     #6a6d70;
+    /* Badges */
+    --badge-none:   transparent;
+    --badge-assigned:  #8696a9;   /* not started — gray */
+    --badge-progress:  #e87600;   /* in progress — amber  */
+    --badge-done:      #107e3e;   /* complete — green     */
+    /* Popover */
+    --pop-w:        296px;
+    /* SAP blue */
+    --sap-blue:     #0070f2;
+    --sap-blue-d:   #0057c2;
+  }
+
+  /* ── SHELL BAR ─────────────────────────────────────────────────────────── */
+  .shell {
+    position: sticky; top: 0; z-index: 100;
+    height: var(--shell-h);
+    background: var(--shell-bg);
+    display: flex; align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.35);
+  }
+  .shell-logo {
+    display: flex; align-items: center; gap: 8px;
+    color: #fff; font-size: 15px; font-weight: 700;
+    letter-spacing: .01em; white-space: nowrap;
+    font-family: "72", "Arial", sans-serif;
+    text-decoration: none;
+  }
+  .shell-logo svg { flex-shrink: 0; }
+  .shell-divider {
+    width: 1px; height: 22px; background: #3d5166; flex-shrink: 0;
+  }
+  .shell-app-name {
+    color: #d0e4f7; font-size: 13px; font-weight: 400; white-space: nowrap;
+  }
+  .shell-spacer { flex: 1; }
+  .shell-search {
+    display: flex; align-items: center; gap: 8px;
+    background: #2e4460; border-radius: 4px;
+    padding: 5px 12px; width: 260px;
+    color: #90afc8; font-size: 13px; cursor: text;
+  }
+  .shell-search svg { opacity: .7; flex-shrink: 0; }
+  .shell-actions {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .shell-btn {
+    position: relative;
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; background: transparent;
+    color: var(--shell-icon);
+    transition: background .15s;
+  }
+  .shell-btn:hover { background: rgba(255,255,255,.12); }
+  .shell-notif-dot {
+    position: absolute; top: 5px; right: 5px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #e87600; border: 1.5px solid var(--shell-bg);
+  }
+  .shell-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #0070f2; color: #fff;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; letter-spacing: .03em;
+    border: 2px solid rgba(255,255,255,.2);
+  }
+
+  /* ── PAGE ──────────────────────────────────────────────────────────────── */
+  .page {
+    min-height: calc(100vh - var(--shell-h));
+    background: var(--page-bg);
+    padding: 24px 28px 48px;
+    font-family: "72", "Arial", sans-serif;
+  }
+
+  /* ── TILE GROUP ────────────────────────────────────────────────────────── */
+  .group { margin-bottom: 32px; }
+  .group-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .group-label {
+    font-size: 13px; font-weight: 700; color: var(--group-label);
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .group-link {
+    font-size: 12px; color: var(--sap-blue); text-decoration: none;
+    cursor: pointer;
+  }
+  .group-link:hover { text-decoration: underline; }
+  .tile-row {
+    display: flex; flex-wrap: wrap; gap: 12px;
+  }
+
+  /* ── TILE ──────────────────────────────────────────────────────────────── */
+  .tile {
+    position: relative;
+    width: var(--tile-w); height: var(--tile-h);
+    background: var(--tile-bg);
+    border-radius: var(--tile-r);
+    box-shadow: var(--tile-shadow);
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 6px;
+    padding: 16px 12px 12px;
+    transition: box-shadow .18s, transform .15s;
+    user-select: none;
+  }
+  .tile:hover {
+    box-shadow: var(--tile-shadow-hover);
+    transform: translateY(-1px);
+  }
+  .tile-icon {
+    width: 48px; height: 48px;
+    background: #e8f2ff; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .tile-icon svg { width: 26px; height: 26px; }
+  .tile-title {
+    font-size: 13px; font-weight: 700; color: var(--tile-title);
+    text-align: center; line-height: 1.3;
+    max-width: 140px;
+  }
+  .tile-sub {
+    font-size: 11px; color: var(--tile-sub);
+    text-align: center; line-height: 1.3;
+  }
+  /* KPI chip */
+  .tile-kpi {
+    font-size: 22px; font-weight: 300; color: #0070f2;
+    line-height: 1;
+  }
+  .tile-kpi-label {
+    font-size: 11px; color: var(--tile-sub); margin-top: -2px;
+  }
+
+  /* ── TRAINING BADGE ────────────────────────────────────────────────────── */
+  /*
+    Badge sits top-right corner, overlapping the tile edge.
+    It's the tap/click target for "train me on this".
+    Neutral tiles have no badge at all.
+  */
+  .badge {
+    position: absolute;
+    top: -9px; right: -9px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2.5px solid var(--page-bg);   /* separates badge from tile corner */
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  }
+  .badge:hover {
+    transform: scale(1.2);
+    box-shadow: 0 2px 8px rgba(0,0,0,.35);
+  }
+  /* States */
+  .badge-assigned {
+    background: var(--badge-assigned);
+  }
+  .badge-progress {
+    background: var(--badge-progress);
+  }
+  .badge-done {
+    background: var(--badge-done);
+  }
+  .badge svg { width: 13px; height: 13px; }
+
+  /* Progress ring variant (svg arc on amber badge) */
+  .badge-ring {
+    background: #fff3e0;
+    border-color: var(--badge-progress);
+    border-width: 2px;
+  }
+  .badge-ring-svg {
+    position: absolute;
+    top: -2px; left: -2px;
+    width: 30px; height: 30px;
+    transform: rotate(-90deg);
+  }
+  .badge-ring-label {
+    font-size: 9px; font-weight: 700;
+    color: var(--badge-progress);
+    z-index: 1;
+  }
+
+  /* Level dots inside badge tooltip / progress track */
+  .level-dots {
+    display: flex; gap: 4px; align-items: center;
+  }
+  .level-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 1.5px solid #c0c8d2;
+    background: transparent;
+  }
+  .level-dot.done { background: var(--badge-done); border-color: var(--badge-done); }
+  .level-dot.active { background: var(--badge-progress); border-color: var(--badge-progress); }
+  .level-dot.locked { background: #e0e4ea; border-color: #c8cdd4; }
+  .level-dot-label {
+    font-size: 9px; color: #8696a9; margin-left: 2px;
+  }
+
+  /* ── POPOVER ───────────────────────────────────────────────────────────── */
+  .pop-anchor {
+    position: absolute;
+    top: -9px; right: -9px;
+    z-index: 200;
+  }
+  .popover {
+    position: absolute;
+    top: 36px; right: 0;
+    width: var(--pop-w);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0,0,0,.20), 0 0 0 1px rgba(0,0,0,.07);
+    padding: 0;
+    overflow: hidden;
+    animation: pop-in .18s ease-out;
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(-6px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .pop-header {
+    background: #f0f7ff; border-bottom: 1px solid #d8eaff;
+    padding: 12px 14px 10px;
+  }
+  .pop-scenario {
+    font-size: 12px; font-weight: 700; color: #1d2d3e;
+    margin-bottom: 2px;
+  }
+  .pop-app {
+    font-size: 11px; color: #6a6d70;
+  }
+  .pop-body {
+    padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .pop-progress-row {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .pop-progress-label {
+    font-size: 11px; color: #6a6d70;
+  }
+  .pop-levels {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .pop-level {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .pop-level-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .pop-level-name {
+    font-size: 9px; color: #8696a9; white-space: nowrap;
+  }
+  .pop-level-connector {
+    width: 14px; height: 1.5px;
+    background: #d0d8e0;
+    margin-bottom: 10px;
+  }
+  .pop-divider { height: 1px; background: #eef0f3; }
+  .pop-actions {
+    display: flex; gap: 8px;
+  }
+  .pop-btn {
+    flex: 1; padding: 8px 10px; border-radius: 6px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    border: none; transition: background .15s;
+    font-family: inherit;
+  }
+  .pop-btn-primary {
+    background: var(--sap-blue); color: #fff;
+  }
+  .pop-btn-primary:hover { background: var(--sap-blue-d); }
+  .pop-btn-ghost {
+    background: #f0f2f4; color: #32363a;
+    border: 1px solid #d0d4d9;
+  }
+  .pop-btn-ghost:hover { background: #e4e8ec; }
+  .pop-time {
+    font-size: 10px; color: #8696a9;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .pop-close {
+    position: absolute; top: 8px; right: 10px;
+    background: none; border: none; cursor: pointer;
+    color: #6a6d70; font-size: 16px; line-height: 1;
+  }
+
+  /* ── ANNOTATION LABELS (for the mock) ─────────────────────────────────── */
+  .annotation {
+    position: absolute;
+    background: #1d2d3e; color: #fff;
+    font-size: 10px; font-weight: 600;
+    padding: 3px 7px; border-radius: 4px;
+    white-space: nowrap; letter-spacing: .03em;
+    pointer-events: none;
+    z-index: 50;
+  }
+  .annotation::before {
+    content: '';
+    position: absolute;
+    border: 5px solid transparent;
+  }
+  .ann-left::before {
+    right: -10px; top: 50%; transform: translateY(-50%);
+    border-left-color: #1d2d3e;
+  }
+  .ann-bottom::before {
+    top: -10px; left: 50%; transform: translateX(-50%);
+    border-bottom-color: #1d2d3e;
+  }
+
+  /* ── LEGEND ────────────────────────────────────────────────────────────── */
+  .legend {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.10);
+    padding: 14px 18px;
+    display: inline-flex; flex-wrap: wrap; gap: 16px;
+    margin-bottom: 28px;
+    align-items: center;
+  }
+  .legend-label {
+    font-size: 11px; font-weight: 700; color: #32363a;
+    margin-right: 4px; white-space: nowrap;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; color: #32363a; white-space: nowrap;
+  }
+  .legend-dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid #e8edf2;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .legend-sep {
+    width: 1px; height: 20px; background: #d8dce2;
+  }
+
+  /* ── TRAINING MANAGER BAR ──────────────────────────────────────────────── */
+  .mgr-bar {
+    background: #e8f2ff; border: 1px solid #c0daff;
+    border-radius: 8px; padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .mgr-bar-text {
+    font-size: 12px; color: #1d2d3e;
+  }
+  .mgr-bar-text strong { color: #0057c2; }
+  .mgr-bar-actions { display: flex; gap: 8px; }
+  .mgr-link {
+    font-size: 12px; font-weight: 600; color: var(--sap-blue);
+    cursor: pointer; background: none; border: none;
+    font-family: inherit;
+  }
+  .mgr-link:hover { text-decoration: underline; }
+
+  /* ── NO-BADGE tiles dim the training icon ──────────────────────────────── */
+  .tile-no-training { opacity: 1; }
+
+  /* ── CALLOUT BOX ───────────────────────────────────────────────────────── */
+  .callout-section {
+    margin-top: 40px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+  }
+  .callout {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.10);
+    padding: 16px 18px;
+    border-top: 3px solid #ccc;
+  }
+  .callout.cl-none   { border-top-color: #8696a9; }
+  .callout.cl-prog   { border-top-color: #e87600; }
+  .callout.cl-done   { border-top-color: #107e3e; }
+  .callout h4 {
+    font-size: 12px; font-weight: 700; color: #32363a; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .callout p {
+    font-size: 11.5px; color: #6a6d70; line-height: 1.5;
+  }
+  .callout-badge {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── DESIGN NOTES ──────────────────────────────────────────────────────── */
+  .design-notes {
+    background: #fffbe6; border: 1px solid #ffe082;
+    border-radius: 8px; padding: 16px 18px;
+    margin-top: 28px; font-size: 12px; color: #4a3800;
+    line-height: 1.6;
+  }
+  .design-notes h4 {
+    font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #2d2200;
+  }
+  .design-notes ul { margin-left: 16px; }
+  .design-notes li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ SHELL BAR ══════ -->
+<header class="shell">
+  <!-- Logo -->
+  <a class="shell-logo" href="#">
+    <svg width="32" height="20" viewBox="0 0 32 20">
+      <rect width="32" height="20" rx="2" fill="#fff"/>
+      <text x="4" y="15" font-family="Arial" font-weight="900" font-size="13" fill="#0070f2">SAP</text>
+    </svg>
+    S/4HANA
+  </a>
+  <div class="shell-divider"></div>
+  <span class="shell-app-name">Home</span>
+
+  <div class="shell-spacer"></div>
+
+  <!-- Search -->
+  <div class="shell-search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <circle cx="11" cy="11" r="7"/><line x1="17" y1="17" x2="22" y2="22"/>
+    </svg>
+    Search…
+  </div>
+
+  <div class="shell-spacer"></div>
+
+  <!-- Actions -->
+  <div class="shell-actions">
+    <!-- Notifications -->
+    <button class="shell-btn" title="Notifications">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <div class="shell-notif-dot"></div>
+    </button>
+    <!-- Settings -->
+    <button class="shell-btn" title="Settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+    <!-- Me Area -->
+    <div class="shell-avatar" title="Brian Combes">BC</div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE ═══════════ -->
+<main class="page">
+
+  <!-- Training manager banner (visible to supervisor / admin role) -->
+  <div class="mgr-bar">
+    <div class="mgr-bar-text">
+      <strong>Team Training Status:</strong>&nbsp; 3 of 8 receiving clerks have completed Goods Receipt · 2 in progress
+    </div>
+    <div class="mgr-bar-actions">
+      <button class="mgr-link">View Team Progress →</button>
+      <button class="mgr-link">Assign Training →</button>
+    </div>
+  </div>
+
+  <!-- Badge legend -->
+  <div class="legend">
+    <span class="legend-label">Training status:</span>
+
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#8696a9; border-color:#8696a9;">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+      </div>
+      Assigned — not started
+    </div>
+    <div class="legend-sep"></div>
+
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#e87600; border-color:#e87600;">
+        <span style="color:#fff;font-size:8px;font-weight:900;">2</span>
+      </div>
+      In progress (shows current level)
+    </div>
+    <div class="legend-sep"></div>
+
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#107e3e; border-color:#107e3e;">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      Completed all levels
+    </div>
+    <div class="legend-sep"></div>
+
+    <div class="legend-item" style="color:#8696a9; font-style:italic;">
+      No badge = no training linked to this app
+    </div>
+  </div>
+
+  <!-- ─────────── GROUP 1: RECEIVING & PURCHASING ─────────────────────── -->
+  <div class="group">
+    <div class="group-header">
+      <div class="group-label">Receiving &amp; Purchasing</div>
+      <a class="group-link">Manage Group ›</a>
+    </div>
+    <div class="tile-row">
+
+      <!-- TILE 1: Goods Receipt — NOT STARTED (badge: gray play) -->
+      <div class="tile" style="position:relative;">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0070f2" stroke-width="1.8">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+            <line x1="12" y1="12" x2="12" y2="16"/>
+            <line x1="10" y1="14" x2="14" y2="14"/>
+          </svg>
+        </div>
+        <div class="tile-title">Goods Receipt</div>
+        <div class="tile-sub">MIGO / ME21N</div>
+
+        <!-- Badge: assigned, not started -->
+        <div class="badge badge-assigned" title="Training assigned — tap to start">
+          <svg viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+
+        <!-- Mock annotation -->
+        <div class="annotation ann-left" style="top:-28px; right:-110px;">
+          Assigned, not started
+        </div>
+      </div>
+
+      <!-- TILE 2: Create PO — IN PROGRESS level 2 (badge: amber "2") — POPOVER OPEN -->
+      <div class="tile" style="position:relative;">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0070f2" stroke-width="1.8">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <div class="tile-title">Create Purchase Order</div>
+        <div class="tile-sub">ME21N</div>
+
+        <!-- Badge + open popover -->
+        <div class="pop-anchor">
+          <!-- Badge: in progress, level 2 -->
+          <div class="badge badge-progress" style="top:0;right:0;" title="Training in progress">
+            <span style="color:#fff;font-size:9px;font-weight:900;line-height:1;">2</span>
+          </div>
+
+          <!-- POPOVER — shown open for mock purposes -->
+          <div class="popover">
+            <button class="pop-close">×</button>
+            <div class="pop-header">
+              <div class="pop-scenario">Creating a Purchase Order</div>
+              <div class="pop-app">ME21N · Purchasing</div>
+            </div>
+            <div class="pop-body">
+              <!-- Progress track -->
+              <div>
+                <div class="pop-progress-label" style="margin-bottom:7px;">Your progress</div>
+                <div style="display:flex; align-items:center; gap:4px;">
+                  <!-- Level 0: done -->
+                  <div class="pop-level">
+                    <div class="pop-level-dot" style="background:#107e3e;"></div>
+                    <div class="pop-level-name">EXPLORE</div>
+                  </div>
+                  <div class="pop-level-connector" style="background:#107e3e;"></div>
+                  <!-- Level 1: done -->
+                  <div class="pop-level">
+                    <div class="pop-level-dot" style="background:#107e3e;"></div>
+                    <div class="pop-level-name">GUIDED</div>
+                  </div>
+                  <div class="pop-level-connector" style="background:#e87600;"></div>
+                  <!-- Level 2: active -->
+                  <div class="pop-level">
+                    <div class="pop-level-dot" style="background:#e87600;border:2px solid #fff;box-shadow:0 0 0 2px #e87600;"></div>
+                    <div class="pop-level-name" style="color:#e87600;font-weight:700;">ON YOUR OWN</div>
+                  </div>
+                  <div class="pop-level-connector"></div>
+                  <!-- Level 3: locked -->
+                  <div class="pop-level">
+                    <div class="pop-level-dot" style="background:#d0d8e0;"></div>
+                    <div class="pop-level-name" style="color:#b0b8c4;">CHALLENGE</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pop-divider"></div>
+
+              <div class="pop-time">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                ~8 min to complete current level · est. 5 clicks
+              </div>
+
+              <div class="pop-actions">
+                <button class="pop-btn pop-btn-primary">▶  Continue Training</button>
+                <button class="pop-btn pop-btn-ghost">Open App</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="annotation ann-bottom" style="bottom:-38px; left:50%; transform:translateX(-50%);">
+          Badge tap → popover
+        </div>
+      </div>
+
+      <!-- TILE 3: Goods Receipt Returns — COMPLETED -->
+      <div class="tile" style="position:relative;">
+        <div class="tile-icon" style="background:#e8f8ee;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#107e3e" stroke-width="1.8">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 .49-3.75"/>
+          </svg>
+        </div>
+        <div class="tile-title">Goods Return</div>
+        <div class="tile-sub">MIGO-RE</div>
+
+        <!-- Badge: completed -->
+        <div class="badge badge-done" title="Training complete — all levels passed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="annotation ann-left" style="top:-28px; right:-104px;">
+          All 4 levels done
+        </div>
+      </div>
+
+      <!-- TILE 4: Invoice Verification — IN PROGRESS level 1 (ring variant) -->
+      <div class="tile" style="position:relative;">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0070f2" stroke-width="1.8">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <div class="tile-title">Invoice Verification</div>
+        <div class="tile-sub">MIRO</div>
+        <!-- Badge: ring progress variant (50% complete = 2/4 levels) -->
+        <div class="badge badge-ring" title="In progress — 1 of 4 levels done" style="top:-9px;right:-9px;width:26px;height:26px;">
+          <svg class="badge-ring-svg" viewBox="0 0 30 30">
+            <circle cx="15" cy="15" r="12" fill="none" stroke="#f0e0c8" stroke-width="3"/>
+            <!-- 25% arc = level 1 of 4 → circumference = 2π×12 ≈ 75.4 → 25% = 18.85 -->
+            <circle cx="15" cy="15" r="12" fill="none" stroke="#e87600" stroke-width="3"
+              stroke-dasharray="18.85 56.55"/>
+          </svg>
+          <span class="badge-ring-label">1</span>
+        </div>
+        <div class="annotation ann-left" style="top:-28px; right:-128px;">
+          Ring = % levels done (alt style)
+        </div>
+      </div>
+
+      <!-- TILE 5: Stock Transfer — NO BADGE (no training linked) -->
+      <div class="tile tile-no-training" style="position:relative;">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0070f2" stroke-width="1.8">
+            <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+            <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+          </svg>
+        </div>
+        <div class="tile-title">Stock Transfer Order</div>
+        <div class="tile-sub">MB1B / MIGO-TF</div>
+        <!-- No badge -->
+        <div class="annotation ann-left" style="bottom:24px; right:-116px; top:auto;">
+          No badge = not linked
+        </div>
+      </div>
+
+      <!-- TILE 6: Dynamic tile (KPI) — IN PROGRESS -->
+      <div class="tile" style="position:relative;">
+        <div class="tile-kpi">14</div>
+        <div class="tile-kpi-label">Open POs</div>
+        <div class="tile-title" style="font-size:12px;">Purchase Orders</div>
+        <div class="tile-sub">ME2N</div>
+        <div class="badge badge-assigned" title="Training assigned">
+          <svg viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+      </div>
+
+    </div><!-- /tile-row -->
+  </div><!-- /group -->
+
+  <!-- ─────────── GROUP 2: INVENTORY ──────────────────────────────────── -->
+  <div class="group">
+    <div class="group-header">
+      <div class="group-label">Inventory Management</div>
+      <a class="group-link">Manage Group ›</a>
+    </div>
+    <div class="tile-row">
+
+      <div class="tile" style="position:relative;">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0070f2" stroke-width="1.8">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
+        </div>
+        <div class="tile-title">Inventory Count</div>
+        <div class="tile-sub">MI01 / MI04</div>
+        <div class="badge badge-done">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+
+      <div class="tile" style="position:relative;">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0070f2" stroke-width="1.8">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="9" y1="21" x2="9" y2="9"/>
+          </svg>
+        </div>
+        <div class="tile-title">Material Master</div>
+        <div class="tile-sub">MM01 / MM02</div>
+        <!-- No badge — advanced/admin app, no training scenario linked -->
+      </div>
+
+      <div class="tile" style="position:relative;">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0070f2" stroke-width="1.8">
+            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+            <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+          </svg>
+        </div>
+        <div class="tile-title">Post Goods Issue</div>
+        <div class="tile-sub">MIGO-GI</div>
+        <div class="badge badge-progress" title="In progress — level 1">
+          <span style="color:#fff;font-size:9px;font-weight:900;line-height:1;">1</span>
+        </div>
+      </div>
+
+      <div class="tile" style="position:relative;">
+        <div class="tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0070f2" stroke-width="1.8">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+        <div class="tile-title">Goods Issue — Other</div>
+        <div class="tile-sub">MB1A / MIGO</div>
+        <div class="badge badge-assigned">
+          <svg viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────── CALLOUT SECTION ────────────────────────────────────── -->
+  <div class="callout-section">
+    <div class="callout cl-none">
+      <h4>
+        <div class="callout-badge" style="background:#8696a9;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+        Gray — Assigned, not started
+      </h4>
+      <p>Training has been assigned (by manager or system) but the user hasn't opened it yet. Tapping the badge opens the trainer at EXPLORE level with a prompt to start.</p>
+    </div>
+    <div class="callout cl-prog">
+      <h4>
+        <div class="callout-badge" style="background:#e87600;">
+          <span style="color:#fff;font-size:9px;font-weight:900;">2</span>
+        </div>
+        Amber — In progress (level shown)
+      </h4>
+      <p>The number shows which level the user is currently on (0–3). Tapping opens the popover and resumes from where they left off. Two style variants shown: solid fill or progress ring.</p>
+    </div>
+    <div class="callout cl-done">
+      <h4>
+        <div class="callout-badge" style="background:#107e3e;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        Green — All levels complete
+      </h4>
+      <p>User has passed EXPLORE → GUIDED → ON YOUR OWN → CHALLENGE. Badge stays visible as a credential indicator; tapping opens a "take the challenge again" option.</p>
+    </div>
+  </div>
+
+  <!-- ─────────── DESIGN NOTES ───────────────────────────────────────── -->
+  <div class="design-notes">
+    <h4>Design decisions reflected in this mock</h4>
+    <ul>
+      <li><strong>Badge is the only training UI on the launchpad</strong> — the tile itself is unchanged and navigates to the real app as normal. There's no second tile, no separate training group.</li>
+      <li><strong>Badge position: top-right corner</strong>, overlapping the tile edge with a white border to lift it visually. Works for both icon tiles and dynamic/KPI tiles.</li>
+      <li><strong>Two badge styles shown</strong> — solid fill with level number (tiles 2, 3, 6) vs. SVG progress ring (tile 4). The ring style conveys percentage completion at a glance; the number conveys current level. Both carry the same data — pick one to standardize.</li>
+      <li><strong>Popover on badge tap (not tile tap)</strong> — tapping the tile still opens the SAP app. Tapping the badge opens the training popover. This preserves the normal Fiori navigation contract.</li>
+      <li><strong>Popover contains level progress track + Resume + Open App</strong> — the "Open App" secondary button lets a user who's already trained go straight into the real transaction.</li>
+      <li><strong>No badge = no training scenario linked to this app</strong> — avoids visual noise on tiles that don't have training content yet. Admins can link scenarios via the manager dashboard.</li>
+      <li><strong>Manager banner at top</strong> — visible to supervisor roles only. Shows team-level completion stats and quick links to assign training or view progress.</li>
+      <li><strong>Minimum tap target</strong>: badge is 26px + 10px negative margin = 46px effective tap area. Acceptable for gloved warehouse use; increase badge to 32px for full 52px compliance.</li>
+    </ul>
+  </div>
+
+</main>
+
+</body>
+</html>
