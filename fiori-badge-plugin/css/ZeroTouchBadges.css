@@ -1,0 +1,352 @@
+/**
+ * ZeroTouchBadges.css
+ * Zero-Touch Training — Fiori Badge Plugin
+ *
+ * Scoped to .ztt-* namespace to avoid collisions with SAP UI5 styles.
+ *
+ * DDR-001: Badge style = solid circle with number/icon (Style A)
+ * DDR-002: Tap target  = 48px invisible ::after hit area over 26px visual
+ */
+
+/* ========================================================================
+   1. CSS CUSTOM PROPERTIES
+   ======================================================================== */
+
+:root {
+    /* Badge sizing */
+    --ztt-badge-size:     26px;
+    --ztt-badge-hit:      48px;    /* DDR-002: effective tap target */
+    --ztt-badge-radius:   50%;
+    --ztt-badge-font:     700 11px/1 "72", "72full", Arial, sans-serif;
+    --ztt-badge-offset:   6px;     /* inset from top-right tile corner */
+
+    /* Status colors */
+    --ztt-color-assigned: #8c8c8c;  /* gray   — not started */
+    --ztt-color-progress: #E8A000;  /* amber  — SAP Warning / in-progress */
+    --ztt-color-done:     #107E3E;  /* green  — SAP Positive / complete */
+    --ztt-color-white:    #ffffff;
+
+    /* Popover */
+    --ztt-pop-w:          260px;
+    --ztt-pop-radius:     8px;
+    --ztt-pop-shadow:     0 4px 16px rgba(0,0,0,0.18);
+    --ztt-pop-bg:         #ffffff;
+    --ztt-pop-border:     #e0e0e0;
+
+    /* Track */
+    --ztt-track-node:     28px;
+    --ztt-track-line:     #d9d9d9;
+    --ztt-track-active:   #E8A000;
+    --ztt-track-done:     #107E3E;
+    --ztt-track-locked:   #c8c8c8;
+
+    /* Buttons */
+    --ztt-btn-primary:    #0070f2;  /* SAP Blue */
+    --ztt-btn-secondary:  #f5f5f5;
+}
+
+
+/* ========================================================================
+   2. BADGE
+   ======================================================================== */
+
+.ztt-badge {
+    /* Position: top-right corner of the tile */
+    position:   absolute;
+    top:        var(--ztt-badge-offset);
+    right:      var(--ztt-badge-offset);
+    z-index:    10;
+
+    /* Visual circle */
+    width:      var(--ztt-badge-size);
+    height:     var(--ztt-badge-size);
+    border-radius: var(--ztt-badge-radius);
+    display:    flex;
+    align-items: center;
+    justify-content: center;
+
+    font:       var(--ztt-badge-font);
+    color:      var(--ztt-color-white);
+    cursor:     pointer;
+
+    /* Smooth state transitions */
+    transition: transform 120ms ease, box-shadow 120ms ease;
+
+    /* Prevent text selection on rapid taps */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* DDR-002: Extend hit target to 48px without changing visual size */
+.ztt-badge::after {
+    content:  "";
+    position: absolute;
+    top:      50%;
+    left:     50%;
+    transform: translate(-50%, -50%);
+    width:    var(--ztt-badge-hit);
+    height:   var(--ztt-badge-hit);
+    border-radius: 50%;
+}
+
+/* Hover / focus feedback */
+.ztt-badge:hover,
+.ztt-badge:focus-visible {
+    transform:  scale(1.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.28);
+    outline:    none;
+}
+
+/* ---- Status variants ---- */
+
+.ztt-badge--assigned {
+    background-color: var(--ztt-color-assigned);
+}
+
+.ztt-badge--progress {
+    background-color: var(--ztt-color-progress);
+}
+
+.ztt-badge--done {
+    background-color: var(--ztt-color-done);
+}
+
+/* Icon glyph (▶ or ✓) */
+.ztt-badge__icon {
+    font-size: 10px;
+    line-height: 1;
+}
+
+/* Level number */
+.ztt-badge__level {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+
+/* ========================================================================
+   3. POPOVER CONTAINER
+   ======================================================================== */
+
+.ztt-popover {
+    position:     fixed;          /* fixed so it doesn't scroll with tile grid */
+    z-index:      9999;
+    width:        var(--ztt-pop-w);
+    background:   var(--ztt-pop-bg);
+    border:       1px solid var(--ztt-pop-border);
+    border-radius: var(--ztt-pop-radius);
+    box-shadow:   var(--ztt-pop-shadow);
+    overflow:     hidden;
+    font-family:  "72", "72full", Arial, sans-serif;
+
+    /* Slide-in animation */
+    animation: ztt-pop-in 140ms ease both;
+}
+
+@keyframes ztt-pop-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ========================================================================
+   4. POPOVER HEADER
+   ======================================================================== */
+
+.ztt-pop__header {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    padding:         12px 14px 10px;
+    background:      #f7f7f7;
+    border-bottom:   1px solid var(--ztt-pop-border);
+}
+
+.ztt-pop__title {
+    font-size:   13px;
+    font-weight: 700;
+    color:       #333;
+    flex:        1;
+    white-space: nowrap;
+    overflow:    hidden;
+    text-overflow: ellipsis;
+}
+
+.ztt-pop__close {
+    flex-shrink: 0;
+    width:       24px;
+    height:      24px;
+    border:      none;
+    background:  transparent;
+    cursor:      pointer;
+    font-size:   18px;
+    line-height: 1;
+    color:       #666;
+    border-radius: 4px;
+    display:     flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    transition:  background 100ms;
+}
+
+.ztt-pop__close:hover {
+    background: #e8e8e8;
+}
+
+.ztt-pop__close:focus-visible {
+    outline: 2px solid var(--ztt-btn-primary);
+    outline-offset: 1px;
+}
+
+
+/* ========================================================================
+   5. LEVEL PROGRESS TRACK
+   ======================================================================== */
+
+.ztt-pop__track {
+    padding: 16px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;                        /* gaps handled by .ztt-track__connector */
+}
+
+/* Individual step row */
+.ztt-track__step {
+    display:     flex;
+    align-items: flex-start;
+    gap:         10px;
+    position:    relative;
+}
+
+/* Circle node */
+.ztt-track__node {
+    flex-shrink: 0;
+    width:       var(--ztt-track-node);
+    height:      var(--ztt-track-node);
+    border-radius: 50%;
+    display:     flex;
+    align-items: center;
+    justify-content: center;
+    font-size:   11px;
+    font-weight: 700;
+    color:       #fff;
+    background:  var(--ztt-track-locked);
+    transition:  background 200ms;
+}
+
+.ztt-track__step--done   .ztt-track__node { background: var(--ztt-track-done); }
+.ztt-track__step--active .ztt-track__node { background: var(--ztt-track-active); }
+.ztt-track__step--locked .ztt-track__node { background: var(--ztt-track-locked); }
+
+/* Label beside node */
+.ztt-track__label {
+    display:    flex;
+    flex-direction: column;
+    gap:        2px;
+    padding-top: 4px;
+}
+
+.ztt-track__name {
+    font-size:   11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color:       #333;
+}
+
+.ztt-track__sub {
+    font-size:  10px;
+    color:      #888;
+}
+
+.ztt-track__step--locked .ztt-track__name,
+.ztt-track__step--locked .ztt-track__sub {
+    color: #bbb;
+}
+
+/* Vertical connector line between steps */
+.ztt-track__connector {
+    width:        2px;
+    height:       14px;
+    background:   var(--ztt-track-line);
+    margin-left:  calc(var(--ztt-track-node) / 2 - 1px);  /* center under node */
+    flex-shrink:  0;
+}
+
+
+/* ========================================================================
+   6. POPOVER ACTION BUTTONS
+   ======================================================================== */
+
+.ztt-pop__actions {
+    display:     flex;
+    gap:         8px;
+    padding:     12px 14px 14px;
+    border-top:  1px solid var(--ztt-pop-border);
+}
+
+.ztt-pop__btn {
+    flex:         1;
+    display:      flex;
+    align-items:  center;
+    justify-content: center;
+    padding:      7px 10px;
+    border-radius: 4px;
+    font-size:    12px;
+    font-weight:  600;
+    text-decoration: none;
+    cursor:       pointer;
+    transition:   background 120ms, color 120ms;
+    border:       1px solid transparent;
+    white-space:  nowrap;
+}
+
+.ztt-pop__btn--primary {
+    background:  var(--ztt-btn-primary);
+    color:       #fff;
+}
+
+.ztt-pop__btn--primary:hover {
+    background: #005bbf;
+}
+
+.ztt-pop__btn--secondary {
+    background:  var(--ztt-btn-secondary);
+    color:       #333;
+    border-color: #d0d0d0;
+}
+
+.ztt-pop__btn--secondary:hover {
+    background: #e8e8e8;
+}
+
+.ztt-pop__btn:focus-visible {
+    outline:        2px solid var(--ztt-btn-primary);
+    outline-offset: 2px;
+}
+
+
+/* ========================================================================
+   7. DARK THEME OVERRIDES (SAP Horizon Dark / High Contrast)
+   ======================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    .ztt-popover {
+        --ztt-pop-bg:     #1a1a1a;
+        --ztt-pop-border: #444;
+    }
+    .ztt-pop__header   { background: #252525; }
+    .ztt-pop__title    { color: #f0f0f0; }
+    .ztt-pop__close    { color: #aaa; }
+    .ztt-pop__close:hover { background: #333; }
+    .ztt-track__name   { color: #ddd; }
+    .ztt-track__sub    { color: #888; }
+    .ztt-track__connector { background: #444; }
+    .ztt-pop__btn--secondary {
+        background: #2a2a2a;
+        color: #ddd;
+        border-color: #555;
+    }
+    .ztt-pop__btn--secondary:hover { background: #383838; }
+}

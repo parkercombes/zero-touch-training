@@ -1,0 +1,49 @@
+{
+  "_version": "1.58.0",
+
+  "sap.app": {
+    "id": "com.zerotouchtraining.badgeplugin",
+    "type": "component",
+    "title": "Zero-Touch Training Badge Plugin",
+    "description": "Injects training-status badges onto Fiori Launchpad tiles and surfaces the four-level progression popover.",
+    "applicationVersion": {
+      "version": "1.0.0"
+    },
+    "resources": "resources.json"
+  },
+
+  "sap.ui": {
+    "technology": "UI5",
+    "supportedThemes": ["sap_horizon", "sap_fiori_3", "sap_belize"]
+  },
+
+  "sap.ui5": {
+    "componentName": "com.zerotouchtraining.badgeplugin",
+    "dependencies": {
+      "minUI5Version": "1.108.0",
+      "libs": {
+        "sap.ui.core": {},
+        "sap.m": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "config": {
+      "trainingApiUrl": "",
+      "fallbackToLocalStorage": true,
+      "trainingPortalUrl": "/training/"
+    }
+  },
+
+  "sap.flp": {
+    "type": "plugin"
+  },
+
+  "sap.cloud.portal": {
+    "settings": {
+      "displayName": "Zero-Touch Training Badges"
+    }
+  }
+}
