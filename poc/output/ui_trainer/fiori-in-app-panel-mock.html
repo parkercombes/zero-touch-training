@@ -505,7 +505,10 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
   <div class="subheader-actions">
     <button class="sub-btn">Check</button>
     <button class="sub-btn">Hold</button>
-    <button class="sub-btn primary">Post</button>
+    <div id="field-post-btn" style="position:relative;">
+      <button class="sub-btn primary">Post</button>
+      <div class="step-callout" style="display:none;top:38px;right:0;white-space:nowrap;">Step 5 — Click Post to complete</div>
+    </div>
   </div>
 </div>
 
@@ -533,7 +536,7 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
       <div class="section-body">
         <div class="form-row">
           <!-- Highlighted field: Movement Type — Step 1 of guide -->
-          <div class="form-field" style="position:relative;">
+          <div class="form-field" id="field-movement-type" style="position:relative;">
             <div class="field-label required">Movement Type</div>
             <div class="field-input-with-icon">
               <div class="field-input highlight" style="color:#c0392b;font-style:italic;font-size:11px;">Select…</div>
@@ -541,8 +544,8 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
               </span>
             </div>
-            <!-- Step callout bubble -->
-            <div class="step-callout">Step 1 — Choose 101 (GR for Purchase Order)</div>
+            <!-- Step callout bubble — text updated by JS -->
+            <div class="step-callout" id="callout-movement-type">Step 1 — Choose 101 (GR for Purchase Order)</div>
           </div>
 
           <div class="form-field">
@@ -559,7 +562,7 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
           </div>
         </div>
         <div class="form-row">
-          <div class="form-field">
+          <div class="form-field" id="field-purchase-order" style="position:relative;">
             <div class="field-label required">Purchase Order</div>
             <div class="field-input-with-icon">
               <div class="field-input error">Enter PO number</div>
@@ -567,6 +570,7 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="17" y1="17" x2="22" y2="22"/></svg>
               </span>
             </div>
+            <div class="step-callout" style="display:none;">Step 2 — Enter PO number, press Enter</div>
           </div>
           <div class="form-field">
             <div class="field-label">Vendor</div>
@@ -585,7 +589,9 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
     </div>
 
     <!-- SECTION 2: Line Items -->
-    <div class="section-card">
+    <div class="section-card" id="field-line-items" style="position:relative;">
+      <!-- Step callout appears here for qty/storage steps -->
+      <div class="step-callout" style="display:none;top:8px;right:8px;">Step 3 — Check GR Qty</div>
       <div class="section-header">
         <div class="section-header-title">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a6d70" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -697,55 +703,10 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
     <!-- ── HELP NOW MODE (default when opened from inside app) ─────────── -->
     <div id="helpMode" class="help-mode">
 
-      <div class="panel-section-label">You are on: Goods Receipt · MIGO · Step 1 of 5</div>
+      <div class="panel-section-label" id="stepSectionLabel">You are on: Goods Receipt · MIGO · Step 1 of 5</div>
 
-      <div class="step-list">
-        <!-- Step 1: active -->
-        <div class="step-item active">
-          <div class="step-num active">1</div>
-          <div class="step-content">
-            <div class="step-title">Set Movement Type to 101</div>
-            <div class="step-desc">Click the <strong>Movement Type</strong> dropdown (top-left of the header section) and select <strong>101 — Goods Receipt for Purchase Order</strong>.</div>
-            <div class="step-hint">💡 101 is always used when receiving against a PO. If you don't see a PO number field after selecting, check that "Purchase Order" is also selected in the reference document type.</div>
-          </div>
-        </div>
-
-        <!-- Step 2: upcoming -->
-        <div class="step-item">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <div class="step-title">Enter the Purchase Order number</div>
-            <div class="step-desc">Type the PO number in the <strong>Purchase Order</strong> field and press Enter or click the search icon. Line items will auto-populate.</div>
-          </div>
-        </div>
-
-        <!-- Step 3: upcoming -->
-        <div class="step-item">
-          <div class="step-num">3</div>
-          <div class="step-content">
-            <div class="step-title">Verify quantities against the packing slip</div>
-            <div class="step-desc">Check each line item quantity in the <strong>GR Qty</strong> column. Change only if the actual received quantity differs from the PO.</div>
-          </div>
-        </div>
-
-        <!-- Step 4: upcoming -->
-        <div class="step-item">
-          <div class="step-num">4</div>
-          <div class="step-content">
-            <div class="step-title">Enter Storage Location for each line item</div>
-            <div class="step-desc">Click into each line item's <strong>Storage Loc.</strong> field (or use the Where tab) and enter the bin/location where the goods are physically placed.</div>
-          </div>
-        </div>
-
-        <!-- Step 5: upcoming -->
-        <div class="step-item">
-          <div class="step-num">5</div>
-          <div class="step-content">
-            <div class="step-title">Post the goods receipt</div>
-            <div class="step-desc">Click <strong>Post</strong> in the top toolbar. A material document number will appear confirming the GR is recorded.</div>
-          </div>
-        </div>
-      </div>
+      <!-- Step list — rendered from window.__SCENARIO__ by JS -->
+      <div class="step-list" id="stepList"></div>
 
       <div class="panel-section-label">Quick reference</div>
       <div class="quick-tip">
@@ -883,23 +844,216 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
 </div>
 
 <script>
+/* ==========================================================================
+   SCENARIO DEFINITION
+   Mirrors the engine's __SCENARIO__ / __SCREENS__ contract.
+   Each step maps to:
+     - title / desc  → rendered in the Help Now step list
+     - hint          → shown below the active step (amber callout)
+     - fieldId       → DOM element ID to highlight in the MIGO form
+     - calloutText   → text for the step-callout bubble on the form field
+   ========================================================================== */
+  window.__SCENARIO__ = {
+    id:       'goods-receipt-standard',
+    title:    'Receiving a Regular Shipment',
+    subtitle: 'MIGO · Goods Receipt · Level 2 — ON YOUR OWN',
+    currentLevel: 2,
+    steps: [
+      {
+        id:          'movement-type',
+        title:       'Set Movement Type to 101',
+        desc:        'Click the <strong>Movement Type</strong> dropdown and select <strong>101 — Goods Receipt for Purchase Order</strong>.',
+        hint:        '101 is always used when receiving against a PO. If the PO field doesn\'t appear after selecting, confirm "Purchase Order" is set as the reference document type.',
+        fieldId:     'field-movement-type',
+        calloutText: 'Step 1 — Choose 101 (GR for Purchase Order)'
+      },
+      {
+        id:          'purchase-order',
+        title:       'Enter the Purchase Order number',
+        desc:        'Type the PO number in the <strong>Purchase Order</strong> field and press Enter or click the search icon. Line items will auto-populate.',
+        hint:        'The PO number is on your packing slip. Leading zeros are auto-added — no need to type them.',
+        fieldId:     'field-purchase-order',
+        calloutText: 'Step 2 — Enter PO number, press Enter'
+      },
+      {
+        id:          'gr-qty',
+        title:       'Verify quantities against the packing slip',
+        desc:        'Check each line item\'s <strong>GR Qty</strong> column. Change only if the actual received quantity differs from the PO.',
+        hint:        'If short-shipped, enter the actual received qty. Do <em>not</em> change the PO qty. Document the shortage before posting.',
+        fieldId:     'field-line-items',
+        calloutText: 'Step 3 — Check GR Qty for each line'
+      },
+      {
+        id:          'storage-loc',
+        title:       'Enter Storage Location for each line item',
+        desc:        'Click into each line item\'s <strong>Storage Loc.</strong> cell and enter the bin where the goods are physically placed.',
+        hint:        'Storage location is required before posting. Check the packing slip or ask your supervisor for the correct bin number.',
+        fieldId:     'field-line-items',
+        calloutText: 'Step 4 — Enter Storage Loc. for each line'
+      },
+      {
+        id:          'post',
+        title:       'Post the Goods Receipt',
+        desc:        'Click <strong>Post</strong> in the toolbar. A Material Document number confirms the GR is recorded in SAP.',
+        hint:        'Once posted, the GR cannot be edited — only reversed. Verify all quantities and storage locations before clicking Post.',
+        fieldId:     'field-post-btn',
+        calloutText: 'Step 5 — Click Post to complete'
+      }
+    ]
+  };
+
+/* ==========================================================================
+   STATE
+   ========================================================================== */
+  var _currentStep   = 0;        // index of active step
+  var _completedSet  = new Set(); // indices of completed steps
+
+/* ==========================================================================
+   RENDER
+   ========================================================================== */
+  function renderSteps() {
+    var sc   = window.__SCENARIO__;
+    var list = document.getElementById('stepList');
+    if (!list) return;
+
+    var html = sc.steps.map(function(step, i) {
+      var isDone   = _completedSet.has(i);
+      var isActive = (i === _currentStep) && !isDone;
+      var isFuture = (i > _currentStep) && !isDone;
+
+      var itemCls = 'step-item' + (isActive ? ' active' : '');
+
+      var numCls = 'step-num' + (isActive ? ' active' : '') + (isDone ? ' done' : '');
+      var numContent = isDone
+        ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'
+        : (i + 1);
+
+      var hint = (isActive && step.hint)
+        ? '<div class="step-hint">\uD83D\uDCA1 ' + step.hint + '</div>'
+        : '';
+
+      var checkmark = isDone
+        ? '<div class="step-check" aria-label="Done">\u2713</div>'
+        : '';
+
+      return '<div class="' + itemCls + '" onclick="markStep(' + i + ')" role="button" tabindex="0" ' +
+             'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){markStep(' + i + ')}">' +
+               '<div class="' + numCls + '" aria-hidden="true">' + numContent + '</div>' +
+               '<div class="step-content">' +
+                 '<div class="step-title">' + step.title + '</div>' +
+                 '<div class="step-desc">' + step.desc + '</div>' +
+                 hint +
+               '</div>' +
+               checkmark +
+             '</div>';
+    }).join('');
+
+    list.innerHTML = html;
+    _updateSectionLabel();
+    _updateFieldHighlight();
+    _updateFab();
+  }
+
+/* ==========================================================================
+   STEP ADVANCEMENT
+   Clicking any step marks everything up to and including it done,
+   then advances the active pointer to the next incomplete step.
+   ========================================================================== */
+  function markStep(idx) {
+    // Mark this step and all prior ones complete
+    for (var i = 0; i <= idx; i++) { _completedSet.add(i); }
+
+    // Advance active step to next incomplete
+    _currentStep = idx + 1;
+    if (_currentStep >= window.__SCENARIO__.steps.length) {
+      _currentStep = window.__SCENARIO__.steps.length; // sentinel: all done
+    }
+
+    renderSteps();
+  }
+
+/* ==========================================================================
+   SECTION LABEL
+   ========================================================================== */
+  function _updateSectionLabel() {
+    var label = document.getElementById('stepSectionLabel');
+    if (!label) return;
+    var sc    = window.__SCENARIO__;
+    var total = sc.steps.length;
+    var done  = _completedSet.size;
+
+    if (done >= total) {
+      label.textContent = 'All steps complete \u2713 — ready to post';
+    } else {
+      label.textContent = 'You are on: Goods Receipt \u00b7 MIGO \u00b7 Step ' +
+                          (_currentStep + 1) + ' of ' + total;
+    }
+  }
+
+/* ==========================================================================
+   FIELD HIGHLIGHT + CALLOUT BUBBLE
+   Removes highlight from all fields, then lights up the active step's field.
+   ========================================================================== */
+  function _updateFieldHighlight() {
+    // Clear all highlights and callouts
+    document.querySelectorAll('.field-input.highlight').forEach(function(el) {
+      el.classList.remove('highlight');
+    });
+    document.querySelectorAll('.step-callout').forEach(function(el) {
+      el.style.display = 'none';
+    });
+
+    var sc = window.__SCENARIO__;
+    if (_currentStep >= sc.steps.length) return; // all done — no highlight
+
+    var step  = sc.steps[_currentStep];
+    var field = document.getElementById(step.fieldId);
+    if (!field) return;
+
+    // Highlight the first .field-input child (or the field wrapper itself)
+    var input = field.querySelector('.field-input');
+    if (input) input.classList.add('highlight');
+
+    // Update and show the callout bubble
+    var callout = field.querySelector('.step-callout');
+    if (callout) {
+      callout.textContent = step.calloutText;
+      callout.style.display = '';
+    }
+  }
+
+/* ==========================================================================
+   FAB TOOLTIP
+   ========================================================================== */
+  function _updateFab() {
+    var sc      = window.__SCENARIO__;
+    var total   = sc.steps.length;
+    var done    = _completedSet.size;
+    var tooltip = document.querySelector('.fab-tooltip');
+    if (!tooltip) return;
+    tooltip.textContent = (done >= total)
+      ? 'Training \u2014 all steps done \u2713'
+      : 'Training \u2014 step ' + (_currentStep + 1) + ' of ' + total;
+  }
+
+/* ==========================================================================
+   PANEL TOGGLE + MODE SWITCH
+   ========================================================================== */
   function togglePanel() {
-    const layout = document.getElementById('layout');
-    const panel  = document.getElementById('panel');
-    const fab    = document.getElementById('fab');
-    const fabWrap = document.getElementById('fabWrap');
-    const isOpen = panel.classList.contains('open');
+    var layout  = document.getElementById('layout');
+    var panel   = document.getElementById('panel');
+    var fabWrap = document.getElementById('fabWrap');
+    var isOpen  = panel.classList.contains('open');
     panel.classList.toggle('open', !isOpen);
     layout.classList.toggle('panel-open', !isOpen);
-    // FAB shifts left when panel is open
-    fabWrap.style.right = !isOpen ? `calc(var(--panel-w) + 16px)` : '28px';
+    fabWrap.style.right = !isOpen ? 'calc(var(--panel-w) + 16px)' : '28px';
   }
 
   function setMode(mode) {
-    const help = document.getElementById('helpMode');
-    const prac = document.getElementById('practiceMode');
-    const btnH = document.getElementById('btnHelp');
-    const btnP = document.getElementById('btnPractice');
+    var help = document.getElementById('helpMode');
+    var prac = document.getElementById('practiceMode');
+    var btnH = document.getElementById('btnHelp');
+    var btnP = document.getElementById('btnPractice');
     if (mode === 'help') {
       help.style.display = '';
       prac.style.display = 'none';
@@ -912,6 +1066,13 @@ body { font-family: "72","Arial",sans-serif; background: var(--page-bg); overflo
       btnP.classList.add('active');
     }
   }
+
+/* ==========================================================================
+   INIT — render on load
+   ========================================================================== */
+  document.addEventListener('DOMContentLoaded', function() {
+    renderSteps();
+  });
 </script>
 </body>
 </html>
