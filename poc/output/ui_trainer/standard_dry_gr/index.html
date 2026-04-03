@@ -18,11 +18,11 @@
 <div id="root"></div>
 
 <script>
-// ── Scenario data (injected by ui_trainer.py) ──
+// ── Scenario data ──
 window.__SCENARIO__        = {
   "id": "standard_dry_gr",
-  "title": "Goods Receipt in SAP MIGO",
-  "site": "Apex Auto Parts DC \u00b7 Memphis, TN",
+  "title": "Goods Receipt \u2014 Standard Purchase Order",
+  "site": "Bigfoots ERP (Demo) \u00b7 Receiving Operations",
   "role": "Receiving Associate",
   "handling_profile": "standard_dry",
   "training_domain": "software",
@@ -50,155 +50,180 @@ window.__SCENARIO__        = {
   },
   "tutorial": [
     {
-      "screen": "fiori_home.png",
-      "goal": "Open the MIGO transaction",
-      "instruction": "Click the MIGO tile to open Goods Movement.",
-      "hint": "Look for the 'Goods Movement (MIGO)' tile \u2014 it has a star icon.",
+      "screen": "erpnext_home.png",
+      "goal": "Navigate to Purchase Orders",
+      "instruction": "Click 'Purchase Receipt' in the left sidebar to begin receiving.",
+      "hint": "The sidebar on the left lists all Stock module transactions. Purchase Receipt is the starting point for receiving goods against a PO.",
       "hotspot": {
-        "x": 540,
-        "y": 100,
-        "w": 200,
-        "h": 130
+        "x": 0,
+        "y": 195,
+        "w": 178,
+        "h": 30
       },
-      "feedback": "Nice! MIGO is open. Now let's configure your Goods Receipt.",
-      "consequence": "Opening the wrong transaction means you're working in the wrong module. If you open Inventory Management instead of MIGO, you can't post a goods receipt against a PO.",
+      "feedback": "Good \u2014 you're in the receiving workflow. Now find the open Purchase Order.",
+      "consequence": "Clicking 'Stock Entry' instead of 'Purchase Receipt' routes you into inventory transfers, not receiving. The PO won't close and the vendor can't be paid.",
       "explore_info": [
-        "Goods Movement (MIGO) \u2014 this is where you post receipts, issues, and transfers. Your main tool for receiving. Look for the star icon.",
-        "Purchase Requisition \u2014 request materials before a PO exists. Not used for receiving.",
-        "Inventory Management \u2014 view stock levels. Read-only for receiving associates.",
-        "Purchase Order \u2014 view PO details. You don't create POs, but you reference them in MIGO.",
-        "Receiving Dock \u2014 Apex tile showing today's expected deliveries.",
-        "Vendor Invoice \u2014 finance uses this. Not part of the receiving workflow."
+        "Purchase Receipt \u2014 your primary transaction for receiving goods against a Purchase Order. Always start here.",
+        "Stock Entry \u2014 used for internal transfers and adjustments. Not for vendor receipts.",
+        "Delivery Note \u2014 outbound shipments. Nothing to do with receiving.",
+        "Material Request \u2014 internal request to procure or transfer stock. Created before a PO exists.",
+        "Purchase Order list \u2014 accessible from the Buying module. Shows all open POs awaiting receipt."
       ]
     },
     {
-      "screen": "migo_action.png",
-      "goal": "Set the action to Goods Receipt",
-      "instruction": "Confirm the Action dropdown is set to 'Goods Receipt'. Click it.",
-      "hint": "The Action dropdown is the first field in the transaction header.",
+      "screen": "po_list.png",
+      "goal": "Select the open Purchase Order",
+      "instruction": "Click the Purchase Order with status 'To Receive and Bill' to open it.",
+      "hint": "Status 'To Receive and Bill' means the goods haven't arrived in the system yet. That's your work.",
       "hotspot": {
-        "x": 36,
-        "y": 148,
-        "w": 220,
-        "h": 36
-      },
-      "feedback": "Correct. Action = Goods Receipt. Now set the reference type.",
-      "consequence": "Selecting the wrong action (e.g. 'Goods Issue' instead of 'Goods Receipt') would remove inventory instead of adding it. Finance sees a negative stock movement and the PO won't match.",
-      "explore_info": [
-        "Action \u2014 tells SAP what kind of goods movement you're doing. Options: Goods Receipt, Goods Issue, Transfer Posting, etc.",
-        "Reference Document \u2014 what you're posting against. Usually a Purchase Order for receiving.",
-        "Purchase Order No. \u2014 the PO number from your delivery paperwork.",
-        "Execute button \u2014 loads the PO data into MIGO. Same as pressing Enter in the PO field."
-      ]
-    },
-    {
-      "screen": "migo_reference.png",
-      "goal": "Set the reference document to Purchase Order",
-      "instruction": "Click the Reference Document dropdown and select 'Purchase Order'.",
-      "hint": "The Reference Document dropdown is next to the Action dropdown.",
-      "hotspot": {
-        "x": 280,
-        "y": 148,
-        "w": 220,
-        "h": 36
-      },
-      "feedback": "Good. Every GR at Apex must be tied to a PO.",
-      "consequence": "Posting without a PO reference creates a free-goods receipt. Finance can't match it to an invoice, the vendor doesn't get paid on time, and an auditor flags the discrepancy.",
-      "explore_info": [
-        "Reference Document \u2014 links your receipt to an existing document. 'Purchase Order' is standard for receiving.",
-        "Other reference types \u2014 'Material Document' for reversals, 'Delivery' for inbound deliveries. You'll almost always use Purchase Order."
-      ]
-    },
-    {
-      "screen": "migo_po.png",
-      "goal": "Enter the Purchase Order number",
-      "instruction": "Type the PO number into the Purchase Order No. field and press Enter.",
-      "hint": "The PO number field is to the right of the Reference Document dropdown.",
-      "hotspot": {
-        "x": 524,
-        "y": 148,
-        "w": 200,
-        "h": 36
-      },
-      "feedback": "PO 4500098712 loaded. SAP pulled in the line items automatically.",
-      "consequence": "Entering the wrong PO number means you're receiving against someone else's order. The quantities won't match, the vendor invoice won't clear, and both POs get stuck in error.",
-      "explore_info": [
-        "PO Number \u2014 find this on the delivery note or bill of lading. SAP auto-populates the line items when you press Enter.",
-        "Execute button \u2014 loads the PO data into MIGO. Same as pressing Enter in the PO field.",
-        "Tip \u2014 always double-check the PO number against the paper BOL before hitting Enter."
-      ]
-    },
-    {
-      "screen": "migo_items.png",
-      "goal": "Verify line item quantities",
-      "instruction": "Check the Qty column. Confirm it matches what's physically on your dock.",
-      "hint": "Compare each quantity against your delivery paperwork before proceeding.",
-      "hotspot": {
-        "x": 420,
-        "y": 272,
-        "w": 80,
-        "h": 62
-      },
-      "feedback": "Quantities verified. If anything is short, update it now \u2014 not after posting.",
-      "consequence": "Posting the wrong quantity means inventory records don't match physical stock. Short receipt: vendor doesn't get paid for what they shipped. Over receipt: you're paying for product you didn't get.",
-      "explore_info": [
-        "Item \u2014 line number in the PO. Each material is a separate line.",
-        "Material \u2014 SAP material number. Matches the product master.",
-        "Description \u2014 human-readable product name.",
-        "Qty \u2014 how many units you're receiving. Must match what's physically on the dock.",
-        "UoM \u2014 Unit of Measure. UN = units, SET = sets, CS = cases.",
-        "S.Loc \u2014 Storage Location. All dry goods at Apex go to WH-01 (Main Warehouse)."
-      ]
-    },
-    {
-      "screen": "migo_post.png",
-      "goal": "Post the Goods Receipt",
-      "instruction": "Click the Post button to complete the Goods Receipt.",
-      "hint": "Review the summary first. Once you post, SAP generates the material document.",
-      "hotspot": {
-        "x": 20,
-        "y": 88,
-        "w": 80,
+        "x": 186,
+        "y": 108,
+        "w": 1100,
         "h": 32
       },
-      "feedback": "Posted! Material document created. Inventory updated. Receiving complete.",
-      "consequence": "Clicking Check instead of Post runs validation but doesn't create the document. Clicking Cancel discards everything \u2014 you'd need to start over. Neither is harmful, but the dock is clear and trucks are waiting.",
+      "feedback": "PO open. You can see the supplier, items, and quantities. Next: create the receipt.",
+      "consequence": "Opening a 'Completed' PO means the goods were already received. Posting again creates a duplicate receipt \u2014 inventory gets double-counted and the vendor gets overpaid.",
       "explore_info": [
-        "Post \u2014 creates the material document and updates inventory. This is the final step. Can be reversed, but it's easier to get it right the first time.",
-        "Check \u2014 runs validation without posting. Use this if you're unsure and want SAP to flag errors first.",
-        "Cancel \u2014 discards the entire goods receipt. You'll need to start over from the PO number.",
-        "Summary panel \u2014 shows everything you've entered. Review it before clicking Post."
+        "To Receive and Bill \u2014 goods expected but not yet received. This is your active work queue.",
+        "Completed \u2014 fully received and invoiced. Nothing left to do.",
+        "Grand Total \u2014 value of the PO. Useful for matching against the vendor invoice.",
+        "% Received \u2014 progress bar showing how much of this PO has been received so far.",
+        "Supplier Name \u2014 the vendor. Cross-check against the packing slip before proceeding."
+      ]
+    },
+    {
+      "screen": "po_detail.png",
+      "goal": "Create a Purchase Receipt from the PO",
+      "instruction": "Click 'Create' in the top-right toolbar, then select 'Purchase Receipt'.",
+      "hint": "The Create button is in the top-right corner. It generates the receipt pre-filled with this PO's items.",
+      "hotspot": {
+        "x": 1370,
+        "y": 5,
+        "w": 80,
+        "h": 28
+      },
+      "feedback": "Purchase Receipt created and pre-filled. Supplier and items are already populated from the PO.",
+      "consequence": "Clicking 'Purchase Invoice' instead of 'Purchase Receipt' goes straight to billing without recording the physical receipt. Inventory never updates \u2014 the stock count stays wrong.",
+      "explore_info": [
+        "Create button \u2014 generates downstream documents from this PO. Purchase Receipt is for receiving; Purchase Invoice is for billing.",
+        "Items table \u2014 shows what's on order: material, quantity, rate, and target warehouse.",
+        "Target Warehouse \u2014 where the system expects the goods to land. Confirm it matches your physical location.",
+        "Supplier \u2014 verify this matches the vendor on your packing slip before creating the receipt."
+      ]
+    },
+    {
+      "screen": "pr_header.png",
+      "goal": "Confirm Purchase Receipt header details",
+      "instruction": "Verify the Supplier name matches your packing slip. Check the date is today.",
+      "hint": "The header auto-fills from the PO. You rarely need to change anything here unless the date is wrong.",
+      "hotspot": {
+        "x": 397,
+        "y": 140,
+        "w": 340,
+        "h": 50
+      },
+      "feedback": "Header confirmed. Supplier and date are correct. Move to the items table.",
+      "consequence": "A wrong date means the receipt posts to the wrong accounting period. Finance has to reopen the period and reverse the entry \u2014 an hour of cleanup for a five-second check.",
+      "explore_info": [
+        "Supplier \u2014 auto-filled from the PO. Must match the vendor on the packing slip.",
+        "Date \u2014 today's date by default. The posting date for inventory and accounting.",
+        "Series \u2014 the document numbering sequence (MAT-PRE-). Auto-generated. Don't change it.",
+        "Supplier Delivery Note \u2014 optional. Enter the vendor's delivery note number if provided on the paperwork.",
+        "Apply Putaway Rule \u2014 advanced feature that auto-assigns warehouse locations. Leave unchecked unless configured."
+      ]
+    },
+    {
+      "screen": "pr_items.png",
+      "goal": "Verify line item quantities",
+      "instruction": "Check the Accepted Quantity for each line. Adjust if the physical count differs from the PO.",
+      "hint": "Count what's on the dock, then compare to the Accepted Quantity column. Change the number if anything is short-shipped.",
+      "hotspot": {
+        "x": 510,
+        "y": 530,
+        "w": 860,
+        "h": 40
+      },
+      "feedback": "Quantities verified. If you adjusted any, that discrepancy is now on record.",
+      "consequence": "Posting the PO quantity when you actually received fewer items overstates inventory. The physical count and the system count diverge immediately \u2014 the next cycle count will flag it as a shortage.",
+      "explore_info": [
+        "Item Code \u2014 the material number. Matches the vendor's part number on the packing slip.",
+        "Accepted Quantity \u2014 how many units you are actually receiving today. Edit this if short-shipped.",
+        "Rejected Quantity \u2014 units received but rejected (damaged, wrong spec). Separate workflow for returns.",
+        "Rate \u2014 unit cost from the PO. Used to value the inventory posted.",
+        "Accepted Warehouse \u2014 where the stock will land in the system. Must be filled before saving."
+      ]
+    },
+    {
+      "screen": "pr_warehouse.png",
+      "goal": "Set the Accepted Warehouse",
+      "instruction": "Click the Accepted Warehouse field and select the correct storage location.",
+      "hint": "The warehouse tells the system where the goods are physically going. Check your packing slip or supervisor for the correct bin.",
+      "hotspot": {
+        "x": 757,
+        "y": 408,
+        "w": 360,
+        "h": 35
+      },
+      "feedback": "Warehouse set. The system now knows where these goods will be stored.",
+      "consequence": "Leaving Accepted Warehouse blank will block the save. Entering the wrong warehouse misdirects the stock \u2014 it shows as available in a location where it doesn't physically exist.",
+      "explore_info": [
+        "Accepted Warehouse \u2014 the physical storage location where goods are being placed. Required field.",
+        "Rejected Warehouse \u2014 where rejected goods go. Only needed if you're recording rejections.",
+        "Stores \u2014 main receiving warehouse in this demo. In production, options are configured per site.",
+        "Tip \u2014 you can set the warehouse at the top of the Items section to apply it to all lines at once."
+      ]
+    },
+    {
+      "screen": "pr_submit.png",
+      "goal": "Save and submit the Purchase Receipt",
+      "instruction": "Click 'Save' to record the receipt. Then click 'Submit' to finalize it in the system.",
+      "hint": "Save first, then Submit. Submitted receipts update inventory and close out the PO quantity.",
+      "hotspot": {
+        "x": 1490,
+        "y": 5,
+        "w": 80,
+        "h": 28
+      },
+      "feedback": "Submitted! Inventory updated. PO status moves to 'To Bill'. Receiving complete.",
+      "consequence": "Saving without submitting leaves the receipt in draft. Inventory doesn't update, the PO stays open, and the vendor can't be invoiced until someone submits it.",
+      "explore_info": [
+        "Save \u2014 stores the draft. Inventory is NOT yet updated. You can still edit after saving.",
+        "Submit \u2014 finalizes the receipt. Inventory updates immediately. PO quantity is reduced.",
+        "Amend \u2014 if you need to fix a submitted receipt, use Amend to create a corrected version.",
+        "Print \u2014 generates a PDF receipt you can attach to the packing slip for your records."
       ]
     }
   ],
   "mission": {
     "title": "Your Mission",
-    "briefing": "Post a Goods Receipt for PO 4500098712.\n200 units of oil filter (AP-3310) and 150 sets of brake pads (AP-7721)\narriving at Apex Auto Parts DC, Memphis TN. No special handling required.",
-    "par_clicks": 8,
+    "briefing": "Post a Goods Receipt for PO PUR-ORD-2026-00011.\n50 units of MAT-4421 (Hydraulic Valve Assembly) arriving from Test Vendor.\nNo special handling required. Confirm quantities and warehouse before saving.",
+    "par_clicks": 9,
     "time_limit": 120,
     "narratives": [
       "It's peak season and the dock is stacked three-deep. Get this PO posted so the forklift team can start putaway.",
       "Your supervisor is running the morning standup in 10 minutes. She wants this receipt confirmed before the meeting.",
-      "The vendor's driver needs a signed BOL before he can leave. Post the GR so the system generates the confirmation.",
-      "New hire is watching you work through a standard receipt. Show them the basics \u2014 clean and quick."
+      "The vendor's driver needs a signed delivery note before he can leave. Submit the receipt so the system generates the confirmation.",
+      "New hire is shadowing you today. Walk through a standard receipt clean and quick \u2014 show them the right habits."
     ]
   }
 };
 window.__SCREENS__         = {
-  "fiori_home.png": "screens/fiori_home.png",
-  "migo_action.png": "screens/migo_action.png",
-  "migo_reference.png": "screens/migo_reference.png",
-  "migo_po.png": "screens/migo_po.png",
-  "migo_items.png": "screens/migo_items.png",
-  "migo_post.png": "screens/migo_post.png"
+  "erpnext_home.png": "screens/erpnext_home.png",
+  "po_list.png":      "screens/po_list.png",
+  "po_detail.png":    "screens/po_detail.png",
+  "pr_header.png":    "screens/pr_header.png",
+  "pr_items.png":     "screens/pr_items.png",
+  "pr_warehouse.png": "screens/pr_warehouse.png",
+  "pr_submit.png":    "screens/pr_submit.png"
 };
 window.__SCREENS_NEUTRAL__ = {
-  "fiori_home.png": "screens_neutral/fiori_home.png",
-  "migo_action.png": "screens_neutral/migo_action.png",
-  "migo_reference.png": "screens_neutral/migo_reference.png",
-  "migo_po.png": "screens_neutral/migo_po.png",
-  "migo_items.png": "screens_neutral/migo_items.png",
-  "migo_post.png": "screens_neutral/migo_post.png"
+  "erpnext_home.png": "screens_neutral/erpnext_home.png",
+  "po_list.png":      "screens_neutral/po_list.png",
+  "po_detail.png":    "screens_neutral/po_detail.png",
+  "pr_header.png":    "screens_neutral/pr_header.png",
+  "pr_items.png":     "screens_neutral/pr_items.png",
+  "pr_warehouse.png": "screens_neutral/pr_warehouse.png",
+  "pr_submit.png":    "screens_neutral/pr_submit.png"
 };
 </script>
 

@@ -1,0 +1,102 @@
+# capture_config.yaml
+# Zero-Touch Training — ERPNext Goods Receipt Capture Config
+#
+# Defines the navigation path and screenshot points for the standard
+# Goods Receipt scenario (Purchase Order → Purchase Receipt).
+#
+# Run with: python capture_gr.py --config capture_config.yaml
+#
+# Output goes to:
+#   poc/output/ui_trainer/standard_dry_gr/screens/
+#   poc/output/ui_trainer/standard_dry_gr/screens_neutral/
+#
+# Both folders receive the same clean screenshots.
+# The game engine overlays its own highlight/callout at runtime.
+
+erpnext:
+  base_url: "http://localhost:8080"
+  username: "Administrator"
+  password: "admin"           # change if you set a different password at first login
+
+capture:
+  # Output path relative to this config file's location (poc/capture/)
+  output_dir: "../output/ui_trainer/standard_dry_gr"
+  viewport:
+    width: 1440
+    height: 900
+  # How long to wait (ms) for ERPNext's JS to settle after navigation/clicks
+  settle_ms: 1200
+
+  # Selector for the "Getting Started" popup close button — dismiss on every screen
+  dismiss_popup_selector: ".getting-started .close, .modal .close, .widget .close"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SCREENS
+# Each entry defines one screenshot in the sequence.
+#
+# Fields:
+#   name        → output filename (no extension)
+#   title       → human label used in logs
+#   action      → what to do to reach this screen:
+#                   navigate  — go to a URL
+#                   click     — click a CSS selector
+#                   fill      — fill a field then press Enter
+#                   wait      — just wait settle_ms and screenshot
+#   selector    → CSS selector for click/fill actions
+#   value       → value for fill actions
+#   url         → target URL for navigate actions
+#                 Use {base_url} placeholder — replaced at runtime
+#   scroll_to   → optional CSS selector to scroll into view before screenshot
+#   highlight   → optional CSS selector to outline in amber before screenshot
+#                 (painted on screens/ copy only; screens_neutral/ is clean)
+# ─────────────────────────────────────────────────────────────────────────────
+
+screens:
+
+  - name: erpnext_home
+    title: "ERPNext Stock Home"
+    action: navigate
+    url: "{base_url}/desk/stock"
+    scroll_to: null
+    highlight: null
+
+  - name: po_list
+    title: "Purchase Order List"
+    action: navigate
+    url: "{base_url}/desk/purchase-order"
+    scroll_to: null
+    highlight: ".list-row:first-child"
+
+  - name: po_detail
+    title: "Purchase Order Detail"
+    action: navigate
+    # PO number set via --po flag at runtime; falls back to this default
+    url: "{base_url}/desk/purchase-order/{po_number}"
+    scroll_to: ".items-section"
+    highlight: ".btn-group .btn-primary"    # the Create button
+
+  - name: pr_header
+    title: "New Purchase Receipt — Header"
+    # Navigated to by capture_gr.py after clicking Create → Purchase Receipt
+    action: wait
+    scroll_to: null
+    highlight: "[data-fieldname='supplier']"
+
+  - name: pr_items
+    title: "Purchase Receipt — Items Table"
+    action: wait
+    scroll_to: ".items-section"
+    highlight: ".grid-row:first-child"
+
+  - name: pr_warehouse
+    title: "Purchase Receipt — Accepted Warehouse"
+    action: click
+    selector: ".grid-row:first-child [data-fieldname='warehouse'] .link-btn, .grid-row:first-child .edit-grid-row"
+    scroll_to: ".items-section"
+    highlight: "[data-fieldname='accepted_warehouse'], [data-fieldname='warehouse']"
+
+  - name: pr_submit
+    title: "Purchase Receipt — Ready to Submit"
+    action: wait
+    scroll_to: null
+    highlight: ".page-actions .btn-primary"   # Save / Submit button
