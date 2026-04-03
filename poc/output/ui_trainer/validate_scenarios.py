@@ -29,8 +29,8 @@ except ImportError:
     HAS_PIL = False
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-EXPECTED_WIDTH = 1280
-EXPECTED_HEIGHT = 720
+# Accepted screen dimensions — legacy Pillow (1280×720) and ERPNext captures (1440×900)
+ACCEPTED_SIZES = [(1280, 720), (1440, 900)]
 MIN_HOTSPOT_DIM = 16      # minimum w or h in px
 MAX_HOTSPOT_DIM = 600     # maximum w or h in px
 TOLERANCE = 20            # click tolerance used by the React app
@@ -103,8 +103,9 @@ def check_structural(scenario_dir, data):
                 try:
                     img = Image.open(full_path)
                     w, h = img.size
-                    if w != EXPECTED_WIDTH or h != EXPECTED_HEIGHT:
-                        issues.append(("WARN", f"{label}/{key}: {w}x{h} (expected {EXPECTED_WIDTH}x{EXPECTED_HEIGHT})"))
+                    if (w, h) not in ACCEPTED_SIZES:
+                        sizes_str = " or ".join(f"{sw}x{sh}" for sw, sh in ACCEPTED_SIZES)
+                        issues.append(("WARN", f"{label}/{key}: {w}x{h} (expected {sizes_str})"))
                     else:
                         issues.append(("PASS", f"{label}/{key}: {w}x{h} ✓"))
                 except Exception as e:
@@ -142,9 +143,9 @@ def check_hotspots(scenario_dir, data):
 
         x, y, w, h = hs.get("x", 0), hs.get("y", 0), hs.get("w", 0), hs.get("h", 0)
 
-        # Get actual image size
+        # Get actual image size (default to largest accepted size)
         img_path = os.path.join(scenario_dir, screens.get(screen_name, ""))
-        img_w, img_h = EXPECTED_WIDTH, EXPECTED_HEIGHT
+        img_w, img_h = ACCEPTED_SIZES[-1]  # fallback to largest accepted size
         if HAS_PIL and os.path.exists(img_path):
             try:
                 img = Image.open(img_path)
@@ -239,8 +240,8 @@ def check_highlight_alignment(scenario_dir, data):
 
         highlight_pixels = int(np.sum(highlight_mask))
         if highlight_pixels < 10:
-            # No visible highlight difference — can't validate alignment
-            issues.append(("PASS", f"Screen {i} ({screen_name}): no highlight diff detected (screens may be identical)"))
+            # No visible highlight difference — screens are identical (e.g. real ERPNext captures)
+            issues.append(("PASS", f"Screen {i} ({screen_name}): screens identical — skipping highlight alignment (real captures)"))
             continue
 
         # Check how many highlighted pixels fall inside the hotspot

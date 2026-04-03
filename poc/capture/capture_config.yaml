@@ -53,13 +53,15 @@ capture:
 
 screens:
 
+  # ── Step 1: Starting point — Buying workspace (has Purchase Orders link) ───
   - name: erpnext_home
-    title: "ERPNext Stock Home"
+    title: "ERPNext Buying Workspace"
     action: navigate
-    url: "{base_url}/desk/stock"
+    url: "{base_url}/desk/buying"
     scroll_to: null
     highlight: null
 
+  # ── Step 2: Purchase Order list ────────────────────────────────────────────
   - name: po_list
     title: "Purchase Order List"
     action: navigate
@@ -67,36 +69,47 @@ screens:
     scroll_to: null
     highlight: ".list-row:first-child"
 
+  # ── Step 3: PO detail — target is the Create button ───────────────────────
   - name: po_detail
     title: "Purchase Order Detail"
     action: navigate
-    # PO number set via --po flag at runtime; falls back to this default
     url: "{base_url}/desk/purchase-order/{po_number}"
-    scroll_to: ".items-section"
-    highlight: ".btn-group .btn-primary"    # the Create button
+    scroll_to: null
+    highlight: ".page-actions .dropdown-toggle, .page-actions .btn-primary-dark"
 
+  # ── Step 3→4 transition: click Create → Purchase Receipt ──────────────────
+  #    This is an intermediate action step that creates the PR draft.
+  #    It does NOT produce a screenshot — the script handles it as a
+  #    "create_pr" action type (see capture_gr.py).
+  - name: _create_pr
+    title: "Click Create → Purchase Receipt (transition)"
+    action: create_pr
+    # No screenshot produced; just navigates to the new PR draft
+
+  # ── Step 4: PR header — confirm Supplier and Date ─────────────────────────
   - name: pr_header
     title: "New Purchase Receipt — Header"
-    # Navigated to by capture_gr.py after clicking Create → Purchase Receipt
     action: wait
     scroll_to: null
-    highlight: "[data-fieldname='supplier']"
+    highlight: "[data-fieldname='supplier'], .frappe-control[data-fieldname='supplier'] .control-input"
 
+  # ── Step 5: PR items table — verify Accepted Quantity ─────────────────────
   - name: pr_items
     title: "Purchase Receipt — Items Table"
     action: wait
-    scroll_to: ".items-section"
-    highlight: ".grid-row:first-child"
+    scroll_to: "[data-fieldname='items']"
+    highlight: "[data-fieldname='items'] .frappe-control[data-fieldname='qty'], .grid-row:first-child"
 
+  # ── Step 6: PR warehouse — set Accepted Warehouse ─────────────────────────
   - name: pr_warehouse
     title: "Purchase Receipt — Accepted Warehouse"
-    action: click
-    selector: ".grid-row:first-child [data-fieldname='warehouse'] .link-btn, .grid-row:first-child .edit-grid-row"
-    scroll_to: ".items-section"
-    highlight: "[data-fieldname='accepted_warehouse'], [data-fieldname='warehouse']"
+    action: wait
+    scroll_to: "[data-fieldname='items']"
+    highlight: "[data-fieldname='items'] .frappe-control[data-fieldname='warehouse'], [data-fieldname='set_warehouse']"
 
+  # ── Step 7: Save + Submit ─────────────────────────────────────────────────
   - name: pr_submit
     title: "Purchase Receipt — Ready to Submit"
     action: wait
     scroll_to: null
-    highlight: ".page-actions .btn-primary"   # Save / Submit button
+    highlight: ".page-actions .btn-primary, .page-actions .btn-primary-dark"

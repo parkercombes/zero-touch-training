@@ -230,8 +230,6 @@ def run_capture(config: dict, po_number: str, out_dir: Path, headed: bool, slow_
     screens_dir.mkdir(parents=True, exist_ok=True)
     screens_neutral_dir.mkdir(parents=True, exist_ok=True)
 
-    pr_url = None  # set after navigating to the PR draft
-
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=not headed, slow_mo=slow_mo)
         ctx     = browser.new_context(viewport={"width": vp["width"], "height": vp["height"]})
@@ -240,10 +238,11 @@ def run_capture(config: dict, po_number: str, out_dir: Path, headed: bool, slow_
         # ── Login ────────────────────────────────────────────────────────────
         login(page, base_url, erpnext_cfg["username"], erpnext_cfg["password"])
 
-        # ── Navigate to PR via PO → Create ───────────────────────────────────
-        pr_url = open_purchase_receipt_from_po(page, base_url, po_number, settle_ms)
-
         # ── Screen loop ──────────────────────────────────────────────────────
+        # The PR draft is created inline when the screen loop hits the
+        # "create_pr" action (after capturing the PO detail screen).
+        captured_count = 0
+
         for screen in config["screens"]:
             name      = screen["name"]
             title     = screen.get("title", name)
@@ -253,24 +252,31 @@ def run_capture(config: dict, po_number: str, out_dir: Path, headed: bool, slow_
             print(f"\n▶  {name}  —  {title}")
 
             try:
-                # Perform the navigation / interaction action
-                if action == "navigate":
+                # ── create_pr: transition step (no screenshot) ───────────────
+                if action == "create_pr":
+                    log("  Creating Purchase Receipt from current PO...")
+                    pr_url = open_purchase_receipt_from_po(
+                        page, base_url, po_number, settle_ms
+                    )
+                    log(f"  ✓ Now on Purchase Receipt: {pr_url}")
+                    continue   # no screenshot for transition steps
+
+                # ── navigate: go to a URL ────────────────────────────────────
+                elif action == "navigate":
                     url = screen["url"].format(
                         base_url=base_url,
-                        po_number=po_number
+                        po_number=po_number,
                     )
-                    # Special case: pr_header and onwards use the PR URL
-                    if name.startswith("pr_") and pr_url:
-                        url = pr_url
                     page.goto(url)
                     wait_for_page(page, settle_ms)
                     dismiss_popups(page)
 
+                # ── wait: stay on current page ───────────────────────────────
                 elif action == "wait":
-                    # Already on the right page — just settle and scroll
                     wait_for_page(page, settle_ms)
                     dismiss_popups(page)
 
+                # ── click: click a selector ──────────────────────────────────
                 elif action == "click":
                     sel = screen.get("selector", "")
                     try:
@@ -280,6 +286,7 @@ def run_capture(config: dict, po_number: str, out_dir: Path, headed: bool, slow_
                     except PWTimeout:
                         log(f"  ⚠️  Selector not found: {sel} — taking screenshot anyway")
 
+                # ── fill: type into a field ──────────────────────────────────
                 elif action == "fill":
                     sel = screen.get("selector", "")
                     val = screen.get("value", "")
@@ -309,6 +316,8 @@ def run_capture(config: dict, po_number: str, out_dir: Path, headed: bool, slow_
                 if highlight:
                     remove_highlights(page)
 
+                captured_count += 1
+
             except Exception as e:
                 log(f"  ❌  Error on screen '{name}': {e}")
                 # Still try to save whatever's on screen for debugging
@@ -324,7 +333,7 @@ def run_capture(config: dict, po_number: str, out_dir: Path, headed: bool, slow_
     print(f"\n✅  Capture complete.")
     print(f"    screens/         → {screens_dir}")
     print(f"    screens_neutral/ → {screens_neutral_dir}")
-    print(f"    {len(config['screens'])} screens captured.\n")
+    print(f"    {captured_count} screens captured.\n")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
