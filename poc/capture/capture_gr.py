@@ -49,13 +49,15 @@ def log(msg: str):
 
 
 def dismiss_popups(page):
-    """Close any 'Getting Started' or tour popups that block interaction."""
+    """Close any modal dialogs that block interaction.
+
+    The 'Getting Started' / onboarding widget should be disabled in ERPNext
+    admin settings rather than dismissed at capture time. This function only
+    handles unexpected modals that might still appear.
+    """
     selectors = [
-        ".getting-started .close",
-        ".widget-head .close",
         ".modal-dialog .close",
         "[data-dismiss='modal']",
-        "button.close",
     ]
     for sel in selectors:
         try:
@@ -91,22 +93,33 @@ def scroll_to(page, selector: str | None):
 
 
 def apply_highlight(page, selector: str | None):
-    """Inject a temporary amber outline onto a form element."""
+    """Inject a temporary amber outline onto a form element.
+
+    The selector string can be a CSS selector (comma-separated fallbacks work
+    natively with querySelector).  If no match is found the function logs a
+    warning so the capture log shows which selectors need adjusting.
+    """
     if not selector:
         return
     try:
-        page.evaluate(f"""
+        matched = page.evaluate(f"""
             (() => {{
                 const el = document.querySelector({repr(selector)});
                 if (el) {{
                     el.style.outline = '3px solid #E8A000';
                     el.style.outlineOffset = '2px';
                     el.style.borderRadius = '3px';
+                    return el.tagName + '.' + (el.className || '').toString().slice(0, 60);
                 }}
+                return null;
             }})()
         """)
-    except Exception:
-        pass
+        if matched:
+            log(f"  🎯  Highlight matched: {matched}")
+        else:
+            log(f"  ⚠️  No element matched highlight selector: {selector}")
+    except Exception as e:
+        log(f"  ⚠️  Highlight error: {e}")
 
 
 def remove_highlights(page):
@@ -150,6 +163,115 @@ def login(page, base_url: str, username: str, password: str):
         log("  First-login password prompt detected — skipping (use --headed to handle manually)")
 
     log("  ✓ Logged in")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Disable onboarding (Getting Started popup)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def disable_onboarding(page, base_url: str):
+    """Kill the Getting Started / onboarding popup in ERPNext v16.
+
+    ERPNext v16 has a known regression where the System Settings toggle
+    alone doesn't prevent the popup from reappearing in fresh browser
+    sessions (like Playwright contexts).  This function hits it from
+    three angles:
+
+      1. System Settings — set enable_onboarding = 0 via Frappe API
+      2. Module onboarding — mark all Onboarding Step records as
+         skipped/complete so the per-module widget has nothing to show
+      3. CSS injection — register a page-level style that hides any
+         onboarding widget that still leaks through (belt and suspenders)
+
+    The CSS injection is added via page.add_init_script so it persists
+    across navigations within this Playwright context.
+    """
+    log("Killing onboarding popup (3-layer approach)...")
+
+    # ── Layer 1: System Settings toggle ──────────────────────────────────
+    page.goto(f"{base_url}/desk/system-settings")
+    wait_for_page(page, 1500)
+    try:
+        result = page.evaluate("""
+            (async () => {
+                await frappe.call({
+                    method: 'frappe.client.set_value',
+                    args: {
+                        doctype: 'System Settings',
+                        name: 'System Settings',
+                        fieldname: 'enable_onboarding',
+                        value: 0
+                    }
+                });
+                return 'ok';
+            })()
+        """)
+        log("  ✓ Layer 1: enable_onboarding set to 0")
+    except Exception as e:
+        log(f"  ⚠️  Layer 1 failed: {e}")
+
+    # ── Layer 2: Bulk-skip all Onboarding Step records ───────────────────
+    try:
+        skipped = page.evaluate("""
+            (async () => {
+                const steps = await frappe.call({
+                    method: 'frappe.client.get_list',
+                    args: {
+                        doctype: 'Onboarding Step',
+                        filters: { is_skipped: 0, is_complete: 0 },
+                        fields: ['name'],
+                        limit_page_length: 0
+                    }
+                });
+                const names = (steps.message || steps || []).map(s => s.name);
+                for (const name of names) {
+                    await frappe.call({
+                        method: 'frappe.client.set_value',
+                        args: {
+                            doctype: 'Onboarding Step',
+                            name: name,
+                            fieldname: 'is_skipped',
+                            value: 1
+                        }
+                    });
+                }
+                return names.length;
+            })()
+        """)
+        log(f"  ✓ Layer 2: {skipped} onboarding step(s) marked skipped")
+    except Exception as e:
+        log(f"  ⚠️  Layer 2 failed: {e}")
+
+    # ── Layer 3: CSS kill switch — persists across navigations ───────────
+    page.add_init_script("""
+        (() => {
+            const style = document.createElement('style');
+            style.textContent = `
+                .onboarding-widget,
+                .onboarding-widget-box,
+                .getting-started,
+                .widget.onboarding-widget-box,
+                [data-widget-name*="onboarding" i],
+                [data-widget-name*="getting-started" i],
+                [data-widget-name*="setup" i] {
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    overflow: hidden !important;
+                }
+            `;
+            if (document.head) {
+                document.head.appendChild(style);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.head.appendChild(style);
+                });
+            }
+        })();
+    """)
+    log("  ✓ Layer 3: CSS kill switch injected for all future navigations")
+
+    page.wait_for_timeout(300)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -237,6 +359,9 @@ def run_capture(config: dict, po_number: str, out_dir: Path, headed: bool, slow_
 
         # ── Login ────────────────────────────────────────────────────────────
         login(page, base_url, erpnext_cfg["username"], erpnext_cfg["password"])
+
+        # ── Disable onboarding so the Getting Started popup never appears ──
+        disable_onboarding(page, base_url)
 
         # ── Screen loop ──────────────────────────────────────────────────────
         # The PR draft is created inline when the screen loop hits the

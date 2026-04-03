@@ -75,7 +75,7 @@ screens:
     action: navigate
     url: "{base_url}/desk/purchase-order/{po_number}"
     scroll_to: null
-    highlight: ".page-actions .dropdown-toggle, .page-actions .btn-primary-dark"
+    highlight: ".page-actions .btn-group .dropdown-toggle, .page-actions .actions-btn-group .btn-primary-dark, .page-actions .btn-primary"
 
   # ── Step 3→4 transition: click Create → Purchase Receipt ──────────────────
   #    This is an intermediate action step that creates the PR draft.
@@ -91,25 +91,31 @@ screens:
     title: "New Purchase Receipt — Header"
     action: wait
     scroll_to: null
-    highlight: "[data-fieldname='supplier'], .frappe-control[data-fieldname='supplier'] .control-input"
+    # Frappe wraps each field in .frappe-control[data-fieldname]; the visible
+    # input sits inside .control-input-wrapper or .control-value, or there's
+    # a .link-field wrapper.  Try broad-to-narrow.
+    highlight: ".frappe-control[data-fieldname='supplier']"
 
   # ── Step 5: PR items table — verify Accepted Quantity ─────────────────────
   - name: pr_items
     title: "Purchase Receipt — Items Table"
     action: wait
-    scroll_to: "[data-fieldname='items']"
-    highlight: "[data-fieldname='items'] .frappe-control[data-fieldname='qty'], .grid-row:first-child"
+    scroll_to: ".form-group[data-fieldname='items'], [data-fieldname='items']"
+    # Target the first data row in the items grid
+    highlight: ".rows .row-index:first-child, .frappe-control[data-fieldname='items'] .grid-row:first-child, .frappe-control[data-fieldname='items'] .rows .row:first-child"
 
   # ── Step 6: PR warehouse — set Accepted Warehouse ─────────────────────────
   - name: pr_warehouse
     title: "Purchase Receipt — Accepted Warehouse"
     action: wait
-    scroll_to: "[data-fieldname='items']"
-    highlight: "[data-fieldname='items'] .frappe-control[data-fieldname='warehouse'], [data-fieldname='set_warehouse']"
+    scroll_to: ".frappe-control[data-fieldname='set_warehouse'], [data-fieldname='set_warehouse']"
+    # The header-level "set_warehouse" field applies to all items at once
+    highlight: ".frappe-control[data-fieldname='set_warehouse'], [data-fieldname='set_warehouse']"
 
   # ── Step 7: Save + Submit ─────────────────────────────────────────────────
   - name: pr_submit
     title: "Purchase Receipt — Ready to Submit"
     action: wait
     scroll_to: null
-    highlight: ".page-actions .btn-primary, .page-actions .btn-primary-dark"
+    # ERPNext uses .btn-primary-dark for the primary action (Save/Submit)
+    highlight: ".primary-action, .btn-primary-dark, .page-actions .btn-primary"
