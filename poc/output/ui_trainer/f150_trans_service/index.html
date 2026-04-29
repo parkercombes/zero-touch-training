@@ -692,7 +692,7 @@ function ScreenView({ state, dispatch }) {
   const drawOverlay = useCallback(() => {
     const canvas = canvasRef.current;
     const img = imgRef.current;
-    if (!canvas || !img) return;
+    if (!canvas || !img) { console.warn("[ZTT] drawOverlay: missing canvas or img"); return; }
 
     const rect = img.getBoundingClientRect();
     canvas.width = rect.width;
@@ -700,6 +700,7 @@ function ScreenView({ state, dispatch }) {
     const ctx = canvas.getContext("2d");
     const scale = getScale();
     const hs = currentStep.hotspot;
+    console.log(`[ZTT] drawOverlay: level=${level} canvas=${canvas.width}x${canvas.height} scale=${scale.toFixed(3)} hs=(${hs.x},${hs.y},${hs.w},${hs.h})`);
 
     if (level === 0) {
       // Explore: light tint + dashed hotspot outline + label
@@ -804,7 +805,7 @@ function ScreenView({ state, dispatch }) {
   // ── Click handler ───────────────────────────────────────────────────────
   const handleClick = useCallback((e) => {
     const img = imgRef.current;
-    if (!img) return;
+    if (!img) { console.warn("[ZTT] handleClick: no img ref"); return; }
     const rect = img.getBoundingClientRect();
     const scale = getScale();
     const mx = (e.clientX - rect.left) / scale;
@@ -813,6 +814,7 @@ function ScreenView({ state, dispatch }) {
     const tol = 20;
     const hit = mx >= hs.x - tol && mx <= hs.x + hs.w + tol &&
                 my >= hs.y - tol && my <= hs.y + hs.h + tol;
+    console.log(`[ZTT] click @ (${mx.toFixed(0)},${my.toFixed(0)}) scale=${scale.toFixed(3)} hs=(${hs.x},${hs.y},${hs.w},${hs.h}) hit=${hit} level=${level}`);
 
     if (level === 0) {
       // Explore: clicking hotspot shows a brief tooltip
