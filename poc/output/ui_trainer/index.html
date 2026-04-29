@@ -818,6 +818,41 @@ function closeVideoModal(e) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeVideoModal();
 });
+
+// ── Progress dots on scenario cards ────────────────────────
+(function updateProgressDots() {
+  document.querySelectorAll('.card[href]').forEach(function(card) {
+    var href = card.getAttribute('href') || '';
+    // Extract scenario ID from href like "standard_dry_gr/index.html"
+    var match = href.match(/^([^/]+)\//);
+    if (!match) return;
+    var scenarioId = match[1];
+    var key = 'ztt_' + scenarioId;
+    var data;
+    try { data = JSON.parse(localStorage.getItem(key)) || {}; } catch(e) { data = {}; }
+    var completed = data.completed || [];
+    var doneSet = {};
+    completed.forEach(function(lv) { doneSet[lv] = true; });
+
+    // Find all .lv-dot elements inside this card and mark completed ones
+    var dots = card.querySelectorAll('.lv-dot');
+    dots.forEach(function(dot, i) {
+      if (doneSet[i]) {
+        dot.classList.add('done');
+        dot.textContent = '✓';
+      }
+    });
+
+    // Update the launch footer text if some levels are done
+    var doneCount = completed.length;
+    var launch = card.querySelector('.launch');
+    if (launch && doneCount > 0 && doneCount < 4) {
+      launch.textContent = 'Continue Training → (' + doneCount + '/4)';
+    } else if (launch && doneCount >= 4) {
+      launch.textContent = '✓ All Levels Complete — Replay';
+    }
+  });
+})();
 </script>
 </body>
 </html>

@@ -75,7 +75,7 @@ screens:
     action: navigate
     url: "{base_url}/desk/purchase-order/{po_number}"
     scroll_to: null
-    highlight: ".page-actions .btn-group .dropdown-toggle, .page-actions .actions-btn-group .btn-primary-dark, .page-actions .btn-primary"
+    highlight: ".custom-actions .btn-primary, .page-actions .btn-primary"
 
   # ── Step 3→4 transition: click Create → Purchase Receipt ──────────────────
   #    This is an intermediate action step that creates the PR draft.

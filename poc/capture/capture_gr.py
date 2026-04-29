@@ -98,10 +98,20 @@ def apply_highlight(page, selector: str | None):
     The selector string can be a CSS selector (comma-separated fallbacks work
     natively with querySelector).  If no match is found the function logs a
     warning so the capture log shows which selectors need adjusting.
+
+    A short wait_for_selector is attempted first so that late-rendering
+    elements (e.g. page-actions toolbar) have time to appear.
     """
     if not selector:
         return
     try:
+        # Wait up to 3 s for at least one sub-selector to appear in the DOM.
+        # Comma-separated selectors are valid in wait_for_selector.
+        try:
+            page.wait_for_selector(selector, state="attached", timeout=3000)
+        except PWTimeout:
+            pass  # fall through — the evaluate below will log the miss
+
         matched = page.evaluate(f"""
             (() => {{
                 const el = document.querySelector({repr(selector)});

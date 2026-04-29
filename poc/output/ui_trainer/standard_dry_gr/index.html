@@ -27,11 +27,11 @@ window.__SCENARIO__        = {
   "handling_profile": "standard_dry",
   "training_domain": "software",
   "branding": {
-    "shell_color": "#033D80",
-    "accent_color": "#E87600",
+    "shell_color": "#1F272E",
+    "accent_color": "#2490EF",
     "level_colors": [
-      "#107E3E",
-      "#0070F2",
+      "#38A169",
+      "#2490EF",
       "#E87600",
       "#BB000B"
     ],
@@ -46,7 +46,17 @@ window.__SCENARIO__        = {
       "Follow the prompts. Each step is highlighted. Build the right habits.",
       "No highlights. Hints cost XP. Wrong clicks show you what would have gone wrong.",
       "Timer on. No help. Real scenario. Score goes on the board."
-    ]
+    ],
+    "overlay_theme": {
+      "explore_outline": "rgba(36,144,239,0.5)",
+      "explore_label": "rgba(36,144,239,0.85)",
+      "guided_spotlight_border": "#2490EF",
+      "guided_spotlight_glow": "#2490EF",
+      "guided_pulse": "rgba(36,144,239,{a})",
+      "guided_overlay_bg": "rgba(0,0,0,0.55)",
+      "tooltip_bg": "rgba(31,39,46,0.95)",
+      "tooltip_border": "#2490EF"
+    }
   },
   "tutorial": [
     {
@@ -268,6 +278,60 @@ const hexToRgb = (h) => { const n = parseInt(h.slice(1), 16); return `${(n>>16)&
 const SHELL_RGB  = hexToRgb(SHELL_COLOR);
 const ACCENT_RGB = hexToRgb(ACCENT);
 const LC_RGB     = LEVEL_COLORS.map(hexToRgb);  // level colour RGB strings
+
+// ── Overlay theme (adapts highlight aesthetics to the target UI) ───────────
+const OT = B.overlay_theme || {};
+const OT_EXPLORE_OUTLINE = OT.explore_outline   || `rgba(${hexToRgb(LEVEL_COLORS[0])},0.5)`;
+const OT_EXPLORE_LABEL   = OT.explore_label     || `rgba(${hexToRgb(LEVEL_COLORS[0])},0.8)`;
+const OT_GUIDED_BORDER   = OT.guided_spotlight_border || ACCENT;
+const OT_GUIDED_GLOW     = OT.guided_spotlight_glow   || ACCENT;
+const OT_GUIDED_OVERLAY  = OT.guided_overlay_bg || "rgba(0,0,0,0.62)";
+const OT_GUIDED_PULSE_T  = OT.guided_pulse      || `rgba(${ACCENT_RGB},{a})`;  // template with {a} placeholder
+const OT_TOOLTIP_BG      = OT.tooltip_bg         || `rgba(3,20,50,0.95)`;
+const OT_TOOLTIP_BORDER  = OT.tooltip_border     || ACCENT;
+
+// ── Progress persistence (localStorage) ────────────────────────────────────
+const Progress = (() => {
+  const KEY = `ztt_${SCENARIO.id}`;
+  const read = () => {
+    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
+  };
+  const write = (data) => {
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* quota / private */ }
+  };
+  return {
+    /** Return array of completed level indices, e.g. [0, 1] */
+    completedLevels() {
+      const d = read();
+      return (d.completed || []).map(Number);
+    },
+    /** Mark a level as completed with optional stats */
+    markComplete(level, stats) {
+      const d = read();
+      const completed = new Set(d.completed || []);
+      completed.add(level);
+      d.completed = [...completed].sort();
+      // Store best stats per level
+      if (!d.stats) d.stats = {};
+      const prev = d.stats[level];
+      if (!prev || (stats.score || 0) > (prev.score || 0)) {
+        d.stats[level] = { ...stats, ts: Date.now() };
+      }
+      write(d);
+    },
+    /** Suggested next level: lowest uncompleted, or 3 if all done */
+    suggestedLevel() {
+      const done = new Set(this.completedLevels());
+      for (let i = 0; i < 4; i++) { if (!done.has(i)) return i; }
+      return 3; // all done — default to challenge for replay
+    },
+    /** Read best stats for a level */
+    bestStats(level) {
+      const d = read();
+      return d.stats?.[level] || null;
+    },
+  };
+})();
 
 // ── Audio cues (Web Audio API — no external files needed) ───────────────────
 const AudioCue = (() => {
@@ -575,6 +639,10 @@ const levelCards = LEVEL_NAMES.map((name, i) => ({
 
 function LevelSelect({ dispatch }) {
   const [hovered, setHovered] = useState(-1);
+  const completed = Progress.completedLevels();
+  const suggested = Progress.suggestedLevel();
+  const doneSet = new Set(completed);
+  const allDone = completed.length === 4;
 
   return (
     <div style={{
@@ -590,35 +658,79 @@ function LevelSelect({ dispatch }) {
       <div style={{ fontSize: 14, color: "#a0c4ff", marginTop: -20 }}>
         {SCENARIO.title} · {SCENARIO.role}
       </div>
+      {/* Progress bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: -12 }}>
+        {LEVEL_NAMES.map((name, i) => (
+          <React.Fragment key={i}>
+            <div style={{
+              width: 28, height: 28, borderRadius: "50%", fontSize: 11, fontWeight: 800,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: doneSet.has(i) ? LEVEL_COLORS[i] : "rgba(255,255,255,0.08)",
+              border: `2px solid ${doneSet.has(i) ? LEVEL_COLORS[i] : "rgba(255,255,255,0.2)"}`,
+              color: doneSet.has(i) ? "#fff" : "rgba(255,255,255,0.3)",
+            }}>
+              {doneSet.has(i) ? "✓" : i}
+            </div>
+            {i < 3 && <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 10 }}>›</span>}
+          </React.Fragment>
+        ))}
+        {allDone && (
+          <span style={{ fontSize: 12, color: "#6ee7a8", fontWeight: 700, marginLeft: 8 }}>All Complete!</span>
+        )}
+      </div>
       <div style={{
         display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16,
         maxWidth: 640, width: "90vw",
       }}>
-        {levelCards.map((card, i) => (
-          <div
-            key={i}
-            onClick={() => dispatch({ type: "SELECT_LEVEL", level: i })}
-            onMouseEnter={() => setHovered(i)}
-            onMouseLeave={() => setHovered(-1)}
-            style={{
-              background: hovered === i ? `rgba(${LC_RGB[1]},0.12)` : "rgba(255,255,255,0.04)",
-              border: `1px solid ${hovered === i ? `rgba(${LC_RGB[1]},0.5)` : "rgba(255,255,255,0.12)"}`,
-              borderRadius: 12, padding: "20px 24px", cursor: "pointer",
-              transition: "all 0.2s", textAlign: "left",
-              transform: hovered === i ? "translateY(-2px)" : "none",
-            }}
-          >
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6, color: card.color }}>
-              {card.num}
+        {levelCards.map((card, i) => {
+          const isDone = doneSet.has(i);
+          const isNext = i === suggested && !allDone;
+          return (
+            <div
+              key={i}
+              onClick={() => dispatch({ type: "SELECT_LEVEL", level: i })}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(-1)}
+              style={{
+                position: "relative",
+                background: hovered === i ? `rgba(${LC_RGB[1]},0.12)` : isNext ? `rgba(${LC_RGB[i]},0.08)` : "rgba(255,255,255,0.04)",
+                border: `1px solid ${hovered === i ? `rgba(${LC_RGB[1]},0.5)` : isNext ? `rgba(${LC_RGB[i]},0.4)` : "rgba(255,255,255,0.12)"}`,
+                borderRadius: 12, padding: "20px 24px", cursor: "pointer",
+                transition: "all 0.2s", textAlign: "left",
+                transform: hovered === i ? "translateY(-2px)" : "none",
+              }}
+            >
+              {/* Recommended badge */}
+              {isNext && (
+                <div style={{
+                  position: "absolute", top: -10, right: 12,
+                  background: card.color, color: "#fff",
+                  fontSize: 10, fontWeight: 800, padding: "3px 10px",
+                  borderRadius: 8, textTransform: "uppercase", letterSpacing: 0.8,
+                }}>
+                  {isDone ? "Replay" : "Up Next"}
+                </div>
+              )}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: card.color }}>
+                  {card.num}
+                </div>
+                {isDone && (
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, color: "#6ee7a8",
+                    background: "rgba(110,231,168,0.12)", padding: "2px 8px", borderRadius: 6,
+                  }}>✓ Done</span>
+                )}
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
+                {card.name}
+              </div>
+              <div style={{ fontSize: 13, color: "#a0c4ff", lineHeight: 1.5 }}>
+                {card.desc}
+              </div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
-              {card.name}
-            </div>
-            <div style={{ fontSize: 13, color: "#a0c4ff", lineHeight: 1.5 }}>
-              {card.desc}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -645,10 +757,11 @@ function ScreenView({ state, dispatch }) {
   // Reset imgLoaded when screen changes so overlay redraws on new image
   useEffect(() => { setImgLoaded(false); setTooltip(null); }, [screenSrc]);
 
-  // Get scale factor from rendered image vs 1280px source
+  // Get scale factor from rendered image vs its native resolution
   const getScale = useCallback(() => {
     if (!imgRef.current) return 1;
-    return imgRef.current.getBoundingClientRect().width / 1280;
+    const nw = imgRef.current.naturalWidth || 1440;
+    return imgRef.current.getBoundingClientRect().width / nw;
   }, []);
 
   // ── Draw overlay on canvas ──────────────────────────────────────────────
@@ -665,11 +778,11 @@ function ScreenView({ state, dispatch }) {
     const hs = currentStep.hotspot;
 
     if (level === 0) {
-      // Explore: light tint + dashed hotspot outline + label
+      // Explore: light tint + dashed hotspot outline + label (themed)
       ctx.fillStyle = "rgba(0,0,0,0.03)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = `rgba(${LC_RGB[0]},0.5)`;
+      ctx.strokeStyle = OT_EXPLORE_OUTLINE;
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 4]);
       ctx.beginPath();
@@ -681,22 +794,22 @@ function ScreenView({ state, dispatch }) {
       ctx.setLineDash([]);
 
       ctx.font = `${Math.round(11 * scale)}px -apple-system, sans-serif`;
-      ctx.fillStyle = `rgba(${LC_RGB[0]},0.8)`;
+      ctx.fillStyle = OT_EXPLORE_LABEL;
       ctx.fillText("▶ Target element", hs.x * scale - 4, hs.y * scale - 10);
 
     } else if (level === 1) {
-      // Guided: dark overlay with spotlight cutout + orange border
+      // Guided: dark overlay with spotlight cutout + themed border
       const hx = hs.x * scale, hy = hs.y * scale;
       const hw = hs.w * scale, hh = hs.h * scale;
       const pad = 12 * scale;
 
-      ctx.fillStyle = "rgba(0,0,0,0.62)";
+      ctx.fillStyle = OT_GUIDED_OVERLAY;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.clearRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2);
 
-      ctx.strokeStyle = ACCENT;
+      ctx.strokeStyle = OT_GUIDED_BORDER;
       ctx.lineWidth = 3;
-      ctx.shadowColor = ACCENT;
+      ctx.shadowColor = OT_GUIDED_GLOW;
       ctx.shadowBlur = 18;
       ctx.beginPath();
       ctx.roundRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2, 6);
@@ -751,7 +864,7 @@ function ScreenView({ state, dispatch }) {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.scale(s, s);
-      ctx.strokeStyle = `rgba(${ACCENT_RGB},${alpha})`;
+      ctx.strokeStyle = OT_GUIDED_PULSE_T.replace("{a}", alpha.toFixed(2));
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.ellipse(0, 0, rx / s, ry / s, 0, 0, Math.PI * 2);
@@ -808,7 +921,7 @@ function ScreenView({ state, dispatch }) {
 
   return (
     <>
-      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair", marginBottom: level === 0 ? "28vh" : 0, transition: "margin-bottom 0.3s" }}>
+      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1440, cursor: "crosshair", marginBottom: level === 0 ? "28vh" : 0, transition: "margin-bottom 0.3s" }}>
         <img
           ref={imgRef}
           src={screenSrc}
@@ -828,7 +941,7 @@ function ScreenView({ state, dispatch }) {
         {tooltip && (
           <div style={{
             position: "absolute", left: tooltip.x, top: tooltip.y, zIndex: 250,
-            background: "rgba(3,20,50,0.95)", border: `1px solid ${ACCENT}`,
+            background: OT_TOOLTIP_BG, border: `1px solid ${OT_TOOLTIP_BORDER}`,
             borderRadius: 8, padding: "10px 14px", maxWidth: 280,
             fontSize: 13, color: "#fff", lineHeight: 1.5, pointerEvents: "none",
             boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
@@ -1258,6 +1371,13 @@ function WinScreen({ state, dispatch }) {
     "Great work without the safety net! Ready for the Challenge?",
     `${SCENARIO.title} — challenge crushed!`,
   ];
+
+  // Persist completion
+  useEffect(() => {
+    if (level >= 0) {
+      Progress.markComplete(level, { score, xp, accuracy, totalClicks, wrongClicks });
+    }
+  }, [level, score, xp, accuracy, totalClicks, wrongClicks]);
 
   // Confetti for Level 2+
   useEffect(() => {
