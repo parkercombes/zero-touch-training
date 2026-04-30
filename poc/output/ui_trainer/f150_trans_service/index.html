@@ -280,6 +280,9 @@ const SCREENS_NEUTRAL = window.__SCREENS_NEUTRAL__;  // neutral    (L2, L3)
 const steps   = SCENARIO.tutorial;
 const mission = SCENARIO.mission;
 
+// ── Domain detection ──────────────────────────────────────────────────────────
+const IS_HARDWARE = SCENARIO.training_domain === "hardware";
+
 // ── Branding (injected from scenario, with SAP defaults as fallback) ────────
 const B = SCENARIO.branding || {};
 const SHELL_COLOR  = B.shell_color  || "#033D80";
@@ -732,14 +735,18 @@ function ScreenView({ state, dispatch }) {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.clearRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2);
 
-      ctx.strokeStyle = ACCENT;
-      ctx.lineWidth = 3;
-      ctx.shadowColor = ACCENT;
-      ctx.shadowBlur = 18;
-      ctx.beginPath();
-      ctx.roundRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2, 6);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+      // Hardware PNGs already have baked-in highlight annotations —
+      // only draw the React overlay border for software scenarios.
+      if (!IS_HARDWARE) {
+        ctx.strokeStyle = ACCENT;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = ACCENT;
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.roundRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2, 6);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
 
     } else {
       // Level 2+: subtle overlay only
@@ -765,7 +772,9 @@ function ScreenView({ state, dispatch }) {
   const pulsePhase = useRef(0);
 
   useEffect(() => {
-    if (level !== 1 || !imgLoaded) {
+    // Hardware scenarios already have baked-in highlight annotations in the PNG —
+    // skip the pulsing ellipse overlay to avoid double-highlighting.
+    if (level !== 1 || !imgLoaded || IS_HARDWARE) {
       if (pulseRef.current) cancelAnimationFrame(pulseRef.current);
       return;
     }
@@ -1168,6 +1177,7 @@ function BriefingScreen({ state, dispatch }) {
     // Dynamically load Three.js if not already present
     const initThree = () => {
       if (typeof THREE === "undefined") return;
+      try {
       threeInitRef.current = true;
 
       const container = threeCanvasRef.current;
@@ -1342,6 +1352,10 @@ function BriefingScreen({ state, dispatch }) {
         renderer.dispose();
         if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
       };
+      } catch (err) {
+        console.error("[ZTT] Three.js exploded view init failed:", err);
+        // Graceful fallback — briefing screen still usable without 3D view
+      }
     };
 
     // Check if THREE is available (loaded via CDN in HTML wrapper)
