@@ -1,4 +1,4 @@
-# Layer 5: Continuous Update & Drift Control
+# Layer 6: Continuous Update & Drift Control
 
 **Goal:** "Training is never outdated."
 

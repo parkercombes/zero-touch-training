@@ -73,7 +73,7 @@ zero-touch-training/
     │   ├── veo3_test_clip.py        # Single-clip validator — downloads raw Veo output
     │   ├── ui_trainer.py            # Interactive UI trainer (HTML + React, scenario-pack-driven)
     │   ├── generate_index.py        # Auto-generates scenario selector index.html from scenario metadata
-    │   ├── trainer_app.jsx          # React game engine (~1260 lines) — domain-agnostic, branding-injected
+    │   ├── trainer_app.jsx          # React game engine (~1630 lines) — domain-agnostic, branding-injected
     │   └── scenarios/               # Scenario packs for the UI trainer
     │       ├── __init__.py
     │       ├── base.py              # Shared Pillow drawing helpers (SAP Fiori chrome) + SAP_BRANDING
@@ -83,7 +83,11 @@ zero-touch-training/
     │       ├── regulated_pharma.py    # Cardinal Health DC — pharmaceutical/GxP
     │       ├── hazmat.py              # ChemCo Industrial DC — hazardous materials
     │       ├── serialized.py          # TechVault DC — serialized/high-value assets
-    │       └── ar15_field_strip.py    # AR-15 field strip (hardware domain pilot)
+    │       ├── ar15_field_strip.py    # AR-15 field strip (hardware domain pilot)
+    │       └── f150_trans_service.py # F-150 shift lever & seal service (hardware domain)
+    ├── capture/                  # ✅ BUILT — Playwright screen capture pipeline
+    │   ├── capture_gr.py        # ERPNext Goods Receipt capture script (517 lines)
+    │   └── capture_config.yaml  # Navigation path and screenshot config for ERPNext GR
     ├── prompts/                  # ✅ BUILT — LLM prompt templates
     │   ├── walkthrough.txt      # Prompt: step-by-step navigation walkthrough
     │   ├── video_script.txt     # Prompt: process explainer video script
@@ -124,7 +128,9 @@ zero-touch-training/
 | UI trainer — 4 additional SAP scenarios | ✅ Done | standard_dry, regulated_pharma, hazmat, serialized |
 | UI trainer — hardware base module | ✅ Done | `base_hardware.py` — photo annotation helpers, placeholder generation, HARDWARE_BRANDING |
 | UI trainer — AR-15 pilot scenario | ✅ Done | `ar15_field_strip.py` — 8-step field strip, placeholder diagrams, safety-first progression |
+| UI trainer — F-150 scenario | ✅ Done | `f150_trans_service.py` — 7-step shift lever & seal service, real manual photos, automotive maintenance |
 | Scenario selector generator | ✅ Done | `generate_index.py` — auto-discovers scenarios, groups by domain (software/hardware), generates index.html |
+| ERPNext capture pipeline | ✅ Done | `capture/capture_gr.py` — Playwright-based screen capture from live ERPNext, replaces drawn screens for standard_dry_gr |
 
 ## The Bigfoot Character Cast
 
@@ -158,7 +164,7 @@ The earlier (broken) version used `-map 1:a` to overlay OpenAI TTS, discarding V
 
 ### React Game Engine
 
-The interactive trainer is a React single-page application (`trainer_app.jsx`, ~1260 lines). A `useReducer` state machine drives all four progression levels plus review mode. The engine is completely domain-agnostic — it reads scenario metadata, screen images, and branding from JSON globals injected at build time.
+The interactive trainer is a React single-page application (`trainer_app.jsx`, ~1630 lines). A `useReducer` state machine drives all four progression levels plus review mode. The engine is completely domain-agnostic — it reads scenario metadata, screen images, and branding from JSON globals injected at build time.
 
 ### Multi-Domain Branding
 
@@ -198,6 +204,7 @@ The JSX resolves branding at runtime via `SCENARIO.branding || {}` with SAP defa
 | Scenario | Scenario File | Site | Key Focus |
 |---|---|---|---|
 | AR-15 Field Strip | ar15_field_strip.py | Range Safety Training Center | 8-step field strip, safety verification, component inspection |
+| F-150 Shift Lever & Seal Service | f150_trans_service.py | Home Garage / Field Maintenance | 7-step transmission service, real manual photos, torque specs |
 
 ### Adding a New Scenario
 
@@ -253,8 +260,9 @@ python generators/ui_trainer.py scenarios.regulated_pharma
 python generators/ui_trainer.py scenarios.hazmat
 python generators/ui_trainer.py scenarios.serialized
 
-# UI trainer — hardware scenario pack
+# UI trainer — hardware scenario packs
 python generators/ui_trainer.py scenarios.ar15_field_strip
+python generators/ui_trainer.py scenarios.f150_trans_service
 
 # Regenerate the scenario selector (index.html) after adding/removing scenarios
 python generators/generate_index.py

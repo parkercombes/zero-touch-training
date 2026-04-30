@@ -25,8 +25,9 @@ The production pipeline requires tooling across six functional areas.
 
 | Tool | Purpose | Notes |
 |---|---|---|
-| **Synthesia / HeyGen** | AI avatar narration of process explainer videos | Bigfoot-style: script in, video out |
-| **ElevenLabs / Play.ht** | AI voiceover generation | Alternative to avatar — voiceover + screen recording |
+| **Google Veo 3** | AI video generation with native lip-synced audio | Mark 2 pipeline: script in, video+audio out, ~$3.60–$15.60/video |
+| **DALL-E 3 (OpenAI)** | AI still image generation | Mark 1 pipeline: generates character stills for slideshow videos |
+| **OpenAI TTS** | AI voiceover generation | Mark 1 pipeline: narrator voice for still-image videos, ~$0.90/video |
 | **FFmpeg** | Video assembly, editing, format conversion | Glue layer for automated video pipeline |
 
 ### Document & Asset Generation
@@ -98,7 +99,7 @@ No production infrastructure. No enterprise integrations. Just the core transfor
 |---|---|
 | Airflow orchestration | Single Python script runs the pipeline end-to-end |
 | Real Tosca/Signavio API integration | Sample XML files that mirror real format |
-| Video rendering (Synthesia/HeyGen) | AI-generated video script + storyboard (text output) |
+| Video rendering (production quality) | PoC uses Veo 3 and DALL-E 3 pipelines; production may use different providers |
 | WalkMe integration | WalkMe flow definition as JSON (not deployed) |
 | Change detection | Manual re-run; demonstrate that re-running with modified input produces updated output |
 | Database / content registry | File-based — outputs stored in `output/` directory |
@@ -110,7 +111,9 @@ No production infrastructure. No enterprise integrations. Just the core transfor
 ```
 zero-touch-training/
 ├── README.md
+├── DEVELOPER_SUMMARY.md       # Full developer reference
 ├── docs/                      # Project documentation
+├── fiori-badge-plugin/        # BTP shell plugin for Fiori badge integration
 ├── poc/
 │   ├── README.md              # PoC setup and run instructions
 │   ├── requirements.txt       # Python dependencies
@@ -118,30 +121,33 @@ zero-touch-training/
 │   ├── config.yaml            # PoC configuration (process, role, site)
 │   ├── data/
 │   │   ├── tosca/             # Sample Tosca test scripts (XML)
-│   │   └── bpmn/              # Sample BPMN process models (XML)
+│   │   ├── bpmn/              # Sample BPMN process models (XML)
+│   │   ├── opal_overlay.yaml  # SE-DC site-specific variations
+│   │   └── consequences.yaml  # Layer 5: anti-patterns, consequence mappings
 │   ├── parsers/
-│   │   ├── __init__.py
 │   │   ├── tosca_parser.py    # Parse Tosca XML → structured steps
 │   │   └── bpmn_parser.py     # Parse BPMN XML → process graph
 │   ├── generators/
-│   │   ├── __init__.py
-│   │   ├── walkthrough.py     # Generate Layer 1 navigation walkthroughs
-│   │   ├── video_script.py    # Generate Layer 2 process explainer scripts
-│   │   ├── job_aid.py         # Generate Layer 3 role-specific job aids
-│   │   └── walkme_draft.py    # Generate Layer 4 WalkMe flow definitions
-│   ├── prompts/
-│   │   ├── walkthrough.txt    # Prompt template for walkthroughs
-│   │   ├── video_script.txt   # Prompt template for video scripts
-│   │   ├── job_aid.txt        # Prompt template for job aids
-│   │   └── walkme.txt         # Prompt template for WalkMe flows
+│   │   ├── base.py            # Shared Claude API client, prompt rendering
+│   │   ├── walkthrough.py     # Layer 1 navigation walkthroughs
+│   │   ├── video_script.py    # Layer 2 process explainer scripts
+│   │   ├── job_aid.py         # Layer 3 role-specific job aids
+│   │   ├── walkme_draft.py    # Layer 4 WalkMe flow definitions
+│   │   ├── process_rationale.py # Layer 5 process decision guides
+│   │   ├── ui_trainer.py      # Interactive UI trainer build script
+│   │   ├── trainer_app.jsx    # React game engine (~1630 lines)
+│   │   ├── generate_index.py  # Auto-generates scenario selector
+│   │   ├── video_render_veo3.py # Veo 3 video pipeline (native audio)
+│   │   ├── video_render_bigfoot.py # DALL-E 3 + OpenAI TTS pipeline
+│   │   └── scenarios/         # Scenario packs (5 SAP + 2 hardware)
+│   ├── capture/
+│   │   ├── capture_gr.py      # Playwright capture from ERPNext
+│   │   └── capture_config.yaml
+│   ├── prompts/               # LLM prompt templates (5 files)
 │   ├── assembler/
-│   │   ├── __init__.py
-│   │   └── overlay.py         # Apply Opal site overlay to generated content
-│   ├── output/                # Generated training materials land here
-│   │   └── .gitkeep
+│   │   └── overlay.py         # Opal site overlay assembly
+│   ├── output/                # Generated training materials
 │   └── run.py                 # Main pipeline entry point
-└── templates/
-    └── job_aid_template.docx  # Word template for formatted job aids
 ```
 
 ### PoC Success Criteria

@@ -864,7 +864,7 @@ Generated Content
 ### 10.2 Extensibility Points
 
 The architecture supports addition of new:
-- **Training domains:** Add a new `base_<domain>.py` with domain-specific drawing helpers and a branding dict, then create scenario packs that import from it. The React game engine requires zero changes.
+- **Training domains:** Add a new `base_<domain>.py` with domain-specific drawing helpers and a branding dict, then create scenario packs that import from it. The React game engine requires zero changes. A Playwright capture pipeline (`capture/capture_gr.py`) also enables screen capture from live systems as an alternative to Pillow-drawn screens.
 - **Source systems:** Add ingestion parsers for new process/test frameworks
 - **Content types:** Implement new output template generators
 - **AI models:** Swap or upgrade underlying language/image models
@@ -977,7 +977,7 @@ The interactive UI trainer is a React single-page application that supports two 
 ### 12.2 Architecture
 
 ```
-trainer_app.jsx              # React game engine (~1260 lines) — domain-agnostic
+trainer_app.jsx              # React game engine (~1630 lines) — domain-agnostic
      │
 ui_trainer.py                # build script — loads scenario, generates HTML bundle
      │
@@ -1038,6 +1038,7 @@ The branding dict is kept intentionally small (~6 keys). The JSX derives all 47+
 | Scenario | Scenario File | Site | Key Focus |
 |---|---|---|---|
 | AR-15 Field Strip | ar15_field_strip.py | Range Safety Training Center | 8-step field strip, safety verification, component inspection |
+| F-150 Shift Lever & Seal Service | f150_trans_service.py | Home Garage / Field Maintenance | 7-step transmission service, real manual photos, torque specs |
 
 ### 12.7 Adding a New Scenario
 
@@ -1094,7 +1095,7 @@ See `docs/game-design-vision.md` for design rationale and real-world benchmarks.
 
 ## Document Information
 
-**Version:** 2.0
-**Last Updated:** 2025
+**Version:** 3.0
+**Last Updated:** April 2026
 **Audience:** Technical architects, system engineers, training operations team
 **Classification:** Technical Architecture Reference

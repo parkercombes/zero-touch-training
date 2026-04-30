@@ -169,14 +169,16 @@ session a fresh, disposable system.
 
 ## Development Roadmap
 
-### Phase 1 (Current PoC)
+### Phase 1 (Complete)
 Pillow-drawn SAP approximations. Proves game engine, pedagogical mechanics,
-and scenario structure. Five SAP MIGO scenarios + one hardware scenario.
+and scenario structure. Five SAP MIGO scenarios + two hardware scenarios.
 
-### Phase 2 (Next)
-Playwright capture script targeting ERPNext. Replaces drawn screens with real
-system screenshots. Proves the capture pipeline with a free, accessible system.
-Game engine unchanged. Scenario count unchanged.
+### Phase 2 (Partially Complete)
+Playwright capture script targeting ERPNext (`capture/capture_gr.py`, 517 lines).
+The standard_dry_gr scenario now includes real ERPNext screenshots captured from
+a live instance alongside the original SAP-drawn screens. The capture config
+(`capture/capture_config.yaml`) defines navigation paths and screenshot points.
+Game engine unchanged — validates the system-agnostic design.
 
 ### Phase 3
 Capture script extended to support SAP Fiori, Appian, and one Low Code front-end.

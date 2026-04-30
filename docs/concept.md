@@ -21,7 +21,9 @@ This is **Training-as-Code**, embedded in the DevSecOps pipeline.
 The platform now supports two training domains through a single domain-agnostic game engine:
 
 - **Software training** — ERP workflows (SAP MIGO Goods Receipt across 5 handling profiles)
-- **Hardware training** — Equipment maintenance and assembly (AR-15 field strip pilot, extensible to automotive, industrial equipment, etc.)
+- **Hardware training** — Equipment maintenance and assembly (AR-15 field strip, F-150 shift lever & seal service, extensible to industrial equipment, etc.)
+
+A Playwright-based capture pipeline (`capture/capture_gr.py`) enables screen capture from live systems (ERPNext, SAP Fiori, etc.), replacing the Pillow-drawn approximations used in early development.
 
 ## How the Training Works (Layered Model)
 
@@ -134,7 +136,7 @@ The interactive UI trainer is fully generated from source — no AI is involved 
 
 The source is organized into a domain-agnostic game engine, domain-specific base modules, and per-scenario packs:
 
-- **`trainer_app.jsx`** — The React game engine (~1260 lines). A `useReducer` state machine drives all four progression levels plus review mode. It reads scenario data and branding injected as JSON globals and renders the interactive experience entirely client-side. The JSX is completely domain-agnostic — it resolves colors and level names from `SCENARIO.branding` with SAP defaults as fallback.
+- **`trainer_app.jsx`** — The React game engine (~1630 lines). A `useReducer` state machine drives all four progression levels plus review mode. It reads scenario data and branding injected as JSON globals and renders the interactive experience entirely client-side. The JSX is completely domain-agnostic — it resolves colors and level names from `SCENARIO.branding` with SAP defaults as fallback.
 - **`scenarios/base.py`** — Software domain: shared Pillow drawing primitives (SAP Fiori fields, dropdowns, buttons, tables, checkboxes, shell bar) plus `SAP_BRANDING` dict export.
 - **`scenarios/base_hardware.py`** — Hardware domain: photo annotation helpers (highlight/decoy regions, callout arrows, component labels), placeholder diagram generation, plus `HARDWARE_BRANDING` dict export.
 - **Scenario packs** (e.g. `sedc_goods_receipt.py`, `ar15_field_strip.py`) — Each contains the complete scenario definition (steps, goals, instructions, hints, hotspots, consequences, explore descriptions, branding, mission) plus screen generator functions. Each is self-contained and imports from the appropriate base module.
@@ -185,7 +187,7 @@ This PoC uses a fictional company — "GlobalMart Southeast Distribution Center"
 
 The PoC to date covers Layers 1 through 5 with working code: navigation walkthroughs, AI-generated explainer videos (including a lip-synced Bigfoot character vlog built on Google Veo 3), role-specific job aids, in-app guidance drafts, and process rationale content. Layer 6 (continuous update triggers) is designed but not yet automated.
 
-The interactive UI trainer is a React single-page application with a fully built game engine. It supports two training domains through a branding abstraction layer: software (5 SAP MIGO handling profiles — standard dry, perishable, pharma, hazmat, serialized) and hardware (AR-15 field strip pilot). All game mechanics — four-level progression, consequence feedback, timer with audio cues, confetti, narrative premises, decoy fields, debrief screens, adaptive hints, and review mode — are fully implemented and working.
+The interactive UI trainer is a React single-page application with a fully built game engine. It supports two training domains through a branding abstraction layer: software (5 SAP MIGO handling profiles — standard dry, perishable, pharma, hazmat, serialized) and hardware (AR-15 field strip, F-150 shift lever & seal service). All game mechanics — four-level progression, consequence feedback, timer with audio cues, confetti, narrative premises, decoy fields, debrief screens, adaptive hints, and review mode — are fully implemented and working.
 
 An auto-generated scenario selector groups all scenarios by domain and provides a landing page with profile-colored cards.
 

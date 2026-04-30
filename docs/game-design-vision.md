@@ -142,11 +142,13 @@ Requires a minimal backend — a JSON file or lightweight API that stores scores
 
 The game engine now supports hardware training scenarios alongside software. The same four-level progression applies — the difference is in the branding (steel grey shell, safety orange accent) and the level nomenclature (OBSERVE / FOLLOW ALONG / DO IT / SPEED RUN).
 
-The first hardware scenario is an AR-15 field strip: 8 steps from verification clear through disassembly, inspection, cleaning, lubrication, reassembly, and function check. The consequence model maps directly: skipping clearance verification → negligent discharge risk; forcing takedown pins with a steel tool → deformed pin holes and receiver wobble.
+Two hardware scenarios are built:
 
-Hardware scenarios currently use Pillow-drawn placeholder diagrams (rifle silhouettes, BCG exploded views). These can be swapped for real photographs — hotspot coordinates just need to match the photo layout. The `base_hardware.py` module provides annotation helpers that work on any base image (photo or placeholder).
+**AR-15 Field Strip** — 8 steps from verification clear through disassembly, inspection, cleaning, lubrication, reassembly, and function check. The consequence model maps directly: skipping clearance verification → negligent discharge risk; forcing takedown pins with a steel tool → deformed pin holes and receiver wobble. Currently uses Pillow-drawn placeholder diagrams (rifle silhouettes, BCG exploded views).
 
-Future hardware scenarios could include: Glock field strip, M4 armorer-level maintenance, oil change procedure, brake pad replacement, industrial equipment lockout/tagout. Each would follow the same scenario pack contract: SCENARIO dict + SCREEN_GENERATORS dict + `generate_screens()` function.
+**F-150 Shift Lever & Seal Service** — 7 steps covering shift lever removal, inner boot access, seal replacement, and mount inspection. Uses real scanned photographs from a Haynes manual as base images. The consequence model covers torque specification errors on soft aluminum housings and contamination from torn boots.
+
+The `base_hardware.py` module provides annotation helpers that work on any base image (photo or placeholder). Future hardware scenarios could include: Glock field strip, M4 armorer-level maintenance, oil change procedure, brake pad replacement, industrial equipment lockout/tagout. Each would follow the same scenario pack contract: SCENARIO dict + SCREEN_GENERATORS dict + `generate_screens()` function.
 
 ---
 

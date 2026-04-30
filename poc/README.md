@@ -16,7 +16,7 @@ The PoC now covers two training domains: **software** (SAP MIGO Goods Receipt ac
 
 **Interactive UI trainer:**
 - 5 SAP software scenarios (standard dry, perishable, pharma, hazmat, serialized)
-- 1 hardware scenario (AR-15 field strip)
+- 2 hardware scenarios (AR-15 field strip, F-150 shift lever & seal service)
 - React game engine with 4-level progression, consequence feedback, timer, confetti, narrative premises, decoy fields, debrief, review mode
 - Auto-generated scenario selector with domain grouping
 
@@ -99,7 +99,7 @@ poc/
 │   ├── video_render_veo3_poc.py # Social video: Veo 3 POC cut
 │   ├── veo3_test_clip.py        # Single-clip validator
 │   ├── ui_trainer.py            # Interactive trainer build script
-│   ├── trainer_app.jsx          # React game engine (~1260 lines)
+│   ├── trainer_app.jsx          # React game engine (~1630 lines)
 │   ├── generate_index.py        # Auto-generates scenario selector
 │   └── scenarios/
 │       ├── base.py              # Software: SAP Fiori drawing + SAP_BRANDING
@@ -109,7 +109,8 @@ poc/
 │       ├── regulated_pharma.py  # Pharmaceutical / GxP
 │       ├── hazmat.py            # Hazardous materials
 │       ├── serialized.py        # High-value serialized assets
-│       └── ar15_field_strip.py  # AR-15 field strip (hardware)
+│       ├── ar15_field_strip.py  # AR-15 field strip (hardware)
+│       └── f150_trans_service.py # F-150 shift lever & seal (hardware)
 ├── prompts/                 # LLM prompt templates (5 files)
 ├── assembler/
 │   └── overlay.py           # Apply Opal site overlay
