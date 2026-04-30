@@ -108,9 +108,6 @@ def annotate_region(img, hotspot, label="", hl=True, decoy=False):
             [x - pad, y - pad, x + w + pad, y + h + pad],
             radius=8, outline=HW_ORANGE, width=3,
         )
-        # Accent underline
-        d.rectangle([x - pad, y + h + pad - 3, x + w + pad, y + h + pad],
-                    fill=HW_ORANGE)
         if label:
             _draw_badge(d, x + w + pad + 8, y - pad + 2, label, HW_ORANGE)
     elif decoy:
