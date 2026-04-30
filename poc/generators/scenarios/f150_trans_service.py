@@ -106,7 +106,7 @@ SCENARIO = {
             "goal":        "Remove the inner shift lever boot",
             "instruction": "Remove the four boot retaining screws from the inner shift lever boot (the black rubber square-shaped boot below the shift lever). Remove the boot.",
             "hint":        "Four screws, one at each corner of the square rubber boot. A stubby screwdriver helps in the tight space. Keep the screws — they're specific to this application.",
-            "hotspot":     {"x": 740, "y": 300, "w": 280, "h": 200},
+            "hotspot":     {"x": 480, "y": 280, "w": 260, "h": 220},
             "feedback":    "Four retaining screws removed. Inner boot lifted out. Transmission tunnel opening fully exposed.",
             "consequence": "Cross-threading the screws on reinstallation strips the threads in the floor pan. You'll need to tap new threads or use a larger screw. Take your time — these are small screws in soft metal.",
             "explore_info": [
@@ -156,7 +156,7 @@ SCENARIO = {
             "goal":        "Install the new extension housing seal",
             "instruction": "Using a seal driver or a large deep socket, install the new extension housing seal. Drive it squarely into the bore and make sure it's completely seated. Reinstall the dust shield.",
             "hint":        "The seal must go in SQUARE — if it cocks to one side, it will leak. A large socket that matches the outer diameter of the seal works as a driver. Tap evenly around the circumference.",
-            "hotspot":     {"x": 520, "y": 130, "w": 460, "h": 260},
+            "hotspot":     {"x": 200, "y": 150, "w": 400, "h": 280},
             "feedback":    "New seal driven squarely into bore. Fully seated. Dust shield tapped back into place. Seal lip facing inward toward transmission.",
             "consequence": "Installing the seal crooked is the #1 cause of 'new seal still leaks' complaints. The seal lip must contact the output shaft evenly around its entire circumference. A cocked seal leaks immediately, and you'll have to pull the driveshaft again to redo it.",
             "explore_info": [
@@ -322,7 +322,7 @@ def screen_step3_inner_boot(hl=True):
     hs = SCENARIO["tutorial"][2]["hotspot"]
     annotate_region(img, hs, label="3", hl=hl)
     if hl:
-        draw_callout(img, 870, 340, "4 retaining screws", anchor="left")
+        draw_callout(img, 620, 340, "4 retaining screws", anchor="left")
     if not hl:
         annotate_region(img, {"x": 200, "y": 280, "w": 130, "h": 80},
                         label="?", hl=False, decoy=True)
@@ -378,8 +378,8 @@ def screen_step6_install_seal(hl=True):
     hs = SCENARIO["tutorial"][5]["hotspot"]
     annotate_region(img, hs, label="6", hl=hl)
     if hl:
-        draw_callout(img, 400, 200, "Seal driver / deep socket", anchor="left")
-        draw_callout(img, 350, 300, "Drive SQUARE into bore", anchor="left")
+        draw_callout(img, 350, 220, "Seal driver / deep socket", anchor="right")
+        draw_callout(img, 300, 340, "Drive SQUARE into bore", anchor="right")
     if not hl:
         annotate_region(img, {"x": 100, "y": 250, "w": 130, "h": 70},
                         label="?", hl=False, decoy=True)
