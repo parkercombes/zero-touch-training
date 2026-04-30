@@ -135,7 +135,7 @@ zero-touch-training/
 │   │   ├── walkme_draft.py    # Layer 4 WalkMe flow definitions
 │   │   ├── process_rationale.py # Layer 5 process decision guides
 │   │   ├── ui_trainer.py      # Interactive UI trainer build script
-│   │   ├── trainer_app.jsx    # React game engine (~1630 lines)
+│   │   ├── trainer_app.jsx    # React game engine (~1,645 lines)
 │   │   ├── generate_index.py  # Auto-generates scenario selector
 │   │   ├── video_render_veo3.py # Veo 3 video pipeline (native audio)
 │   │   ├── video_render_bigfoot.py # DALL-E 3 + OpenAI TTS pipeline

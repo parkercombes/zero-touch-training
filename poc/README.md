@@ -99,7 +99,7 @@ poc/
 │   ├── video_render_veo3_poc.py # Social video: Veo 3 POC cut
 │   ├── veo3_test_clip.py        # Single-clip validator
 │   ├── ui_trainer.py            # Interactive trainer build script
-│   ├── trainer_app.jsx          # React game engine (~1630 lines)
+│   ├── trainer_app.jsx          # React game engine (~1,645 lines)
 │   ├── generate_index.py        # Auto-generates scenario selector
 │   └── scenarios/
 │       ├── base.py              # Software: SAP Fiori drawing + SAP_BRANDING

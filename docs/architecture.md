@@ -977,7 +977,7 @@ The interactive UI trainer is a React single-page application that supports two 
 ### 12.2 Architecture
 
 ```
-trainer_app.jsx              # React game engine (~1630 lines) — domain-agnostic
+trainer_app.jsx              # React game engine (~1,645 lines) — domain-agnostic
      │
 ui_trainer.py                # build script — loads scenario, generates HTML bundle
      │

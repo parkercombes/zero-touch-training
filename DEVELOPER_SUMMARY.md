@@ -73,7 +73,7 @@ zero-touch-training/
     │   ├── veo3_test_clip.py        # Single-clip validator — downloads raw Veo output
     │   ├── ui_trainer.py            # Interactive UI trainer (HTML + React, scenario-pack-driven)
     │   ├── generate_index.py        # Auto-generates scenario selector index.html from scenario metadata
-    │   ├── trainer_app.jsx          # React game engine (~1630 lines) — domain-agnostic, branding-injected
+    │   ├── trainer_app.jsx          # React game engine (~1,645 lines) — domain-agnostic, branding-injected
     │   └── scenarios/               # Scenario packs for the UI trainer
     │       ├── __init__.py
     │       ├── base.py              # Shared Pillow drawing helpers (SAP Fiori chrome) + SAP_BRANDING
@@ -164,7 +164,7 @@ The earlier (broken) version used `-map 1:a` to overlay OpenAI TTS, discarding V
 
 ### React Game Engine
 
-The interactive trainer is a React single-page application (`trainer_app.jsx`, ~1630 lines). A `useReducer` state machine drives all four progression levels plus review mode. The engine is completely domain-agnostic — it reads scenario metadata, screen images, and branding from JSON globals injected at build time.
+The interactive trainer is a React single-page application (`trainer_app.jsx`, ~1,645 lines). A `useReducer` state machine drives all four progression levels plus review mode. The engine is completely domain-agnostic — it reads scenario metadata, screen images, and branding from JSON globals injected at build time.
 
 ### Multi-Domain Branding
 

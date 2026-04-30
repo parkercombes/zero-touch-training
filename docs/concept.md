@@ -136,7 +136,7 @@ The interactive UI trainer is fully generated from source — no AI is involved 
 
 The source is organized into a domain-agnostic game engine, domain-specific base modules, and per-scenario packs:
 
-- **`trainer_app.jsx`** — The React game engine (~1630 lines). A `useReducer` state machine drives all four progression levels plus review mode. It reads scenario data and branding injected as JSON globals and renders the interactive experience entirely client-side. The JSX is completely domain-agnostic — it resolves colors and level names from `SCENARIO.branding` with SAP defaults as fallback.
+- **`trainer_app.jsx`** — The React game engine (~1,645 lines). A `useReducer` state machine drives all four progression levels plus review mode. It reads scenario data and branding injected as JSON globals and renders the interactive experience entirely client-side. The JSX is completely domain-agnostic — it resolves colors and level names from `SCENARIO.branding` with SAP defaults as fallback.
 - **`scenarios/base.py`** — Software domain: shared Pillow drawing primitives (SAP Fiori fields, dropdowns, buttons, tables, checkboxes, shell bar) plus `SAP_BRANDING` dict export.
 - **`scenarios/base_hardware.py`** — Hardware domain: photo annotation helpers (highlight/decoy regions, callout arrows, component labels), placeholder diagram generation, plus `HARDWARE_BRANDING` dict export.
 - **Scenario packs** (e.g. `sedc_goods_receipt.py`, `ar15_field_strip.py`) — Each contains the complete scenario definition (steps, goals, instructions, hints, hotspots, consequences, explore descriptions, branding, mission) plus screen generator functions. Each is self-contained and imports from the appropriate base module.

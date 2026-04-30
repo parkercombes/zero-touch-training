@@ -12,7 +12,7 @@ Training today is expensive to create, slow to update, quickly outdated, and det
 
 Training-as-Code, embedded in the DevSecOps pipeline. AI translates technical assets — test scripts, process models, UI metadata — into walkthroughs, explainer videos, job aids, and in-app guidance. No manual authoring from scratch.
 
-The interactive UI trainer is built as a **React single-page application** (~1,630 lines) with a game-inspired four-level progression system. A single domain-agnostic game engine drives both software and hardware scenarios — only the screen generation layer and branding differ.
+The interactive UI trainer is built as a **React single-page application** (~1,645 lines) with a game-inspired four-level progression system. A single domain-agnostic game engine drives both software and hardware scenarios — only the screen generation layer and branding differ.
 
 See [`docs/concept.md`](docs/concept.md) for the full concept and layered training model.
 
