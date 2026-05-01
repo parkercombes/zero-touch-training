@@ -20,14 +20,14 @@ Hardware training extends the platform to physical procedures (weapon maintenanc
 
 ## Six Training Layers
 
-| Layer | Goal | Source | Output |
-|---|---|---|---|
-| 1. Navigation | "I'm not lost" | UI metadata + test scripts | Step-by-step walkthroughs |
-| 2. Process | "I know where I fit" | BPMN process models | Explainer videos |
-| 3. Execution | "I can do my job" | Tosca test scripts | Role-specific job aids |
-| 4. In-App | "Help me while I'm doing it" | Test scripts + UI element IDs | WalkMe flow drafts |
-| 5. Rationale | "I understand *why* we do it this way" | BPMN gateways + consequences.yaml | Process decision guides |
-| 6. Updates | "Training is never outdated" | Change detection across all sources | Auto-regeneration triggers |
+| Layer | Goal | Source | Output | Status |
+|---|---|---|---|---|
+| 1. Navigation | "I'm not lost" | UI metadata + test scripts | Step-by-step walkthroughs | ✅ Built |
+| 2. Process | "I know where I fit" | BPMN process models | Explainer videos | ✅ Built |
+| 3. Execution | "I can do my job" | Tosca test scripts | Role-specific job aids | ✅ Built |
+| 4. In-App | "Help me while I'm doing it" | Test scripts + UI element IDs | WalkMe flow drafts | ✅ Built |
+| 5. Rationale | "I understand *why* we do it this way" | BPMN gateways + consequences.yaml | Process decision guides | ✅ Built |
+| 6. Updates | "Training is never outdated" | Change detection across all sources | Auto-regeneration triggers | 🔨 Phase 2 — in progress |
 
 ## Repo Structure
 

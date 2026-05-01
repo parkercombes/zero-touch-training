@@ -1,0 +1,426 @@
+{
+  "captured_at": "2026-05-01T15:20:24.999762+00:00",
+  "fingerprint": {
+    "annotation_count": 3,
+    "annotation_types": [
+      "APPROVAL_ROUTING",
+      "SEDC_SPECIFIC_CONSTRAINT"
+    ],
+    "kind": "tosca",
+    "process": "",
+    "script_id": "TS_ME51N_CREATE_PR_002",
+    "site_code": "SE-DC",
+    "step_count": 24,
+    "steps": [
+      {
+        "action_type": "NAVIGATE",
+        "assertions": [],
+        "element_id": "",
+        "hash": "3beeda76a39261b6",
+        "step_id": "STEP_001",
+        "step_number": 1,
+        "target_url": "https://sap.globalmart.com/fiori",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [],
+        "element_id": "xpath://div[@class='sapMFlexBox' and contains(text(), 'Fiori Launchpad')]",
+        "hash": "afafeeb599f98cba",
+        "step_id": "STEP_002",
+        "step_number": 2,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [],
+        "element_id": "id://searchInput",
+        "hash": "3f0bc28a0515f44f",
+        "step_id": "STEP_003",
+        "step_number": 3,
+        "target_url": "",
+        "value": "Create Purchase Requisition"
+      },
+      {
+        "action_type": "CLICK",
+        "assertions": [],
+        "element_id": "xpath://div[@class='sapMTile' and contains(.//span[@class='sapMTileContent'], 'Create Purchase Requisition')]",
+        "hash": "b52b96d146010515",
+        "step_id": "STEP_004",
+        "step_number": 4,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [],
+        "element_id": "xpath://form[@id='PR_CREATE_FORM']",
+        "hash": "84306bf0a7b0e5d0",
+        "step_id": "STEP_005",
+        "step_number": 5,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "NB",
+            "field_reference": "PRType",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://PRType",
+        "hash": "56458fb110cf31d1",
+        "step_id": "STEP_006",
+        "step_number": 6,
+        "target_url": "",
+        "value": "NB"
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "R-SE",
+            "field_reference": "PurchasingGroup",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "R-SE,R-NAT",
+            "expected_value": "",
+            "field_reference": "PurchasingGroup",
+            "type": "ALLOWED_VALUES",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://PurchasingGroup",
+        "hash": "cde32b11dfb15ce2",
+        "step_id": "STEP_007",
+        "step_number": 7,
+        "target_url": "",
+        "value": "R-SE"
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "2000",
+            "field_reference": "PurchasingOrganization",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://PurchasingOrganization",
+        "hash": "1b36491c5fa365da",
+        "step_id": "STEP_008",
+        "step_number": 8,
+        "target_url": "",
+        "value": "2000"
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [],
+        "element_id": "id://MaterialNumber_Item1",
+        "hash": "dd9b33bed3f09cb0",
+        "step_id": "STEP_009",
+        "step_number": 9,
+        "target_url": "",
+        "value": "SKU-DRY-78432"
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "MaterialDescription_Item1",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "Organic Whole Milk",
+            "field_reference": "MaterialDescription_Item1",
+            "type": "FIELD_CONTAINS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://MaterialDescription_Item1",
+        "hash": "17052edbba50581a",
+        "step_id": "STEP_010",
+        "step_number": 10,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [],
+        "element_id": "id://Quantity_Item1",
+        "hash": "560e094337469023",
+        "step_id": "STEP_011",
+        "step_number": 11,
+        "target_url": "",
+        "value": "500"
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "CS",
+            "field_reference": "UnitOfMeasure_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://UnitOfMeasure_Item1",
+        "hash": "0c9ac36bff568c1b",
+        "step_id": "STEP_012",
+        "step_number": 12,
+        "target_url": "",
+        "value": "CS"
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [],
+        "element_id": "id://DeliveryDate_Item1",
+        "hash": "d417b54ed740b3ef",
+        "step_id": "STEP_013",
+        "step_number": 13,
+        "target_url": "",
+        "value": "2026-02-18"
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "SE-DC",
+            "field_reference": "Plant_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://Plant_Item1",
+        "hash": "86e18d59d164e5f7",
+        "step_id": "STEP_014",
+        "step_number": 14,
+        "target_url": "",
+        "value": "SE-DC"
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "Zone-R",
+            "field_reference": "StorageLocation_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://StorageLocation_Item1",
+        "hash": "8a5d72af8834e4b6",
+        "step_id": "STEP_015",
+        "step_number": 15,
+        "target_url": "",
+        "value": "Zone-R"
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "CostCenter_Item1",
+            "type": "FIELD_VALIDATION",
+            "validation_type": "COST_CENTER_EXISTS"
+          }
+        ],
+        "element_id": "id://CostCenter_Item1",
+        "hash": "5c220fba62f50378",
+        "step_id": "STEP_016",
+        "step_number": 16,
+        "target_url": "",
+        "value": "CC-SEDC-4200"
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "LotBatchNumber_Item1",
+            "type": "FIELD_REQUIRED",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "LOT-2026-0215-MK",
+            "field_reference": "LotBatchNumber_Item1",
+            "type": "FIELD_VALIDATION",
+            "validation_type": "LOT_FORMAT_VALID"
+          }
+        ],
+        "element_id": "id://LotBatchNumber_Item1",
+        "hash": "323efa640a41dc2e",
+        "step_id": "STEP_017",
+        "step_number": 17,
+        "target_url": "",
+        "value": "LOT-2026-0215-MK"
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "GLAccount_Item1",
+            "type": "FIELD_VALIDATION",
+            "validation_type": "GL_ACCOUNT_EXISTS"
+          }
+        ],
+        "element_id": "id://GLAccount_Item1",
+        "hash": "a78d257dacf89a7c",
+        "step_id": "STEP_018",
+        "step_number": 18,
+        "target_url": "",
+        "value": "510200"
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "PRType",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "PurchasingGroup",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "PurchasingOrganization",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "MaterialNumber_Item1",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "Quantity_Item1",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "LotBatchNumber_Item1",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "xpath://form[@id='PR_CREATE_FORM']",
+        "hash": "63ecfc9d98ff6e6e",
+        "step_id": "STEP_019",
+        "step_number": 19,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "CALCULATE",
+        "assertions": [],
+        "element_id": "",
+        "hash": "5fbdcf33d89c4e72",
+        "step_id": "STEP_020",
+        "step_number": 20,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "CLICK",
+        "assertions": [],
+        "element_id": "id://SaveButton",
+        "hash": "386c3dae8a1277fa",
+        "step_id": "STEP_021",
+        "step_number": 21,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "PRNumberConfirmation",
+            "type": "FIELD_MATCHES_PATTERN",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "PRNumberConfirmation",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "Waiting for Approval",
+            "field_reference": "PRStatus",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://PRNumberConfirmation",
+        "hash": "b2c58bab27e20455",
+        "step_id": "STEP_022",
+        "step_number": 22,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "",
+        "assertions": [],
+        "element_id": "",
+        "hash": "f136a3267cf9f53c",
+        "step_id": "",
+        "step_number": 0,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "",
+        "assertions": [],
+        "element_id": "",
+        "hash": "f136a3267cf9f53c",
+        "step_id": "",
+        "step_number": 0,
+        "target_url": "",
+        "value": ""
+      }
+    ],
+    "transaction": "",
+    "version": "1.0"
+  },
+  "source": "data/tosca/purchase_requisition.xml"
+}

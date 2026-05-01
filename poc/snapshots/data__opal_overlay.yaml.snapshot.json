@@ -1,0 +1,108 @@
+{
+  "captured_at": "2026-05-01T15:20:25.011091+00:00",
+  "fingerprint": {
+    "content": {
+      "overlays": [
+        {
+          "process": "Purchase Requisition",
+          "transaction": "ME51N",
+          "variations": [
+            {
+              "enterprise_default": "Any valid purchasing group",
+              "field": "PurchasingGroup",
+              "field_technical": "EKGRP",
+              "reason": "SE-DC procurement restricted to approved regional supplier programs per GlobalMart sourcing policy",
+              "site_override": "R-SE (Regional Southeast) or R-NAT (National) only",
+              "type": "validation_constraint"
+            },
+            {
+              "enterprise_default": "Optional",
+              "field": "LotBatchNumber",
+              "field_technical": "CHARG",
+              "reason": "SE-DC requires lot/batch tracking for food safety traceability per GlobalMart cold chain policy. Format: LOT-YYYY-MMDD-XX",
+              "site_override": "Mandatory for all perishable category items",
+              "type": "field_requirement"
+            },
+            {
+              "enterprise_default": "2-tier approval for amounts > $50K",
+              "reason": "SE-DC has lower approval threshold for perishables due to spoilage risk and cold chain compliance requirements",
+              "site_override": "3-tier approval for amounts > $25K on perishable categories",
+              "step": "Approval",
+              "tiers": [
+                {
+                  "description": "Category review and initial approval",
+                  "role": "Category Manager",
+                  "tier": 1
+                },
+                {
+                  "description": "Procurement review and supplier verification",
+                  "role": "Procurement Lead",
+                  "tier": 2
+                },
+                {
+                  "description": "Final approval for perishable amounts > $25K",
+                  "role": "VP Supply Chain",
+                  "tier": 3
+                }
+              ],
+              "type": "approval_rule"
+            }
+          ]
+        },
+        {
+          "process": "Goods Receipt",
+          "transaction": "MIGO",
+          "variations": [
+            {
+              "enterprise_default": "Any valid storage location for the plant",
+              "field": "StorageLocation",
+              "field_technical": "LGORT",
+              "reason": "Perishable items must be received into the correct temperature zone for cold chain integrity and food safety compliance",
+              "site_override": "Must match product category temperature zone (Zone-F=Frozen, Zone-R=Refrigerated, Zone-A=Ambient)",
+              "type": "validation_constraint"
+            },
+            {
+              "actions": [
+                "Enable Quality Inspection checkbox",
+                "Record receiving dock temperature (must be within acceptable range)",
+                "Verify packaging integrity",
+                "Check expiry date (must meet minimum shelf life requirement)",
+                "Confirm lot/batch number matches PO",
+                "Material blocked from store distribution until inspection verified"
+              ],
+              "condition": "ProductCategory IN ('PERISHABLE-DAIRY', 'PERISHABLE-PRODUCE', 'PERISHABLE-MEAT', 'PRIVATE-LABEL')",
+              "enterprise_default": "Optional quality inspection",
+              "reason": "SE-DC policy requires quality inspection including temperature verification, packaging integrity, and expiry date check before stock integration",
+              "site_override": "Mandatory quality inspection for perishable and private-label goods",
+              "step": "QualityInspection",
+              "type": "process_gate"
+            },
+            {
+              "enterprise_default": "Not required",
+              "reason": "Cold chain integrity verification ensures product was maintained at proper temperature during transit",
+              "site_override": "Mandatory temperature recording at receiving dock for all perishable goods",
+              "step": "ColdChainVerification",
+              "temperature_ranges": {
+                "ambient": "50-80\u00b0F",
+                "frozen": "0\u00b0F or below",
+                "refrigerated": "33-40\u00b0F"
+              },
+              "type": "process_gate"
+            }
+          ]
+        }
+      ],
+      "site": {
+        "code": "SE-DC",
+        "effective_date": "2026-01-01",
+        "location": "Atlanta, GA",
+        "name": "GlobalMart Southeast Distribution Center",
+        "plant": "SE-DC",
+        "system": "SAP S/4HANA 2023"
+      }
+    },
+    "content_hash": "8a0791b15104f8b6",
+    "kind": "overlay"
+  },
+  "source": "data/opal_overlay.yaml"
+}

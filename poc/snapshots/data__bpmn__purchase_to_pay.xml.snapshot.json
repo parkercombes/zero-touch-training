@@ -1,0 +1,129 @@
+{
+  "captured_at": "2026-05-01T15:20:25.005849+00:00",
+  "fingerprint": {
+    "events": [
+      {
+        "id": "EndEvent_Process_Complete",
+        "type": "end"
+      },
+      {
+        "id": "IntermediateEvent_Goods_Delivered",
+        "type": "intermediate"
+      },
+      {
+        "id": "StartEvent_Need_Identified",
+        "type": "start"
+      }
+    ],
+    "flows": [
+      {
+        "source": "Gateway_MergeApprovals",
+        "target": "Task_Convert_PO"
+      },
+      {
+        "source": "Gateway_PR_Amount",
+        "target": "Task_Standard_Approval"
+      },
+      {
+        "source": "Gateway_PR_Amount",
+        "target": "Task_ThreeTier_Approval"
+      },
+      {
+        "source": "IntermediateEvent_Goods_Delivered",
+        "target": "Task_Post_GR"
+      },
+      {
+        "source": "StartEvent_Need_Identified",
+        "target": "Task_Create_PR"
+      },
+      {
+        "source": "Task_Convert_PO",
+        "target": "Task_Send_PO"
+      },
+      {
+        "source": "Task_Create_PR",
+        "target": "Gateway_PR_Amount"
+      },
+      {
+        "source": "Task_Post_GR",
+        "target": "Task_Verify_Stock"
+      },
+      {
+        "source": "Task_Send_PO",
+        "target": "IntermediateEvent_Goods_Delivered"
+      },
+      {
+        "source": "Task_Standard_Approval",
+        "target": "Gateway_MergeApprovals"
+      },
+      {
+        "source": "Task_ThreeTier_Approval",
+        "target": "Gateway_MergeApprovals"
+      },
+      {
+        "source": "Task_Verify_Stock",
+        "target": "EndEvent_Process_Complete"
+      }
+    ],
+    "gateways": [
+      {
+        "id": "Gateway_MergeApprovals",
+        "name": "Approvals Merged",
+        "type": "parallel"
+      },
+      {
+        "id": "Gateway_PR_Amount",
+        "name": "PR Amount > $25K?",
+        "type": "exclusive"
+      }
+    ],
+    "kind": "bpmn",
+    "process_id": "Process_Purchase_to_Pay_GlobalMart",
+    "process_name": "Purchase Requisition to Goods Receipt",
+    "roles": [
+      "Buyer",
+      "Category Manager / VP Supply Chain",
+      "Receiving Clerk",
+      "Store/Department Requestor",
+      "Supplier"
+    ],
+    "tasks": [
+      {
+        "id": "Task_Convert_PO",
+        "name": "Convert PR to Purchase Order (ME21N)",
+        "transaction_code": "ME21N"
+      },
+      {
+        "id": "Task_Create_PR",
+        "name": "Create Purchase Requisition (ME51N)",
+        "transaction_code": "ME51N"
+      },
+      {
+        "id": "Task_Post_GR",
+        "name": "Post Goods Receipt (MIGO - Movement Type 101)",
+        "transaction_code": ""
+      },
+      {
+        "id": "Task_Send_PO",
+        "name": "Send Purchase Order to Supplier",
+        "transaction_code": ""
+      },
+      {
+        "id": "Task_Standard_Approval",
+        "name": "Standard Approval (\u2264 $25K)",
+        "transaction_code": ""
+      },
+      {
+        "id": "Task_ThreeTier_Approval",
+        "name": "Three-Tier Approval (> $25K) - SE-DC Perishables Policy",
+        "transaction_code": ""
+      },
+      {
+        "id": "Task_Verify_Stock",
+        "name": "Verify Stock Update in Inventory",
+        "transaction_code": ""
+      }
+    ]
+  },
+  "source": "data/bpmn/purchase_to_pay.xml"
+}

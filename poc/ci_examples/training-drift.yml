@@ -1,0 +1,113 @@
+# Sample CI Workflow — Training Drift Detection
+#
+# REFERENCE EXAMPLE for buyer's CI/CD pipeline. Drop into .github/workflows/
+# and adapt to your environment. This file is intentionally not active in
+# the PoC repo — it's documentation for how integration looks.
+#
+# Behavior:
+#   - On any push or PR that touches Tosca, BPMN, or overlay sources,
+#     run drift detection.
+#   - If drift is detected, fail the PR check and post the drift report
+#     as a PR comment.
+#   - The same workflow can be scheduled (cron) to detect drift in
+#     long-lived branches where source changes might land via merges.
+#
+# What the buyer's team needs to do:
+#   1. Wire their Tosca/BPMN export into the repo (or fetch step here)
+#   2. Update poc/config.yaml sources.* paths to match their layout
+#   3. Update poc/data/scenario_deps.yaml when scenarios are added/removed
+#   4. Decide regeneration policy: auto-PR on drift, or human-gated approval
+
+name: Training Drift Detection
+
+on:
+  push:
+    paths:
+      - 'poc/data/tosca/**'
+      - 'poc/data/bpmn/**'
+      - 'poc/data/*.yaml'
+  pull_request:
+    paths:
+      - 'poc/data/tosca/**'
+      - 'poc/data/bpmn/**'
+      - 'poc/data/*.yaml'
+  schedule:
+    # Daily drift scan at 02:00 UTC — catches changes from upstream merges
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  detect-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd poc
+          pip install -r requirements.txt
+
+      - name: Run drift detection
+        id: drift
+        working-directory: poc
+        run: |
+          python detect_changes.py check
+        continue-on-error: true
+
+      - name: Upload drift report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: |
+            poc/output/drift_report.json
+            poc/output/drift_report.md
+
+      - name: Comment drift report on PR
+        if: github.event_name == 'pull_request' && steps.drift.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('poc/output/drift_report.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## ⚠ Training Drift Detected\n\n' + body
+            });
+
+      - name: Fail job if drift detected
+        if: steps.drift.outcome == 'failure'
+        run: |
+          echo "Training drift detected. See drift report artifact."
+          exit 1
+
+  # OPTIONAL: auto-regenerate stale training and open a PR.
+  # Uncomment when the team is comfortable with auto-regeneration
+  # (or replace with a manual approval gate).
+  #
+  # regenerate-stale:
+  #   needs: detect-drift
+  #   if: failure()
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Regenerate stale training
+  #       working-directory: poc
+  #       env:
+  #         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  #       run: |
+  #         pip install -r requirements.txt
+  #         python run.py
+  #         python detect_changes.py snapshot   # update baseline
+  #     - uses: peter-evans/create-pull-request@v6
+  #       with:
+  #         title: "training: regenerate stale assets after source drift"
+  #         branch: auto/regenerate-training
+  #         commit-message: "training: auto-regenerated after drift"

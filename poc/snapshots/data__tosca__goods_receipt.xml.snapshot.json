@@ -1,0 +1,485 @@
+{
+  "captured_at": "2026-05-01T15:20:25.003560+00:00",
+  "fingerprint": {
+    "annotation_count": 4,
+    "annotation_types": [
+      "COLD_CHAIN_VERIFICATION",
+      "SEDC_SPECIFIC_CONSTRAINT",
+      "STOCK_UPDATE"
+    ],
+    "kind": "tosca",
+    "process": "",
+    "script_id": "TS_MIGO_POST_GR_001",
+    "site_code": "SE-DC",
+    "step_count": 28,
+    "steps": [
+      {
+        "action_type": "NAVIGATE",
+        "assertions": [],
+        "element_id": "",
+        "hash": "3beeda76a39261b6",
+        "step_id": "STEP_001",
+        "step_number": 1,
+        "target_url": "https://sap.globalmart.com/fiori",
+        "value": ""
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [],
+        "element_id": "id://searchInput",
+        "hash": "c40cd9771d4044ac",
+        "step_id": "STEP_002",
+        "step_number": 2,
+        "target_url": "",
+        "value": "Post Goods Receipt"
+      },
+      {
+        "action_type": "CLICK",
+        "assertions": [],
+        "element_id": "xpath://div[@class='sapMTile' and contains(.//span[@class='sapMTileContent'], 'Post Goods Receipt')]",
+        "hash": "f0d92812611bb98f",
+        "step_id": "STEP_003",
+        "step_number": 3,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "MovementTypeDropdown",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "xpath://form[@id='GR_CREATE_FORM']",
+        "hash": "154da8afe6127b96",
+        "step_id": "STEP_004",
+        "step_number": 4,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "101",
+            "field_reference": "MovementType",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://MovementType",
+        "hash": "39e9202156b9a15a",
+        "step_id": "STEP_005",
+        "step_number": 5,
+        "target_url": "",
+        "value": "101"
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "4500234567",
+            "field_reference": "PONumber",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://PONumber",
+        "hash": "4ece515946482a6c",
+        "step_id": "STEP_006",
+        "step_number": 6,
+        "target_url": "",
+        "value": "4500234567"
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "POLineItemsTable",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "POLineItemsTable",
+            "type": "TABLE_ROW_COUNT_GREATER_THAN",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "xpath://table[@id='POLineItemsTable']",
+        "hash": "e0d7ed837deed49e",
+        "step_id": "STEP_007",
+        "step_number": 7,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "SKU-DRY-78432",
+            "field_reference": "MaterialNumber_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://MaterialNumber_Item1",
+        "hash": "d25764cd0fad1d13",
+        "step_id": "STEP_008",
+        "step_number": 8,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "500",
+            "field_reference": "POQuantity_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://POQuantity_Item1",
+        "hash": "8bcb18103f339242",
+        "step_id": "STEP_009",
+        "step_number": 9,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "500",
+            "field_reference": "GRQuantity_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://GRQuantity_Item1",
+        "hash": "875e0b22427c88c0",
+        "step_id": "STEP_010",
+        "step_number": 10,
+        "target_url": "",
+        "value": "500"
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "Zone-R",
+            "field_reference": "StorageLocation_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "Zone-R",
+            "field_reference": "StorageLocation_Item1",
+            "type": "FIELD_VALIDATION",
+            "validation_type": "TEMPERATURE_ZONE_MATCHES_PRODUCT"
+          }
+        ],
+        "element_id": "id://StorageLocation_Item1",
+        "hash": "1f6be45414bf41b3",
+        "step_id": "STEP_011",
+        "step_number": 11,
+        "target_url": "",
+        "value": "Zone-R"
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "PERISHABLE-DAIRY",
+            "field_reference": "MaterialClass_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://MaterialClass_Item1",
+        "hash": "c628fedc8d65d065",
+        "step_id": "STEP_012",
+        "step_number": 12,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "CLICK",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "true",
+            "field_reference": "QualityInspectionCheckbox_Item1",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "QualityInspectionCheckbox_Item1",
+            "type": "FIELD_REQUIRED",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://QualityInspectionCheckbox_Item1",
+        "hash": "7abc9c7e143aca0f",
+        "step_id": "STEP_013",
+        "step_number": 13,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [],
+        "element_id": "id://InspectionNotes_Item1",
+        "hash": "a018bbc8bfae5a48",
+        "step_id": "STEP_014",
+        "step_number": 14,
+        "target_url": "",
+        "value": "Temperature at receiving: 36\u00b0F (within 33-40\u00b0F range). Packaging intact. Expiry date: 2026-03-01. Lot LOT-2026-0215-MK verified."
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "MovementType",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "PONumber",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "GRQuantity_Item1",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "StorageLocation_Item1",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "QualityInspectionCheckbox_Item1",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "xpath://form[@id='GR_CREATE_FORM']",
+        "hash": "b8dc7424391d418f",
+        "step_id": "STEP_015",
+        "step_number": 15,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "CLICK",
+        "assertions": [],
+        "element_id": "id://PostButton",
+        "hash": "99ffbb5ce2c26048",
+        "step_id": "STEP_016",
+        "step_number": 16,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "MaterialDocumentNumber",
+            "type": "FIELD_MATCHES_PATTERN",
+            "validation_type": ""
+          },
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "MaterialDocumentNumber",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://MaterialDocumentNumber",
+        "hash": "dae6b420ed6d19fd",
+        "step_id": "STEP_017",
+        "step_number": 17,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "001",
+            "field_reference": "MaterialDocumentItem",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://MaterialDocumentItem",
+        "hash": "f6b8a99f795d4987",
+        "step_id": "STEP_018",
+        "step_number": 18,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "NAVIGATE",
+        "assertions": [],
+        "element_id": "",
+        "hash": "a552b0a20eb94ab2",
+        "step_id": "STEP_019",
+        "step_number": 19,
+        "target_url": "https://sap.globalmart.com/fiori?transaction=MMBE",
+        "value": ""
+      },
+      {
+        "action_type": "INPUT",
+        "assertions": [],
+        "element_id": "id://MaterialQuery",
+        "hash": "a4bd553ad085016d",
+        "step_id": "STEP_020",
+        "step_number": 20,
+        "target_url": "",
+        "value": "SKU-DRY-78432"
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [],
+        "element_id": "id://PlantFilter",
+        "hash": "e8528c8554e338c6",
+        "step_id": "STEP_021",
+        "step_number": 21,
+        "target_url": "",
+        "value": "SE-DC"
+      },
+      {
+        "action_type": "SELECT",
+        "assertions": [],
+        "element_id": "id://StorageLocationFilter",
+        "hash": "55067d7e59ce90e7",
+        "step_id": "STEP_022",
+        "step_number": 22,
+        "target_url": "",
+        "value": "Zone-R"
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "500",
+            "field_reference": "StockQuantity",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://StockQuantity",
+        "hash": "c279e01bec4b2ec1",
+        "step_id": "STEP_023",
+        "step_number": 23,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "",
+            "field_reference": "StockEntryTimestamp",
+            "type": "FIELD_NOT_EMPTY",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://StockEntryTimestamp",
+        "hash": "c4a652624480d8bf",
+        "step_id": "STEP_024",
+        "step_number": 24,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "VERIFY",
+        "assertions": [
+          {
+            "allowed_values": "",
+            "expected_value": "PENDING",
+            "field_reference": "QualityInspectionFlag",
+            "type": "FIELD_VALUE_EQUALS",
+            "validation_type": ""
+          }
+        ],
+        "element_id": "id://QualityInspectionFlag",
+        "hash": "87bd1e4ce74cf1c6",
+        "step_id": "STEP_025",
+        "step_number": 25,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "",
+        "assertions": [],
+        "element_id": "",
+        "hash": "f136a3267cf9f53c",
+        "step_id": "",
+        "step_number": 0,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "",
+        "assertions": [],
+        "element_id": "",
+        "hash": "f136a3267cf9f53c",
+        "step_id": "",
+        "step_number": 0,
+        "target_url": "",
+        "value": ""
+      },
+      {
+        "action_type": "",
+        "assertions": [],
+        "element_id": "",
+        "hash": "f136a3267cf9f53c",
+        "step_id": "",
+        "step_number": 0,
+        "target_url": "",
+        "value": ""
+      }
+    ],
+    "transaction": "",
+    "version": "1.0"
+  },
+  "source": "data/tosca/goods_receipt.xml"
+}

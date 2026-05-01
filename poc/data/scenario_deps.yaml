@@ -1,0 +1,61 @@
+# Scenario Dependency Map
+#
+# Declares which source files each generated scenario depends on.
+# When drift detection finds changes in a source file, every scenario
+# listing that file becomes a candidate for regeneration.
+#
+# Hardware scenarios authored without Tosca/BPMN sources (AR-15, F-150)
+# are omitted — drift detection only applies to source-driven scenarios.
+#
+# Format:
+#   scenarios:
+#     <scenario_id>:
+#       tosca: [list of relative paths under poc/]
+#       bpmn:  [list of relative paths under poc/]
+
+scenarios:
+  sedc_goods_receipt:
+    tosca:
+      - data/tosca/goods_receipt.xml
+    bpmn:
+      - data/bpmn/purchase_to_pay.xml
+    overlay:
+      - data/opal_overlay.yaml
+
+  standard_dry:
+    tosca:
+      - data/tosca/goods_receipt.xml
+    bpmn:
+      - data/bpmn/purchase_to_pay.xml
+
+  regulated_pharma:
+    tosca:
+      - data/tosca/goods_receipt.xml
+    bpmn:
+      - data/bpmn/purchase_to_pay.xml
+
+  hazmat:
+    tosca:
+      - data/tosca/goods_receipt.xml
+    bpmn:
+      - data/bpmn/purchase_to_pay.xml
+
+  serialized:
+    tosca:
+      - data/tosca/goods_receipt.xml
+    bpmn:
+      - data/bpmn/purchase_to_pay.xml
+
+  # Generated training artifacts (job aids, video scripts, walkthroughs, etc.)
+  # also depend on source files. Keyed by transaction.
+  generated_artifacts:
+    purchase_requisition:
+      tosca:
+        - data/tosca/purchase_requisition.xml
+      bpmn:
+        - data/bpmn/purchase_to_pay.xml
+    goods_receipt:
+      tosca:
+        - data/tosca/goods_receipt.xml
+      bpmn:
+        - data/bpmn/purchase_to_pay.xml
