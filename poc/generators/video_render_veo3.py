@@ -36,280 +36,24 @@ TTS_VOICE  = "nova"
 POLL_SECS  = 20                            # how often to check Veo generation status
 MAX_POLLS  = 60                            # 60 × 20s = 20 min max wait per clip
 
-# ── Character cast ────────────────────────────────────────────────────────────
-# Each character is a distinct Sasquatch employee at GlobalMart SE-DC.
-# The full description is embedded in every video_prompt to help Veo stay
-# consistent within a character across retries and future runs.
-#
-# DAVE    — Receiving Lead.     Dark reddish-brown fur, orange vest. Host/narrator.
-# SANDRA  — Compliance Officer. Silver-grey fur, red vest. Owns the rule scenes.
-# MARCUS  — Cold Chain.         Jet-black fur, yellow vest + blue hard hat. Freezer guy.
-# KEISHA  — QA Lead.            Auburn fur, white QA vest + tablet. Quality scenes.
-
-DAVE = (
-    "Dave, a 7-foot sasquatch with dark reddish-brown fur, broad shoulders, "
-    "a wide friendly face with amber eyes, wearing a bright orange GLOBALMART SE-DC "
-    "safety vest and a yellow employee ID badge clipped to the left strap"
-)
-SANDRA = (
-    "Sandra, a 7-foot sasquatch with silver-grey fur, sharp focused eyes, "
-    "wearing a red COMPLIANCE safety vest with a laminated badge on a lanyard, "
-    "clipboard in hand, authoritative posture"
-)
-MARCUS = (
-    "Marcus, a 7-foot sasquatch with jet-black fur and a relaxed confident posture, "
-    "wearing a yellow RECEIVING safety vest and a blue hard hat, "
-    "breath visibly fogging in the cold air"
-)
-KEISHA = (
-    "Keisha, a 7-foot sasquatch with auburn reddish fur and precise attentive manner, "
-    "wearing a white QUALITY ASSURANCE safety vest with a QA logo patch, "
-    "holding a tablet computer"
+# ── Character cast & scenes ──────────────────────────────────────────────────
+# Casts and scene template are defined in video_casts.py. The cast selection
+# happens in main() via --cast, defaulting to "bigfoot" for backward compatibility.
+# DAVE/SANDRA/MARCUS/KEISHA/SCENES below are the BIGFOOT cast bindings, kept at
+# module level so video_render_veo3_poc.py and video_render_veo3_resume.py keep
+# importing them by name without changes.
+from video_casts import (
+    CAST_BIGFOOT, CAST_HUMAN, CASTS,
+    get_cast, build_scenes, build_poc_scenes,
+    POC_SCENE_IDS,
 )
 
-# ── Scene definitions ─────────────────────────────────────────────────────────
-# video_prompt: visual action + character card + short spoken dialogue (~20 words).
-#   Dialogue embedded so Veo generates lip-synced native audio.
-# narration:    full educational content for reference / future use.
-SCENES = [
-    {
-        "id": "01_intro",
-        "character": "Dave",
-        "narration": (
-            "Hey, what's up everybody. It's Dave from Receiving, coming at you live "
-            "from the dock at GlobalMart Southeast Distribution Center. "
-            "Today we're walking through Goods Receipt in SAP MIGO. Let's get into it."
-        ),
-        "video_prompt": (
-            f"Handheld selfie-vlog footage of {DAVE}, walking toward the camera "
-            "while talking enthusiastically and waving, a busy distribution center "
-            "loading dock with delivery trucks behind him, natural daylight, "
-            "slight handheld camera shake, photorealistic. "
-            "Dave speaks to camera: 'Hey what's up! I'm Dave from Receiving. "
-            "Today we're covering Goods Receipt in SAP MIGO. Let's get into it!'"
-        ),
-    },
-    {
-        "id": "02_what_is_gr",
-        "character": "Dave",
-        "narration": (
-            "So what even is a Goods Receipt? Simple. "
-            "The vendor just showed up with a truckload of product. "
-            "Goods Receipt is how you tell SAP — yeah, it's here, it's real, put it in inventory. "
-            "No GR, no stock. And no stock means your replenishment team is calling you."
-        ),
-        "video_prompt": (
-            f"Selfie vlog footage of {DAVE}, gesturing broadly toward a delivery truck "
-            "being unloaded behind him, turning to look at the truck then back at camera "
-            "with animated expressions, workers moving pallets in background, "
-            "natural loading dock lighting, handheld vlog camera, photorealistic. "
-            "Dave speaks to camera: 'Goods Receipt tells SAP the product arrived. "
-            "No GR, no stock. No stock, and your replenishment team is calling you.'"
-        ),
-    },
-    {
-        "id": "03_find_po",
-        "character": "Sandra",
-        "narration": (
-            "Step one. Before you touch MIGO, you need your Purchase Order number. "
-            "Every Goods Receipt at SE-DC has to be tied to a PO — no exceptions. "
-            "If someone hands you product and there's no PO, you stop, you call your buyer, "
-            "and you do not post that receipt."
-        ),
-        "video_prompt": (
-            f"Selfie vlog shot of {SANDRA}, holding up a printed purchase order document "
-            "close to the camera and tapping it emphatically with one large furry finger, "
-            "then shaking her head firmly no, receiving desk and shelving visible behind, "
-            "handheld camera, photorealistic. "
-            "Sandra speaks to camera: 'Before you open MIGO you need your PO number. "
-            "No purchase order? You do not post that receipt. No exceptions.'"
-        ),
-    },
-    {
-        "id": "04_open_migo",
-        "character": "Dave",
-        "narration": (
-            "Step two. Jump into SAP Fiori and search for MIGO. "
-            "Set the action to Goods Receipt and the reference document to Purchase Order. "
-            "Then type in your PO number and hit Enter."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {DAVE}, sitting at a warehouse office computer, "
-            "leaning toward the camera while pointing at the monitor with one enormous furry finger, "
-            "eyebrows raised in a helpful expression, turning between the screen and the camera, "
-            "warm office lighting, slight handheld vlog movement, photorealistic. "
-            "Dave speaks to camera: 'Open SAP Fiori, find MIGO. "
-            "Action: Goods Receipt. Reference: Purchase Order. Enter your PO and hit go.'"
-        ),
-    },
-    {
-        "id": "05_movement_type",
-        "character": "Sandra",
-        "narration": (
-            "Step three. Your movement type needs to be 101. "
-            "That is Goods Receipt against a Purchase Order. "
-            "Do not use 103. Do not use 501. "
-            "One-oh-one. Say it with me. One. Oh. One."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {SANDRA}, holding up three fingers counting one-zero-one, "
-            "mouthing the numbers exaggeratedly, wagging her finger at the camera "
-            "with a stern but funny expression, warehouse computer station behind her, "
-            "handheld camera, photorealistic. "
-            "Sandra speaks to camera: 'Movement type must be 101. "
-            "Not 103. Not 501. One. Oh. One. Every single time.'"
-        ),
-    },
-    {
-        "id": "06_verify_items",
-        "character": "Dave",
-        "narration": (
-            "Step four. SAP pulls in your PO line items automatically. "
-            "Compare what's on screen to what's physically on your dock. "
-            "Check the material number, check the quantity, check the unit of measure. "
-            "If the vendor shorted you, change the quantity now — not after posting."
-        ),
-        "video_prompt": (
-            f"Selfie vlog footage of {DAVE}, walking along warehouse shelving with a clipboard, "
-            "looking at it then back at the camera with a focused expression, "
-            "counting boxes on shelves with his finger, shaking his head knowingly, "
-            "natural warehouse aisle lighting, handheld camera movement, photorealistic. "
-            "Dave speaks to camera: 'SAP loads your line items automatically. "
-            "Compare to what's on the dock. If quantities are short, fix it now.'"
-        ),
-    },
-    {
-        "id": "07_batch_tracking",
-        "character": "Keisha",
-        "narration": (
-            "Step five. For any perishable or private-label item, "
-            "you are required to enter the batch and lot number. "
-            "Enterprise says optional. SE-DC says mandatory. "
-            "It's how we trace product in a recall. "
-            "Scan the lot code off the pallet label and enter it here."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {KEISHA}, kneeling beside a pallet of refrigerated food products, "
-            "scanning a barcode label with a handheld scanner while glancing at the camera, "
-            "cold storage area, breath visibly fogging, earnest expression, "
-            "cinematic cold blue lighting, handheld camera, photorealistic. "
-            "Keisha speaks to camera: 'Perishables require a batch and lot number — "
-            "mandatory at SE-DC. Scan the pallet label and enter it in MIGO.'"
-        ),
-    },
-    {
-        "id": "08_temp_zone",
-        "character": "Marcus",
-        "narration": (
-            "Step six. SE-DC has three temperature zones — "
-            "Zone Foxtrot for frozen, Zone Romeo for refrigerated, Zone Alpha for ambient. "
-            "Set the storage location in MIGO to match the product's temperature requirement. "
-            "Frozen product in Zone Romeo is a cold chain violation."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {MARCUS}, standing inside a walk-in freezer, "
-            "frost forming on his black fur, turning to point at a temperature zone sign on the wall "
-            "then back to camera with an amused expression, breath heavily fogging, "
-            "cinematic cold blue freezer lighting, photorealistic. "
-            "Marcus speaks to camera: 'Three zones: Foxtrot for frozen, Romeo for refrigerated, "
-            "Alpha for ambient. Match the product or it's a cold chain violation.'"
-        ),
-    },
-    {
-        "id": "09_quality_flag",
-        "character": "Keisha",
-        "narration": (
-            "Step seven. For perishable and private-label goods, "
-            "check the Quality Inspection flag before you post. "
-            "This routes the stock to QA for sign-off. "
-            "It does not hold up your receipt — QA clears it before it ships. "
-            "Check the box. Every single time."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {KEISHA}, standing at a QA inspection station, "
-            "holding up a big furry thumbs up at the camera, then turning to gesture "
-            "at product samples on the table beside her, nodding emphatically, "
-            "warm inspection area lighting, handheld vlog camera, photorealistic. "
-            "Keisha speaks to camera: 'Check the Quality Inspection flag for every perishable "
-            "and private-label item. QA clears it before it ships. Every single time.'"
-        ),
-    },
-    {
-        "id": "10_post_gr",
-        "character": "Dave",
-        "narration": (
-            "Step eight. The big moment. "
-            "You've verified quantities, entered batch numbers, "
-            "confirmed your temperature zone, flagged quality inspection. "
-            "Click Post. SAP generates a material document, updates inventory, "
-            "and triggers the three-way match. That product is officially in the building."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {DAVE}, pressing a keyboard key with great ceremony "
-            "using one enormous furry finger, filming himself with wide excited eyes, "
-            "then pumping his fist and doing a small celebration dance, "
-            "warehouse environment behind him, dramatic comic lighting, handheld camera, photorealistic. "
-            "Dave speaks to camera: 'Everything is verified. Click Post. "
-            "SAP creates the material document and updates inventory. It's officially in the building!'"
-        ),
-    },
-    {
-        "id": "11_dont_do_this",
-        "character": "Sandra",
-        "narration": (
-            "Three things I see go wrong all the time. "
-            "One — posting with no PO. Two — wrong movement type, not 101. "
-            "Three — accepting the full PO quantity when the vendor short-shipped. "
-            "That breaks your three-way match and your AP team will find you."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {SANDRA}, wagging a large furry finger sternly at the camera "
-            "with a disappointed expression, shaking her head slowly, "
-            "then holding up three fingers to count the mistakes one by one, "
-            "standing at the receiving dock, natural warehouse lighting, handheld camera, photorealistic. "
-            "Sandra speaks to camera: 'Three things I see go wrong: no PO, wrong movement type, "
-            "and accepting short quantities. Your AP team will find you.'"
-        ),
-    },
-    {
-        "id": "12_recap",
-        "character": "Dave",
-        "narration": (
-            "Quick recap. "
-            "One — get your PO number before you open MIGO. "
-            "Two — movement type 101, every time. "
-            "Three — for perishables: batch number, correct temperature zone, QI flag. "
-            "Do those three things and your Goods Receipt is clean."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {DAVE}, standing at a whiteboard in a warehouse break room "
-            "pointing at three numbered items, then looking back at camera with an encouraging smile "
-            "and giving a thumbs up, other Sasquatch workers visible at break tables in background, "
-            "warm lighting, handheld camera, photorealistic. "
-            "Dave speaks to camera: 'Quick recap: get your PO, movement type 101, "
-            "and for perishables — batch number, right zone, QI flag. You've got this.'"
-        ),
-    },
-    {
-        "id": "13_outro",
-        "character": "Dave",
-        "narration": (
-            "And that's a wrap on Goods Receipt in MIGO. "
-            "Questions? Hit up your team lead or check the job aid on the portal. "
-            "I'm Dave, I work here, and I will see you in the next one. "
-            "Stay safe out there on those docks."
-        ),
-        "video_prompt": (
-            f"Selfie vlog of {DAVE}, giving a big enthusiastic wave goodbye to the camera "
-            "at a distribution center receiving dock at golden hour, sunlight streaming in, "
-            "other Sasquatch workers — one with silver-grey fur, one with jet-black fur, "
-            "one with auburn fur — waving in the background, huge warm grin, "
-            "slowly stepping back from camera, cinematic golden light, photorealistic. "
-            "Dave speaks to camera: 'That's a wrap! Questions? Check the job aid on the portal. "
-            "I'm Dave, I work here, and stay safe out there on those docks!'"
-        ),
-    },
-]
+DAVE   = CAST_BIGFOOT.dave
+SANDRA = CAST_BIGFOOT.sandra
+MARCUS = CAST_BIGFOOT.marcus
+KEISHA = CAST_BIGFOOT.keisha
+SCENES = build_scenes(CAST_BIGFOOT)
+
 
 
 # ── API key loader ────────────────────────────────────────────────────────────
@@ -501,6 +245,21 @@ def concat_scenes(scene_mp4s, output_mp4):
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
+    import argparse
+    ap = argparse.ArgumentParser(
+        description="Veo 3 Goods Receipt video. Default cast: bigfoot."
+    )
+    ap.add_argument(
+        "--cast",
+        default="bigfoot",
+        choices=sorted(CASTS.keys()),
+        help="Character cast to render with (default: bigfoot)",
+    )
+    args = ap.parse_args()
+
+    cast = get_cast(args.cast)
+    scenes = build_scenes(cast)
+
     keys = load_keys()
     missing = [k for k, v in keys.items() if not v]
     if missing:
@@ -514,20 +273,21 @@ def main():
 
     out_dir = Path(__file__).parent.parent / "output"
     out_dir.mkdir(parents=True, exist_ok=True)
-    output_mp4 = str(out_dir / "bigfoot_goods_receipt_veo3.mp4")
+    output_mp4 = str(out_dir / f"goods_receipt_veo3_{cast.name}.mp4")
 
-    tmp = tempfile.mkdtemp(prefix="ztt_veo3_")
+    tmp = tempfile.mkdtemp(prefix=f"ztt_veo3_{cast.name}_")
+    print(f"Cast      : {cast.label}")
     print(f"Workspace : {tmp}")
-    print(f"Scenes    : {len(SCENES)}")
+    print(f"Scenes    : {len(scenes)}")
     print(f"Veo model : {VEO_MODEL}  ({VEO_SECS}s clips, {ASPECT})")
     print(f"Audio     : Veo 3 native (lip-synced, no TTS)")
-    veo_cost = len(SCENES) * VEO_SECS * (0.15 if "fast" in VEO_MODEL else 0.40)
+    veo_cost = len(scenes) * VEO_SECS * (0.15 if "fast" in VEO_MODEL else 0.40)
     print(f"Est. cost : ~${veo_cost:.2f}\n")
 
-    total      = len(SCENES)
+    total      = len(scenes)
     scene_mp4s = []
 
-    for i, scene in enumerate(SCENES):
+    for i, scene in enumerate(scenes):
         print(f"[{i+1:02d}/{total}] {scene['id']}")
 
         veo_mp4  = os.path.join(tmp, f"veo_{i:02d}.mp4")

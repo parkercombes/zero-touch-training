@@ -225,15 +225,76 @@ Map each beat to the underlying business claim. When a stakeholder pushes back o
 
 ---
 
-## 3. Demo: Character Swap (placeholder — to be expanded)
+## 3. Demo: Character Swap
 
-> Status: planned. This section will document the parameter-driven swap between the Bigfoot character cast and the blue-collar warehouse worker character, including:
-> - Why the same script renders in both styles (cost-as-value-prop, not character-as-gimmick)
-> - The swap command and side-by-side video output
-> - How to handle the in-room "this is goofy" objection in real time
-> - Cost comparison: $3.60 POC cut in either character set
+The demo for skeptics. Five minutes wall-clock. The narrative arc: *here's the Bigfoot version that gets people watching → same script, same scenes, same code path, one CLI flag → here's the human version.* The point is **cost, not character**.
+
+### 3.1 The pitch frame
+
+The Bigfoot cast is not the value proposition. It's a deliberately memorable demo vehicle that proves something specific: at $3.60 to render a 3-scene POC cut, **character is now a parameter**. Not a casting decision. Not a production budget line item. A flag.
+
+Three things this proves to a skeptical stakeholder:
+
+1. **Cost economics are real.** When character can be swapped without re-shooting, re-paying actors, or re-licensing footage, the per-employee cost of personalized training collapses. Multilingual versions, role-specific versions, demographic-matched versions — none of those require new productions.
+
+2. **The Bigfoot framing is opt-in, not baked in.** A program office that thinks Bigfoot reads as unprofessional gets the warehouse worker version with the same `python` command. They are not stuck with a creative choice they didn't make.
+
+3. **The pipeline is content-agnostic.** If the cast is a parameter, so are the location, the company, the role, the language. The architecture that made this swap possible makes every other swap possible.
+
+### 3.2 What's in the repo
+
+- `poc/generators/video_casts.py` — both casts and the shared 13-scene template
+- `poc/generators/video_render_veo3.py --cast {bigfoot|human}` — full 13-scene render (~$15.60 Veo Fast)
+- `poc/generators/video_render_veo3_poc.py --cast {bigfoot|human}` — 3-scene POC cut (~$3.60)
+
+The cast definitions live in one file. Adding a third cast (e.g. multilingual, military uniform, healthcare scrubs) is a single new `Cast(...)` block; the scene template doesn't change.
+
+### 3.3 The demo
+
+The script assumes you already have both POC videos rendered ahead of time (`goods_receipt_poc_bigfoot.mp4` and `goods_receipt_poc_human.mp4` in `poc/output/`). **Do not generate live during the demo** — Veo 3 takes 60–90 seconds per scene and the audience will lose patience watching a progress bar. Render before, play during.
+
+> *Open the Bigfoot POC video first.*
 >
-> Build target: alongside Phase 2 development.
+> "This is the version most people see first. Three clips, total cost to generate: $3.60. The character is a Bigfoot — deliberately. It's memorable, it's copyright-clean, it dodges the uncanny valley because nobody knows what a real Bigfoot looks like, and it makes the point I'm about to make impossible to miss." *Play the 24-second video.*
+>
+> "Now — some people see this and say it's not serious enough for a Defense Business System rollout. Fair. Watch."
+
+Show the source — `cat poc/generators/video_render_veo3_poc.py | grep cast`, or just open the file:
+
+```bash
+python3 video_render_veo3_poc.py --cast human
+```
+
+> "One flag. Same script, same 13 scenes, same dialogue, same scenario logic. Different character cast." *Open the human POC video.*
+
+Play the human POC video.
+
+> "Same $3.60 to render. Same minute and a half from `enter` to playable file. Same generator code path. The cast is parameterized — characters are stored in `video_casts.py`, scene logic is one shared template, and the CLI just picks which one to render."
+
+### 3.4 The "what about my actual workforce" beat
+
+This is the question that always comes after the swap demo: *"Cool, but our workforce isn't all warehouse workers — what about pharmacists / soldiers / aircrew / medics?"*
+
+The honest answer is: **the swap mechanism is built; the additional casts aren't yet.** Adding a new cast is one block of code in `video_casts.py` — character descriptions plus a few species/uniform-specific tokens — and it inherits all 13 scenes automatically. We've proven the pattern works with Bigfoot ↔ human warehouse worker. Pharmacist, infantry soldier, flight crew, and field medic are all 30–60 minutes of authoring each, no new infrastructure.
+
+If the stakeholder presses for a specific cast in a follow-up demo, we can build it to spec for under $20 in render cost.
+
+### 3.5 What this demo specifically proves
+
+| Claim | Demo evidence |
+|---|---|
+| "Character is parameterized, not baked in" | `--cast human` produces the same 13-scene structure with different actors |
+| "Production cost is collapsed" | $3.60 per POC render, both casts, identical pipeline timing |
+| "Pipeline is content-agnostic" | Same generator file, same scene template, no engine branching |
+| "We can match your audience" | The casting framework is ready; new casts are an authoring task, not a code task |
+
+### 3.6 What this demo does NOT prove
+
+Be ready for these — they are honest gaps:
+
+- **It doesn't prove Veo 3 will render *every* possible cast cleanly.** The two casts we've validated are Bigfoot and a generic warehouse worker. A military uniform cast might trip Veo's content filters; a healthcare cast might struggle with consistent uniforms across scenes. Each new cast is a small render-and-verify cycle.
+- **It doesn't prove cross-language audio.** Veo 3 generates English dialogue today. Multilingual is a TTS-overlay path (we have the older `video_render_v2.py` pipeline that supports this), not a Veo-native path. If asked about Spanish/Korean/Arabic, the answer is "yes, separate pipeline, different cost model."
+- **It doesn't prove drop-in for existing branded characters.** If the program office has an established mascot or training avatar, this generates a *new* character — it doesn't replicate an existing one. That's a different problem (image-to-video, fine-tuning) we haven't tackled.
 
 ---
 
@@ -358,3 +419,4 @@ What can go wrong during the demo and how to handle it on stage.
 | Date | Section | Change |
 |---|---|---|
 | 2026-05-01 | Initial | Sections 1, 2, 4, 5, 6 + appendices written. Section 3 (character swap) staged. |
+| 2026-05-01 | Section 3 | Character swap demo expanded — Bigfoot ↔ human warehouse worker via `--cast` flag; cast definitions extracted to `video_casts.py` with shared 13-scene template. |

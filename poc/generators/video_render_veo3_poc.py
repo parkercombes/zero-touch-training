@@ -1,81 +1,57 @@
 """
-video_render_veo3_poc.py — 3-scene POC cut of the Bigfoot Goods Receipt video.
+video_render_veo3_poc.py — 3-scene POC cut of the Goods Receipt video.
 
 Uses Veo 3's native audio generation — no TTS overlay.
 Dialogue is embedded in each video_prompt so Veo generates speech and
 lip movement together, producing natural sync.
 
 Scenes:
-  01_intro          — Bigfoot introduces himself on the dock
-  05_movement_type  — "One. Oh. One." (most memorable teaching moment)
-  13_outro          — Bigfoot waves goodbye, golden hour
+  01_intro          — Dave (Receiving Lead) introduces himself on the dock
+  05_movement_type  — Sandra (Compliance): "One. Oh. One." (most memorable beat)
+  13_outro          — Dave waves goodbye, golden hour
+
+Casts (select with --cast):
+  bigfoot   Sasquatch employees (default; the "memorable demo" cast)
+  human     Photorealistic human warehouse workers (the "serious" cast)
 
 Cost estimate (Veo 3 Fast):  3 clips × 8s × $0.15 = ~$3.60  (no TTS cost)
-Output: poc/output/bigfoot_goods_receipt_poc.mp4
+Output: poc/output/goods_receipt_poc_<cast>.mp4
 
 Run:
-  python3 poc/generators/video_render_veo3_poc.py
+  python3 poc/generators/video_render_veo3_poc.py                 # bigfoot
+  python3 poc/generators/video_render_veo3_poc.py --cast human    # human cast
 """
 
 import sys, os
 from pathlib import Path
 import tempfile, shutil
+import argparse
 
 sys.path.insert(0, str(Path(__file__).parent))
 from video_render_veo3 import (
-    VEO_MODEL, VEO_SECS, ASPECT, DAVE, SANDRA, MARCUS,
+    VEO_MODEL, VEO_SECS, ASPECT,
     load_keys, gen_veo_clip,
     compose_scene, concat_scenes, probe_duration,
 )
-
-# ── 3-scene POC subset ────────────────────────────────────────────────────────
-# Three distinct characters so the cast concept is visible even in a 3-clip test.
-# Dialogue embedded in video_prompt — Veo generates lip-synced native audio.
-
-POC_SCENES = [
-    {
-        "id": "01_intro",
-        "character": "Dave (Receiving Lead — dark reddish-brown fur, orange vest)",
-        "video_prompt": (
-            f"Handheld selfie-vlog footage of {DAVE}, walking toward the camera "
-            "while talking enthusiastically and waving, a busy distribution center "
-            "loading dock with delivery trucks behind him, natural daylight, "
-            "slight handheld camera shake, photorealistic. "
-            "Dave speaks to camera: 'Hey what's up! I'm Dave from Receiving. "
-            "Today we're covering Goods Receipt in SAP MIGO. Let's get into it!'"
-        ),
-    },
-    {
-        "id": "05_movement_type",
-        "character": "Sandra (Compliance — silver-grey fur, red vest)",
-        "video_prompt": (
-            f"Selfie vlog of {SANDRA}, holding up three fingers counting one-zero-one, "
-            "mouthing the numbers exaggeratedly, wagging her finger at the camera "
-            "with a stern but funny expression, warehouse computer station behind her, "
-            "handheld camera, photorealistic. "
-            "Sandra speaks to camera: 'Movement type must be 101. "
-            "Not 103. Not 501. One. Oh. One. Every single time.'"
-        ),
-    },
-    {
-        "id": "13_outro",
-        "character": "Marcus (Cold Chain — jet-black fur, yellow vest)",
-        "video_prompt": (
-            f"Selfie vlog of {MARCUS}, giving a big enthusiastic wave goodbye to the camera "
-            "at a distribution center receiving dock at golden hour, sunlight streaming in, "
-            "other warehouse workers waving in the background, huge warm grin, "
-            "slowly stepping back from camera, cinematic golden light, photorealistic. "
-            "Marcus speaks to camera: 'That's a wrap on Goods Receipt! "
-            "Questions? Hit your team lead or check the portal. Stay safe out there!'"
-        ),
-    },
-]
+from video_casts import CASTS, get_cast, build_poc_scenes
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
 def main():
+    ap = argparse.ArgumentParser(
+        description="3-scene POC cut of the Goods Receipt video. ~$3.60 per run."
+    )
+    ap.add_argument(
+        "--cast",
+        default="bigfoot",
+        choices=sorted(CASTS.keys()),
+        help="Character cast to render with (default: bigfoot)",
+    )
+    args = ap.parse_args()
+
+    cast = get_cast(args.cast)
+    poc_scenes = build_poc_scenes(cast)
+
     keys = load_keys()
-    # Only Google key needed — no TTS
     if not keys.get("GOOGLE_API_KEY"):
         print("ERROR: GOOGLE_API_KEY not set. Add it to poc/.env")
         sys.exit(1)
@@ -84,12 +60,13 @@ def main():
 
     out_dir = Path(__file__).parent.parent / "output"
     out_dir.mkdir(parents=True, exist_ok=True)
-    output_mp4 = str(out_dir / "bigfoot_goods_receipt_poc.mp4")
+    output_mp4 = str(out_dir / f"goods_receipt_poc_{cast.name}.mp4")
 
-    tmp   = tempfile.mkdtemp(prefix="ztt_poc_")
-    total = len(POC_SCENES)
+    tmp   = tempfile.mkdtemp(prefix=f"ztt_poc_{cast.name}_")
+    total = len(poc_scenes)
     veo_cost = total * VEO_SECS * (0.15 if "fast" in VEO_MODEL else 0.40)
 
+    print(f"Cast      : {cast.label}")
     print(f"Workspace : {tmp}")
     print(f"Scenes    : {total}  (POC — intro + 101 lesson + outro)")
     print(f"Veo model : {VEO_MODEL}  ({VEO_SECS}s clips, {ASPECT})")
@@ -98,7 +75,7 @@ def main():
 
     scene_mp4s = []
 
-    for i, scene in enumerate(POC_SCENES):
+    for i, scene in enumerate(poc_scenes):
         print(f"[{i+1:02d}/{total}] {scene['id']}  [{scene['character']}]")
 
         veo_mp4  = os.path.join(tmp, f"veo_{i:02d}.mp4")
