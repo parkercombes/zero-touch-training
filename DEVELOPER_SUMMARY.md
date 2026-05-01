@@ -131,10 +131,15 @@ zero-touch-training/
 | UI trainer — F-150 scenario | ✅ Done | `f150_trans_service.py` — 7-step shift lever & seal service, real manual photos, automotive maintenance |
 | Scenario selector generator | ✅ Done | `generate_index.py` — auto-discovers scenarios, groups by domain (software/hardware), generates index.html |
 | ERPNext capture pipeline | ✅ Done | `capture/capture_gr.py` — Playwright-based screen capture from live ERPNext, replaces drawn screens for standard_dry_gr |
+| Drift detection (Layer 6) | ✅ Done | `detect_changes.py` — snapshot/check/status CLI; diffs parsed Tosca/BPMN/overlay against committed baselines, maps changes to affected scenarios via `scenario_deps.yaml`, emits JSON + Markdown reports with step-level before/after values, exits 1 for CI gating |
+| CI integration reference | ✅ Done | `ci_examples/training-drift.yml` — sample GitHub Actions workflow showing PR commenting, scheduled scans, and optional auto-regenerate stub |
+| Video character cast parameterization | ✅ Done | `video_casts.py` — Cast dataclass + CAST_BIGFOOT + CAST_HUMAN + shared 13-scene template; `video_render_veo3.py --cast {bigfoot,human}` and `video_render_veo3_poc.py --cast {bigfoot,human}`; both casts validated end-to-end on Veo 3 |
 
-## The Bigfoot Character Cast
+## The Character Casts
 
-`video_render_veo3.py` uses a cast of four named Bigfoot employees to make different domain areas visually distinct. Each character is embedded in every relevant video prompt to guide Veo toward visual consistency.
+`video_render_veo3.py` supports two character casts of equivalent structure (Dave, Sandra, Marcus, Keisha — receiving lead, compliance, cold chain, QA), interchangeable via the `--cast` flag. Same scenes, same dialogue, same code path; different characters. The architecture is in `video_casts.py`: a shared 13-scene template with species-specific phrasing abstracted into per-cast tokens.
+
+**Bigfoot Cast** (`--cast bigfoot`, default) — the memorable demo cast:
 
 | Character | Fur | Vest | Domain |
 |---|---|---|---|
@@ -143,7 +148,18 @@ zero-touch-training/
 | **Keisha** | Auburn reddish | White (QUALITY ASSURANCE) | QA inspection, batch tracking |
 | **Marcus** | Jet-black | Yellow (RECEIVING) + blue hard hat | Temperature zone / cold chain |
 
-The 3-scene POC features Dave (intro), Sandra (movement type 101), and Marcus (outro).
+**Human Cast** (`--cast human`) — the photorealistic warehouse worker cast for stakeholders who balk at the Bigfoot framing:
+
+| Character | Description | Vest | Domain |
+|---|---|---|---|
+| **Dave** | 40-year-old man, short brown beard, broad-shouldered | Orange (GLOBALMART SE-DC) | Same as bigfoot Dave |
+| **Sandra** | 45-year-old woman, grey-streaked hair, low ponytail | Red (COMPLIANCE) | Same as bigfoot Sandra |
+| **Keisha** | Black woman, early 30s, locs pulled back | White (QUALITY ASSURANCE) | Same as bigfoot Keisha |
+| **Marcus** | Black man, late 30s, close-cropped beard | Yellow (RECEIVING) + blue hard hat | Same as bigfoot Marcus |
+
+Adding a third cast (e.g. military, healthcare, multilingual) is a single new `Cast(...)` block in `video_casts.py`. The scene template doesn't change.
+
+The 3-scene POC features Dave (intro), Sandra (movement type 101), and Dave again (outro) — same structure across both casts.
 
 ## Video Pipeline: Native Audio Architecture
 
@@ -243,10 +259,17 @@ python generators/video_render_bigfoot.py
 
 # Social video — Mark 2, full 13-scene (Veo 3 native audio, ~$15.60)
 # Requires Tier 2 Google AI Studio API or own GCP billing
-python generators/video_render_veo3.py
+python generators/video_render_veo3.py                  # bigfoot cast (default)
+python generators/video_render_veo3.py --cast human     # warehouse worker cast
 
 # Social video — 3-scene POC cut (~$3.60, daily-quota-safe)
-python generators/video_render_veo3_poc.py
+python generators/video_render_veo3_poc.py              # bigfoot cast (default)
+python generators/video_render_veo3_poc.py --cast human # warehouse worker cast
+
+# Drift detection (Layer 6) — capture baselines and check for source drift
+python detect_changes.py snapshot   # one-time: capture current state as baseline
+python detect_changes.py check      # diff sources against baselines; exit 1 on drift
+python detect_changes.py status     # show what's tracked
 
 # Validate a single Veo clip (download raw, no audio stripping)
 python generators/veo3_test_clip.py
@@ -272,9 +295,23 @@ python parsers/tosca_parser.py data/tosca/purchase_requisition.xml
 python parsers/bpmn_parser.py data/bpmn/purchase_to_pay.xml
 ```
 
+## What's Next (Phase 2 remaining)
+
+Three of the eight Phase 2 activities are complete (drift detection, character swap, refined demo materials). Still ahead, in rough ROI order:
+
+1. **Hardware/Software Fusion Scenario** — single trainer combining hardware photo-annotation steps with software workflow steps. Centerpiece demo for Army weapon-system program offices. Candidate scenarios: FCS LRU BIT execution, BFT software load verification, JBC-P configuration, M1A2 SEPv3 fault isolation. The React engine should already support mixed-domain step types — this scenario validates that.
+2. **Refined process-agnostic prompt templates** — current prompts are tuned for SAP MIGO. Need parameterized templates that work for any transaction type without rewriting per-scenario.
+3. **Opal overlay pattern** — formalize the configuration-driven overlay abstraction with real SE-DC site data; document the specification.
+4. **WalkMe integration design** — beyond the JSON draft format the generator already produces. Design the actual integration points with a deployed WalkMe instance.
+5. **Repeatable pipeline tooling** — versioning, rollback, automated asset validation, conflict detection.
+6. **3-5 additional process areas** — expand from PR/GR to 3-4 more processes (e.g. invoice receipt, returns, vendor master changes).
+
+Phase 3 (multi-site rollout) and Phase 4 (operationalize / handoff) follow. See `docs/roadmap.md` for full detail.
+
 ## Key Docs to Read First
 
 1. `docs/concept.md` — The "why", the layered model, and game-inspired training vision
 2. `docs/game-design-vision.md` — Game mechanics framework, real-world examples, planned enhancements
 3. `docs/architecture.md` — Full system design including video pipeline and UI trainer
 4. `docs/tooling.md` — What we're using and why
+5. `docs/drift-detection-demo.md` — Demo playbook for drift detection (Layer 6) and character swap, with pitch frame and objection handling

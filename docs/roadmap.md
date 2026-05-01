@@ -79,6 +79,8 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ## Phase 2: Expansion (Weeks 3-8)
 
+> **Status as of May 2026:** Phase 2 is in progress. Three of the eight planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), and refined demo materials. Five activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, Opal overlay pattern, and the HW/SW fusion scenario. The HW/SW fusion scenario is the next planned build per ROI ordering.
+
 ### Scope
 - **3-5 Processes**: Expand from single process to multiple, including variations (e.g., standard PO, direct invoice, returns)
 - **Multiple Roles**: Buyer, Receiving Clerk, Category Manager
@@ -121,7 +123,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
    - Validate overlay model against real site data (Opal objects, field mappings)
    - Create overlay specification documentation
 
-6. **Build Drift Detection PoC (Layer 6)**
+6. **Build Drift Detection PoC (Layer 6)** — ✅ COMPLETE (May 2026)
    - Implement `detect_changes.py`: snapshot parsed Tosca/BPMN structures and diff against current parse to identify changed steps, fields, gateways, and roles
    - Map detected changes to affected scenario modules and generated artifacts
    - Emit a stale-list (machine-readable JSON + human-readable Markdown) showing which training assets need regeneration and why
@@ -129,17 +131,21 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
    - Demonstrate end-to-end: modify a field in a Tosca file → run detection → see the correct scenario flagged → regenerate → confirm output diff
    - This converts Layer 6 from a slide-deck claim into a demoable artifact for buy-in conversations
 
-7. **Build Hardware/Software Fusion Scenario**
+   **Delivered:** `poc/detect_changes.py` (snapshot/check/status CLI), `poc/data/scenario_deps.yaml` (explicit scenario→source dependency map), `poc/snapshots/` (committed baselines), `poc/ci_examples/training-drift.yml` (reference GitHub Actions workflow), `docs/drift-detection-demo.md` (demo playbook). Markdown report shows step-level before/after values per change. End-to-end demo verified: modify Tosca → check correctly identifies changed fields, maps to all dependent scenarios, exits 1 for CI gating.
+
+7. **Build Hardware/Software Fusion Scenario** — 🔨 NEXT PLANNED
    - Identify a representative weapon-system maintenance or operator task that combines hardware identification with embedded-software workflow (candidates: FCS LRU diagnostic BIT execution, BFT software load verification, JBC-P configuration, M1A2 SEPv3 fault isolation)
    - Extend the scenario module pattern to support both photo-annotation steps (hardware) and Fiori-style screen steps (software) within a single trainer
    - Validate that the React engine handles mixed-domain step types without engine branching — the abstraction should already support this; this scenario proves it
    - Use as the centerpiece demo for Army weapon-system program offices, where the "almost every weapon system has embedded software" argument needs a concrete artifact
 
-8. **Alternate Character Render (Blue-Collar Warehouse Worker)**
+8. **Alternate Character Render (Blue-Collar Warehouse Worker)** — ✅ COMPLETE (May 2026)
    - Add a second character set to the Veo 3 video pipeline alongside the Bigfoot cast
-   - Keep scene structure, dialogue, and timing identical so the swap is parameter-driven (`--character=warehouse_worker` vs. `--character=bigfoot`)
+   - Keep scene structure, dialogue, and timing identical so the swap is parameter-driven (`--cast human` vs. `--cast bigfoot`)
    - Render the 3-scene POC cut in both versions for side-by-side credibility comparison in pitches
    - Confirms the value prop is the cost (~$3.60 POC / ~$15-40 full) and not the gimmick — addresses skeptic objections in real time without re-rendering
+
+   **Delivered:** `poc/generators/video_casts.py` (Cast dataclass, CAST_BIGFOOT, CAST_HUMAN, shared 13-scene template, builder functions), refactored `video_render_veo3.py` and `video_render_veo3_poc.py` to accept `--cast {bigfoot,human}`. Module-level character constants kept for backward compatibility with resume script. Both casts validated: 13 scenes build with no unfilled tokens, no double-spaces, no species-phrase leakage in human cast. Render confirmed working on real Veo 3 ($3.60 per 3-scene POC).
 
 ### Exit Criteria
 - Content quality remains ≥95% accurate across all expanded processes
