@@ -25,7 +25,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ## Phase 1: Pilot (Weeks 1-2) — ✅ COMPLETE
 
-> **Status as of April 2026:** Phase 1 is complete. The PoC pipeline is built and functional, covering all 6 training layers with working code. The interactive UI trainer supports 5 SAP software scenarios and 2 hardware scenarios (AR-15 field strip, F-150 shift lever service). A Playwright capture pipeline enables screen capture from live systems (ERPNext). AI-generated video pipelines (Veo 3 and DALL-E 3) are operational. Total development: ~18 days off-hours, <$200 API spend.
+> **Status as of April 2026:** Phase 1 is complete. The PoC pipeline is built and functional, covering Layers 1–5 of the training model with working code. Layer 6 (drift detection / auto-regeneration triggers) is scoped to Phase 2 as a demoable PoC. The interactive UI trainer supports 5 SAP software scenarios and 2 hardware scenarios (AR-15 field strip, F-150 shift lever service). A Playwright capture pipeline enables screen capture from live systems (ERPNext). AI-generated video pipelines (Veo 3 and DALL-E 3) are operational. Total development: ~40-80 hours off-hours, <$200 API spend.
 
 ### Scope
 - **Single Process**: Purchase Requisition → Goods Receipt workflow
@@ -121,11 +121,34 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
    - Validate overlay model against real site data (Opal objects, field mappings)
    - Create overlay specification documentation
 
+6. **Build Drift Detection PoC (Layer 6)**
+   - Implement `detect_changes.py`: snapshot parsed Tosca/BPMN structures and diff against current parse to identify changed steps, fields, gateways, and roles
+   - Map detected changes to affected scenario modules and generated artifacts
+   - Emit a stale-list (machine-readable JSON + human-readable Markdown) showing which training assets need regeneration and why
+   - Expose as a CLI entry point usable from any CI/CD system (GitHub Actions, GitLab CI, Tosca CI, Jenkins) — the customer pipeline calls it; we don't host the pipeline
+   - Demonstrate end-to-end: modify a field in a Tosca file → run detection → see the correct scenario flagged → regenerate → confirm output diff
+   - This converts Layer 6 from a slide-deck claim into a demoable artifact for buy-in conversations
+
+7. **Build Hardware/Software Fusion Scenario**
+   - Identify a representative weapon-system maintenance or operator task that combines hardware identification with embedded-software workflow (candidates: FCS LRU diagnostic BIT execution, BFT software load verification, JBC-P configuration, M1A2 SEPv3 fault isolation)
+   - Extend the scenario module pattern to support both photo-annotation steps (hardware) and Fiori-style screen steps (software) within a single trainer
+   - Validate that the React engine handles mixed-domain step types without engine branching — the abstraction should already support this; this scenario proves it
+   - Use as the centerpiece demo for Army weapon-system program offices, where the "almost every weapon system has embedded software" argument needs a concrete artifact
+
+8. **Alternate Character Render (Blue-Collar Warehouse Worker)**
+   - Add a second character set to the Veo 3 video pipeline alongside the Bigfoot cast
+   - Keep scene structure, dialogue, and timing identical so the swap is parameter-driven (`--character=warehouse_worker` vs. `--character=bigfoot`)
+   - Render the 3-scene POC cut in both versions for side-by-side credibility comparison in pitches
+   - Confirms the value prop is the cost (~$3.60 POC / ~$15-40 full) and not the gimmick — addresses skeptic objections in real time without re-rendering
+
 ### Exit Criteria
 - Content quality remains ≥95% accurate across all expanded processes
 - Pipeline execution is repeatable and documented (not one-off manual steps)
 - Opal overlay pattern validated and documented with SE-DC-specific examples
 - WalkMe integration design completed and prototyped
+- Drift detection PoC: changes in source Tosca/BPMN correctly flag affected scenarios in <1 minute, demonstrated end-to-end
+- HW/SW fusion scenario operational and runnable through the existing trainer engine
+- Alternate (warehouse worker) character render available as a parameter swap; both versions of POC cut produced
 - Team can execute pipeline for new processes with minimal rework
 
 ### Deliverables
@@ -133,6 +156,9 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 - Documented pipeline architecture and execution playbook
 - Opal overlay specification and validation report
 - WalkMe integration design document and prototype
+- `detect_changes.py` CLI + sample CI integration snippet (GitHub Actions YAML) + 3-minute demo recording
+- HW/SW fusion scenario module and built trainer
+- Dual-character POC video cut (Bigfoot + warehouse worker, same script)
 - Lessons learned and scaling recommendations
 - Updated roadmap for multi-site rollout
 
