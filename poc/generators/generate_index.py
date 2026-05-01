@@ -119,13 +119,12 @@ def _extract_tags(S):
 
 
 # ── Color palette ────────────────────────────────────────────────────────────
-# Stripe color encodes difficulty so the user can scan the page visually.
+# Stripe color encodes domain (SAP blue for software, safety orange for hardware).
 # Badge colors are per-profile to identify the handling type.
 
-DIFFICULTY_COLORS = {
-    "Beginner":     "#6B7280",   # grey — approachable, start here
-    "Intermediate": "#0070F2",   # blue — moderate challenge
-    "Advanced":     "#BB000B",   # red  — high complexity
+DOMAIN_STRIPE = {
+    "software": "#0070F2",   # SAP blue
+    "hardware": "#FF8C00",   # safety orange
 }
 
 PROFILE_COLORS = {
@@ -384,7 +383,7 @@ def _card_html(s):
     profile = s["handling_profile"]
     domain = s["training_domain"]
     colors = PROFILE_COLORS.get(profile, PROFILE_COLORS.get(domain, DEFAULT_COLORS))
-    stripe_color = DIFFICULTY_COLORS.get(s["difficulty"], "#6B7280")
+    stripe_color = DOMAIN_STRIPE.get(domain, "#0070F2")
     hw_class = " hw" if domain == "hardware" else ""
 
     # Build profile badge label — specific, not generic
@@ -395,7 +394,7 @@ def _card_html(s):
         "hazmat":           "Hazmat / DOT-OSHA",
         "serialized":       "Serialized / High-Value",
     }
-    # Hardware: use the scenario title as badge text instead of generic "Hardware"
+    # Hardware: use specific type labels instead of generic "Hardware"
     if domain == "hardware":
         hw_badge_map = {
             "ar15_field_strip":    "Firearms Maintenance",
@@ -404,9 +403,6 @@ def _card_html(s):
         badge_text = hw_badge_map.get(s["id"], "Equipment")
     else:
         badge_text = badge_labels.get(profile, profile.replace("_", " ").title())
-
-    # Difficulty indicator dot — color-coded to match the stripe
-    diff_dot = f'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{stripe_color};margin-right:4px;vertical-align:middle"></span>'
 
     # Tags HTML
     tags_html = ""
@@ -432,7 +428,7 @@ def _card_html(s):
           <dt>Steps</dt><dd>{s['steps']}</dd>
           <dt>Par</dt><dd>{s['par_clicks']} clicks</dd>
           <dt>Time Limit</dt><dd>{time_str}</dd>
-          <dt>Difficulty</dt><dd>{diff_dot}{escape(s['difficulty'])}</dd>
+          <dt>Difficulty</dt><dd>{escape(s['difficulty'])}</dd>
         </dl>{tags_html}
       </div>
       <div class="launch">Launch Trainer →</div>
