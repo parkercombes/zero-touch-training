@@ -22,7 +22,7 @@
 // ── Scenario data (injected by ui_trainer.py) ──
 window.__SCENARIO__        = {
   "id": "sedc_goods_receipt",
-  "title": "Goods Receipt in SAP MIGO",
+  "title": "Cold Chain Goods Receipt \u2014 SAP MIGO",
   "site": "GlobalMart SE-DC \u00b7 Atlanta, GA",
   "role": "Receiving Associate",
   "handling_profile": "perishable",
@@ -135,10 +135,10 @@ window.__SCENARIO__        = {
       "instruction": "Check the Qty column. Confirm it matches what's physically on your dock.",
       "hint": "Compare each quantity against your delivery paperwork before proceeding.",
       "hotspot": {
-        "x": 420,
+        "x": 416,
         "y": 272,
-        "w": 80,
-        "h": 62
+        "w": 100,
+        "h": 34
       },
       "feedback": "Quantities verified. If anything is short, update it now \u2014 not after posting.",
       "consequence": "Posting the wrong quantity means inventory records don't match physical stock. Short receipt: vendor doesn't get paid for what they shipped. Over receipt: you're paying for product you didn't get.",
@@ -295,6 +295,9 @@ const SCREENS         = window.__SCREENS__;          // highlighted (L0, L1)
 const SCREENS_NEUTRAL = window.__SCREENS_NEUTRAL__;  // neutral    (L2, L3)
 const steps   = SCENARIO.tutorial;
 const mission = SCENARIO.mission;
+
+// ── Domain detection ──────────────────────────────────────────────────────────
+const IS_HARDWARE = SCENARIO.training_domain === "hardware";
 
 // ── Branding (injected from scenario, with SAP defaults as fallback) ────────
 const B = SCENARIO.branding || {};
@@ -708,7 +711,7 @@ function ScreenView({ state, dispatch }) {
   const drawOverlay = useCallback(() => {
     const canvas = canvasRef.current;
     const img = imgRef.current;
-    if (!canvas || !img) return;
+    if (!canvas || !img) { console.warn("[ZTT] drawOverlay: missing canvas or img"); return; }
 
     const rect = img.getBoundingClientRect();
     canvas.width = rect.width;
@@ -716,6 +719,7 @@ function ScreenView({ state, dispatch }) {
     const ctx = canvas.getContext("2d");
     const scale = getScale();
     const hs = currentStep.hotspot;
+    console.log(`[ZTT] drawOverlay: level=${level} canvas=${canvas.width}x${canvas.height} scale=${scale.toFixed(3)} hs=(${hs.x},${hs.y},${hs.w},${hs.h})`);
 
     if (level === 0) {
       // Explore: light tint + dashed hotspot outline + label
@@ -747,14 +751,18 @@ function ScreenView({ state, dispatch }) {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.clearRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2);
 
-      ctx.strokeStyle = ACCENT;
-      ctx.lineWidth = 3;
-      ctx.shadowColor = ACCENT;
-      ctx.shadowBlur = 18;
-      ctx.beginPath();
-      ctx.roundRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2, 6);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
+      // Hardware PNGs already have baked-in highlight annotations —
+      // only draw the React overlay border for software scenarios.
+      if (!IS_HARDWARE) {
+        ctx.strokeStyle = ACCENT;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = ACCENT;
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.roundRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2, 6);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
 
     } else {
       // Level 2+: subtle overlay only
@@ -780,7 +788,9 @@ function ScreenView({ state, dispatch }) {
   const pulsePhase = useRef(0);
 
   useEffect(() => {
-    if (level !== 1 || !imgLoaded) {
+    // Hardware scenarios already have baked-in highlight annotations in the PNG —
+    // skip the pulsing ellipse overlay to avoid double-highlighting.
+    if (level !== 1 || !imgLoaded || IS_HARDWARE) {
       if (pulseRef.current) cancelAnimationFrame(pulseRef.current);
       return;
     }
@@ -820,7 +830,7 @@ function ScreenView({ state, dispatch }) {
   // ── Click handler ───────────────────────────────────────────────────────
   const handleClick = useCallback((e) => {
     const img = imgRef.current;
-    if (!img) return;
+    if (!img) { console.warn("[ZTT] handleClick: no img ref"); return; }
     const rect = img.getBoundingClientRect();
     const scale = getScale();
     const mx = (e.clientX - rect.left) / scale;
@@ -829,6 +839,7 @@ function ScreenView({ state, dispatch }) {
     const tol = 20;
     const hit = mx >= hs.x - tol && mx <= hs.x + hs.w + tol &&
                 my >= hs.y - tol && my <= hs.y + hs.h + tol;
+    console.log(`[ZTT] click @ (${mx.toFixed(0)},${my.toFixed(0)}) scale=${scale.toFixed(3)} hs=(${hs.x},${hs.y},${hs.w},${hs.h}) hit=${hit} level=${level}`);
 
     if (level === 0) {
       // Explore: clicking hotspot shows a brief tooltip
@@ -861,7 +872,7 @@ function ScreenView({ state, dispatch }) {
 
   return (
     <>
-      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair", marginBottom: level === 0 ? "28vh" : 0, transition: "margin-bottom 0.3s" }}>
+      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair" }}>
         <img
           ref={imgRef}
           src={screenSrc}
@@ -908,7 +919,7 @@ function ExplorePanel({ state, dispatch }) {
   return (
     <div style={{
       position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-      width: "min(780px, 95vw)", maxHeight: "26vh", overflowY: "auto",
+      width: "min(780px, 95vw)", maxHeight: "40vh", overflowY: "auto",
       background: "rgba(3,20,50,0.95)", backdropFilter: "blur(12px)",
       border: `1px solid rgba(${LC_RGB[0]},0.5)`, borderBottom: "none",
       borderRadius: "12px 12px 0 0", padding: "16px 22px 12px", zIndex: 200,
@@ -1182,6 +1193,7 @@ function BriefingScreen({ state, dispatch }) {
     // Dynamically load Three.js if not already present
     const initThree = () => {
       if (typeof THREE === "undefined") return;
+      try {
       threeInitRef.current = true;
 
       const container = threeCanvasRef.current;
@@ -1356,6 +1368,10 @@ function BriefingScreen({ state, dispatch }) {
         renderer.dispose();
         if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
       };
+      } catch (err) {
+        console.error("[ZTT] Three.js exploded view init failed:", err);
+        // Graceful fallback — briefing screen still usable without 3D view
+      }
     };
 
     // Check if THREE is available (loaded via CDN in HTML wrapper)
