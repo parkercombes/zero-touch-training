@@ -2120,8 +2120,8 @@ function LevelSelect({ dispatch }) {
         {SCENARIO.title} · {SCENARIO.role}
       </div>
       <div style={{
-        display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16,
-        maxWidth: 640, width: "90vw",
+        display: "flex", flexDirection: "column", gap: 12,
+        maxWidth: 540, width: "90vw",
       }}>
         {levelCards.map((card, i) => (
           <div
@@ -2132,16 +2132,20 @@ function LevelSelect({ dispatch }) {
             style={{
               background: hovered === i ? `rgba(${LC_RGB[1]},0.12)` : "rgba(255,255,255,0.04)",
               border: `1px solid ${hovered === i ? `rgba(${LC_RGB[1]},0.5)` : "rgba(255,255,255,0.12)"}`,
-              borderRadius: 12, padding: "20px 24px", cursor: "pointer",
-              transition: "all 0.2s", textAlign: "left",
-              transform: hovered === i ? "translateY(-2px)" : "none",
+              borderLeft: `4px solid ${card.color}`,
+              borderRadius: 8, padding: "16px 20px", cursor: "pointer",
+              transition: "all 0.2s",
+              transform: hovered === i ? "translateX(4px)" : "none",
+              display: "flex", alignItems: "center", gap: 16,
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", marginBottom: 6, color: card.color }}>
-              {card.num}
-            </div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
-              {card.name}
+            <div style={{ flex: "0 0 auto", textAlign: "center", minWidth: 60 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: card.color }}>
+                {card.num}
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginTop: 2 }}>
+                {card.name}
+              </div>
             </div>
             <div style={{ fontSize: 13, color: "#a0c4ff", lineHeight: 1.5 }}>
               {card.desc}
