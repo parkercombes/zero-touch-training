@@ -127,19 +127,27 @@ Exit code: 0
 
 > "Exit zero. Everything in sync. Now I'll change one thing in one Tosca file — exactly the kind of change a developer would make after a Fiori upgrade."
 
-Make the change live. Open `poc/data/tosca/goods_receipt.xml` in the editor. Find STEP_002 (line ~40-50). Change two things:
+Make the change live. Open `poc/data/tosca/goods_receipt.xml` in the editor.
+Two lines need to change inside STEP_002 — they're at **lines 47 and 50** specifically (there are several other "Post Goods Receipt" matches in the file; do not let your editor's find-next jump to those):
 
 ```diff
--          <Identifier>id://searchInput</Identifier>
-+          <Identifier>id://globalSearchField</Identifier>
+  47:          <Identifier>id://searchInput</Identifier>
++ 47:          <Identifier>id://globalSearchField</Identifier>
 ```
 
 ```diff
--        <Value>Post Goods Receipt</Value>
-+        <Value>MIGO</Value>
+  50:        <Value>Post Goods Receipt</Value>
++ 50:        <Value>MIGO</Value>
 ```
 
-Save. Then:
+If you'd rather not edit live (or if your editor jumps to the wrong line), use this one-liner — it targets line numbers exactly:
+
+```bash
+cp data/tosca/goods_receipt.xml /tmp/gr_backup.xml
+sed -i.bak '47s|id://searchInput|id://globalSearchField|; 50s|<Value>Post Goods Receipt</Value>|<Value>MIGO</Value>|' data/tosca/goods_receipt.xml
+```
+
+Then run the check:
 
 ```bash
 python detect_changes.py check
@@ -163,9 +171,16 @@ Open `poc/output/drift_report.md` and read aloud:
 
 ### 2.4 The reset
 
-Restore the original file (from git or clipboard). Run check again:
+Restore the original file (from git, the `/tmp/gr_backup.xml` you copied above, or your editor's undo). Run check again:
 
 ```bash
+# If you used the sed one-liner:
+mv /tmp/gr_backup.xml data/tosca/goods_receipt.xml
+rm -f data/tosca/goods_receipt.xml.bak
+
+# Or just:
+git checkout data/tosca/goods_receipt.xml
+
 python detect_changes.py check
 ```
 

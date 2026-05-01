@@ -234,17 +234,27 @@ def _diff_tosca(old: dict, new: dict) -> list[dict]:
         changes.append({"type": "step_added", "step_id": step_id, "action_type": new_steps[step_id]["action_type"]})
     for step_id in old_steps.keys() & new_steps.keys():
         if old_steps[step_id]["hash"] != new_steps[step_id]["hash"]:
-            modified_fields = [
-                k for k in ("action_type", "element_id", "value", "target_url")
-                if old_steps[step_id].get(k) != new_steps[step_id].get(k)
-            ]
-            assertion_changed = old_steps[step_id].get("assertions") != new_steps[step_id].get("assertions")
-            changes.append({
+            old_step = old_steps[step_id]
+            new_step = new_steps[step_id]
+            field_changes = []
+            for k in ("action_type", "element_id", "value", "target_url"):
+                if old_step.get(k) != new_step.get(k):
+                    field_changes.append({
+                        "field": k,
+                        "old": old_step.get(k),
+                        "new": new_step.get(k),
+                    })
+            change = {
                 "type": "step_modified",
                 "step_id": step_id,
-                "fields_changed": modified_fields,
-                "assertions_changed": assertion_changed,
-            })
+                "field_changes": field_changes,
+            }
+            if old_step.get("assertions") != new_step.get("assertions"):
+                change["assertion_changes"] = {
+                    "old": old_step.get("assertions"),
+                    "new": new_step.get("assertions"),
+                }
+            changes.append(change)
 
     if old.get("annotation_types") != new.get("annotation_types"):
         changes.append({
@@ -342,6 +352,8 @@ def affected_scenarios(changed_source_rel: str, deps: dict) -> dict[str, list[st
         if changed_source_rel in all_deps:
             affected["artifacts"].append(artifact_key)
 
+    affected["scenarios"].sort()
+    affected["artifacts"].sort()
     return affected
 
 
@@ -470,11 +482,22 @@ def cmd_status(args) -> int:
 # Markdown renderer
 # ---------------------------------------------------------------------------
 
+def _format_timestamp(iso: str) -> str:
+    """Render an ISO 8601 timestamp as 'May 1, 2026 — 15:39 UTC' for human reports."""
+    try:
+        dt = datetime.fromisoformat(iso)
+        if dt.tzinfo is not None:
+            dt = dt.astimezone(timezone.utc)
+        return f"{dt.strftime('%B')} {dt.day}, {dt.year} — {dt.strftime('%H:%M')} UTC"
+    except (ValueError, TypeError):
+        return iso
+
+
 def _render_markdown(report: dict) -> str:
     lines = []
     lines.append("# Training Drift Report")
     lines.append("")
-    lines.append(f"**Generated:** {report['generated_at']}")
+    lines.append(f"**Generated:** {_format_timestamp(report['generated_at'])}")
     lines.append(f"**Sources checked:** {report['sources_checked']}")
     lines.append(f"**Sources with changes:** {report['sources_with_changes']}")
     lines.append("")
@@ -532,9 +555,21 @@ def _format_diff_entry(d: dict) -> str:
     if t == "step_removed":
         return f"Step **removed**: `{d['step_id']}`"
     if t == "step_modified":
-        fields = ", ".join(d.get("fields_changed", [])) or "—"
-        assertion_note = " · assertions changed" if d.get("assertions_changed") else ""
-        return f"Step **modified**: `{d['step_id']}` (fields: {fields}{assertion_note})"
+        field_changes = d.get("field_changes", [])
+        assertion_changes = d.get("assertion_changes")
+        if not field_changes and not assertion_changes:
+            return f"Step **modified**: `{d['step_id']}` (structural change detected)"
+
+        lines = [f"Step **modified**: `{d['step_id']}`"]
+        for fc in field_changes:
+            old_val = fc.get("old") if fc.get("old") not in ("", None) else "(empty)"
+            new_val = fc.get("new") if fc.get("new") not in ("", None) else "(empty)"
+            lines.append(f"  - `{fc['field']}`: `{old_val}` → `{new_val}`")
+        if assertion_changes:
+            old_count = len(assertion_changes.get("old") or [])
+            new_count = len(assertion_changes.get("new") or [])
+            lines.append(f"  - assertions changed ({old_count} → {new_count})")
+        return "\n".join(lines)
     if t == "annotations_changed":
         return f"Annotations changed"
     if t == "task_added":
