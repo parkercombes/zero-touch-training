@@ -85,22 +85,31 @@ def _extract_tags(S):
     if S.get("tags"):
         return S["tags"]
 
-    # Try to infer tags from handling_profile + tutorial keywords
-    tags = []
     hp = S.get("handling_profile", "")
     domain = S.get("training_domain", "software")
 
     if domain == "hardware":
-        # Extract from tutorial step goals
+        # Short keyword tags — NOT full step descriptions
+        hw_tag_map = {
+            "ar15_field_strip":    ["Safety check", "Takedown pins", "BCG removal", "Bolt disassembly"],
+            "f150_trans_service":  ["Boot removal", "Eccentric stud", "Seal inspection", "Torque spec"],
+        }
+        sid = S.get("id", "")
+        if sid in hw_tag_map:
+            return hw_tag_map[sid]
+        # Fallback: extract short keywords from step goals
+        tags = []
         for step in S.get("tutorial", [])[:4]:
             goal = step.get("goal", "")
-            if len(goal) > 3:
-                tags.append(goal)
+            # Take first 3 words as a keyword
+            words = goal.split()[:3]
+            if words:
+                tags.append(" ".join(words))
         return tags[:4]
 
     # Software domain — profile-based tags
     tag_map = {
-        "standard_dry":    ["No batch", "No temp zone", "No QI", "Simplest flow"],
+        "standard_dry":    ["Core workflow", "Standard receiving", "PO match", "Stock posting"],
         "perishable":      ["Batch / Lot", "Temp zone", "QI flag", "Cold chain"],
         "regulated_pharma":["Batch / Lot", "Expiry date", "Certificate of Analysis", "FDA audit trail"],
         "hazmat":          ["UN numbers", "Hazmat class", "Storage segregation", "SDS verification"],
@@ -109,26 +118,40 @@ def _extract_tags(S):
     return tag_map.get(hp, [])
 
 
-# ── Color palette for profiles ───────────────────────────────────────────────
+# ── Color palette ────────────────────────────────────────────────────────────
+# Stripe color encodes difficulty so the user can scan the page visually.
+# Badge colors are per-profile to identify the handling type.
 
-PROFILE_COLORS = {
-    "standard_dry":    {"stripe": "#6B7280", "badge_bg": "#F3F4F6", "badge_fg": "#374151"},
-    "perishable":      {"stripe": "#0070F2", "badge_bg": "#E0F0FF", "badge_fg": "#004A9E"},
-    "regulated_pharma":{"stripe": "#107E3E", "badge_bg": "#E6F4EA", "badge_fg": "#0D652D"},
-    "hazmat":          {"stripe": "#BB000B", "badge_bg": "#FDE8E8", "badge_fg": "#9B0000"},
-    "serialized":      {"stripe": "#E87600", "badge_bg": "#FFF4E5", "badge_fg": "#9A5700"},
-    # Hardware
-    "hardware":        {"stripe": "#FF8C00", "badge_bg": "#FFF3E0", "badge_fg": "#BF6000"},
+DIFFICULTY_COLORS = {
+    "Beginner":     "#6B7280",   # grey — approachable, start here
+    "Intermediate": "#0070F2",   # blue — moderate challenge
+    "Advanced":     "#BB000B",   # red  — high complexity
 }
 
-DEFAULT_COLORS = {"stripe": "#6B7280", "badge_bg": "#F3F4F6", "badge_fg": "#374151"}
+PROFILE_COLORS = {
+    "standard_dry":    {"badge_bg": "#F3F4F6", "badge_fg": "#374151"},
+    "perishable":      {"badge_bg": "#E0F0FF", "badge_fg": "#004A9E"},
+    "regulated_pharma":{"badge_bg": "#E6F4EA", "badge_fg": "#0D652D"},
+    "hazmat":          {"badge_bg": "#FDE8E8", "badge_fg": "#9B0000"},
+    "serialized":      {"badge_bg": "#FFF4E5", "badge_fg": "#9A5700"},
+    # Hardware
+    "hardware":        {"badge_bg": "#FFF3E0", "badge_fg": "#BF6000"},
+}
+
+DEFAULT_COLORS = {"badge_bg": "#F3F4F6", "badge_fg": "#374151"}
 
 
 # ── HTML generation ──────────────────────────────────────────────────────────
 
+_DIFFICULTY_ORDER = {"Beginner": 0, "Intermediate": 1, "Advanced": 2}
+
+
 def generate_html(scenarios):
     """Return the full HTML string for the scenario selector."""
-    software = [s for s in scenarios if s["training_domain"] == "software"]
+    software = sorted(
+        [s for s in scenarios if s["training_domain"] == "software"],
+        key=lambda s: _DIFFICULTY_ORDER.get(s["difficulty"], 9),
+    )
     hardware = [s for s in scenarios if s["training_domain"] == "hardware"]
 
     cards_sw = "\n".join(_card_html(s) for s in software)
@@ -285,7 +308,8 @@ def generate_html(scenarios):
   }}
 
   .card h2 {{ font-size: 17px; font-weight: 600; margin-bottom: 6px; line-height: 1.3; }}
-  .card .site {{ font-size: 13px; color: var(--sap-label); margin-bottom: 14px; }}
+  .card .site {{ font-size: 13px; color: var(--sap-label); margin-bottom: 2px; }}
+  .card .role {{ font-size: 12px; color: var(--sap-text); font-weight: 600; margin-bottom: 14px; }}
 
   .card .meta {{
     display: grid;
@@ -341,9 +365,8 @@ def generate_html(scenarios):
 <div class="page">
   <h1 class="page-title">Scenario Packs</h1>
   <p class="page-sub">
-    Four difficulty levels progressively remove scaffolding and add pressure.
-    Software scenarios train SAP workflows. Hardware scenarios train equipment maintenance and assembly.
-    Pick a scenario to begin.
+    Each scenario has four levels that progressively remove guidance and add pressure.
+    Start with a beginner scenario to learn the flow, then move to specialized handling profiles.
   </p>
 {sw_section}{hw_section}</div>
 
@@ -361,18 +384,29 @@ def _card_html(s):
     profile = s["handling_profile"]
     domain = s["training_domain"]
     colors = PROFILE_COLORS.get(profile, PROFILE_COLORS.get(domain, DEFAULT_COLORS))
+    stripe_color = DIFFICULTY_COLORS.get(s["difficulty"], "#6B7280")
     hw_class = " hw" if domain == "hardware" else ""
 
-    # Build profile badge label
+    # Build profile badge label — specific, not generic
     badge_labels = {
         "standard_dry":     "Standard Dry",
         "perishable":       "Perishable / Cold Chain",
         "regulated_pharma": "Regulated Pharma / GxP",
         "hazmat":           "Hazmat / DOT-OSHA",
         "serialized":       "Serialized / High-Value",
-        "hardware":         "Hardware",
     }
-    badge_text = badge_labels.get(profile, profile.replace("_", " ").title())
+    # Hardware: use the scenario title as badge text instead of generic "Hardware"
+    if domain == "hardware":
+        hw_badge_map = {
+            "ar15_field_strip":    "Firearms Maintenance",
+            "f150_trans_service":  "Automotive Service",
+        }
+        badge_text = hw_badge_map.get(s["id"], "Equipment")
+    else:
+        badge_text = badge_labels.get(profile, profile.replace("_", " ").title())
+
+    # Difficulty indicator dot — color-coded to match the stripe
+    diff_dot = f'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{stripe_color};margin-right:4px;vertical-align:middle"></span>'
 
     # Tags HTML
     tags_html = ""
@@ -388,16 +422,17 @@ def _card_html(s):
     time_str = f'{s["time_limit"]} s' if s["time_limit"] else "—"
 
     return f"""    <a class="card{hw_class}" href="{escape(s['id'])}/index.html">
-      <div class="stripe" style="background:{colors['stripe']}"></div>
+      <div class="stripe" style="background:{stripe_color}"></div>
       <div class="card-body">
         <span class="profile-badge" style="background:{colors['badge_bg']};color:{colors['badge_fg']}">{escape(badge_text)}</span>
         <h2>{escape(s['title'])}</h2>
-        <div class="site">{escape(s['site'])} — {escape(s['role'])}</div>
+        <div class="site">{escape(s['site'])}</div>
+        <div class="role">{escape(s['role'])}</div>
         <dl class="meta">
           <dt>Steps</dt><dd>{s['steps']}</dd>
           <dt>Par</dt><dd>{s['par_clicks']} clicks</dd>
           <dt>Time Limit</dt><dd>{time_str}</dd>
-          <dt>Difficulty</dt><dd>{escape(s['difficulty'])}</dd>
+          <dt>Difficulty</dt><dd>{diff_dot}{escape(s['difficulty'])}</dd>
         </dl>{tags_html}
       </div>
       <div class="launch">Launch Trainer →</div>

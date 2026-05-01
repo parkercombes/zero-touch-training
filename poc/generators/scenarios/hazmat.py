@@ -36,7 +36,7 @@ from scenarios.base import (
 
 SCENARIO = {
     "id":               "hazmat_gr",
-    "title":            "Hazmat Goods Receipt in SAP MIGO",
+    "title":            "Hazmat Goods Receipt — SAP MIGO",
     "site":             "ChemCo Industrial DC · Houston, TX",
     "role":             "Receiving Associate",
     "handling_profile": "hazmat",

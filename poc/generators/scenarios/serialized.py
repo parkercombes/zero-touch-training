@@ -36,7 +36,7 @@ from scenarios.base import (
 
 SCENARIO = {
     "id":               "serialized_gr",
-    "title":            "Goods Receipt for High-Value Serialized Items (SAP MIGO)",
+    "title":            "Serialized Asset Receipt — SAP MIGO",
     "site":             "TechVault DC · Austin, TX",
     "role":             "Receiving Associate",
     "handling_profile": "serialized",

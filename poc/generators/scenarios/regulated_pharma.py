@@ -38,7 +38,7 @@ from scenarios.base import (
 
 SCENARIO = {
     "id":               "pharma_gr",
-    "title":            "Goods Receipt in SAP MIGO (Regulated Pharma)",
+    "title":            "Pharma GxP Goods Receipt — SAP MIGO",
     "site":             "Cardinal Health DC · Cincinnati, OH",
     "role":             "Receiving Associate (GxP Qualified)",
     "handling_profile": "regulated_pharma",

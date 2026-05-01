@@ -109,7 +109,8 @@
   }
 
   .card h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; line-height: 1.3; }
-  .card .site { font-size: 13px; color: var(--sap-label); margin-bottom: 14px; }
+  .card .site { font-size: 13px; color: var(--sap-label); margin-bottom: 2px; }
+  .card .role { font-size: 12px; color: var(--sap-text); font-weight: 600; margin-bottom: 14px; }
 
   .card .meta {
     display: grid;
@@ -165,9 +166,8 @@
 <div class="page">
   <h1 class="page-title">Scenario Packs</h1>
   <p class="page-sub">
-    Four difficulty levels progressively remove scaffolding and add pressure.
-    Software scenarios train SAP workflows. Hardware scenarios train equipment maintenance and assembly.
-    Pick a scenario to begin.
+    Each scenario has four levels that progressively remove guidance and add pressure.
+    Start with a beginner scenario to learn the flow, then move to specialized handling profiles.
   </p>
 
     <div class="domain-section">
@@ -179,17 +179,40 @@
         </div>
       </div>
       <div class="grid">
+    <a class="card" href="standard_dry_gr/index.html">
+      <div class="stripe" style="background:#6B7280"></div>
+      <div class="card-body">
+        <span class="profile-badge" style="background:#F3F4F6;color:#374151">Standard Dry</span>
+        <h2>Standard Goods Receipt — SAP MIGO</h2>
+        <div class="site">Apex Auto Parts DC · Memphis, TN</div>
+        <div class="role">Receiving Associate</div>
+        <dl class="meta">
+          <dt>Steps</dt><dd>6</dd>
+          <dt>Par</dt><dd>8 clicks</dd>
+          <dt>Time Limit</dt><dd>120 s</dd>
+          <dt>Difficulty</dt><dd><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#6B7280;margin-right:4px;vertical-align:middle"></span>Beginner</dd>
+        </dl>
+        <div class="tags">
+          <span class="tag">Core workflow</span>
+          <span class="tag">Standard receiving</span>
+          <span class="tag">PO match</span>
+          <span class="tag">Stock posting</span>
+        </div>
+      </div>
+      <div class="launch">Launch Trainer →</div>
+    </a>
     <a class="card" href="hazmat_gr/index.html">
-      <div class="stripe" style="background:#BB000B"></div>
+      <div class="stripe" style="background:#0070F2"></div>
       <div class="card-body">
         <span class="profile-badge" style="background:#FDE8E8;color:#9B0000">Hazmat / DOT-OSHA</span>
-        <h2>Hazmat Goods Receipt in SAP MIGO</h2>
-        <div class="site">ChemCo Industrial DC · Houston, TX — Receiving Associate</div>
+        <h2>Hazmat Goods Receipt — SAP MIGO</h2>
+        <div class="site">ChemCo Industrial DC · Houston, TX</div>
+        <div class="role">Receiving Associate</div>
         <dl class="meta">
           <dt>Steps</dt><dd>8</dd>
           <dt>Par</dt><dd>12 clicks</dd>
           <dt>Time Limit</dt><dd>180 s</dd>
-          <dt>Difficulty</dt><dd>Intermediate</dd>
+          <dt>Difficulty</dt><dd><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#0070F2;margin-right:4px;vertical-align:middle"></span>Intermediate</dd>
         </dl>
         <div class="tags">
           <span class="tag">UN numbers</span>
@@ -200,17 +223,40 @@
       </div>
       <div class="launch">Launch Trainer →</div>
     </a>
+    <a class="card" href="serialized_gr/index.html">
+      <div class="stripe" style="background:#0070F2"></div>
+      <div class="card-body">
+        <span class="profile-badge" style="background:#FFF4E5;color:#9A5700">Serialized / High-Value</span>
+        <h2>Serialized Asset Receipt — SAP MIGO</h2>
+        <div class="site">TechVault DC · Austin, TX</div>
+        <div class="role">Receiving Associate</div>
+        <dl class="meta">
+          <dt>Steps</dt><dd>8</dd>
+          <dt>Par</dt><dd>12 clicks</dd>
+          <dt>Time Limit</dt><dd>180 s</dd>
+          <dt>Difficulty</dt><dd><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#0070F2;margin-right:4px;vertical-align:middle"></span>Intermediate</dd>
+        </dl>
+        <div class="tags">
+          <span class="tag">Serial capture</span>
+          <span class="tag">Secure cage</span>
+          <span class="tag">Manager approval</span>
+          <span class="tag">Shrinkage prevention</span>
+        </div>
+      </div>
+      <div class="launch">Launch Trainer →</div>
+    </a>
     <a class="card" href="pharma_gr/index.html">
-      <div class="stripe" style="background:#107E3E"></div>
+      <div class="stripe" style="background:#BB000B"></div>
       <div class="card-body">
         <span class="profile-badge" style="background:#E6F4EA;color:#0D652D">Regulated Pharma / GxP</span>
-        <h2>Goods Receipt in SAP MIGO (Regulated Pharma)</h2>
-        <div class="site">Cardinal Health DC · Cincinnati, OH — Receiving Associate (GxP Qualified)</div>
+        <h2>Pharma GxP Goods Receipt — SAP MIGO</h2>
+        <div class="site">Cardinal Health DC · Cincinnati, OH</div>
+        <div class="role">Receiving Associate (GxP Qualified)</div>
         <dl class="meta">
           <dt>Steps</dt><dd>9</dd>
           <dt>Par</dt><dd>12 clicks</dd>
           <dt>Time Limit</dt><dd>180 s</dd>
-          <dt>Difficulty</dt><dd>Advanced</dd>
+          <dt>Difficulty</dt><dd><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#BB000B;margin-right:4px;vertical-align:middle"></span>Advanced</dd>
         </dl>
         <div class="tags">
           <span class="tag">Batch / Lot</span>
@@ -222,64 +268,23 @@
       <div class="launch">Launch Trainer →</div>
     </a>
     <a class="card" href="sedc_goods_receipt/index.html">
-      <div class="stripe" style="background:#0070F2"></div>
+      <div class="stripe" style="background:#BB000B"></div>
       <div class="card-body">
         <span class="profile-badge" style="background:#E0F0FF;color:#004A9E">Perishable / Cold Chain</span>
-        <h2>Goods Receipt in SAP MIGO</h2>
-        <div class="site">GlobalMart SE-DC · Atlanta, GA — Receiving Associate</div>
+        <h2>Cold Chain Goods Receipt — SAP MIGO</h2>
+        <div class="site">GlobalMart SE-DC · Atlanta, GA</div>
+        <div class="role">Receiving Associate</div>
         <dl class="meta">
           <dt>Steps</dt><dd>9</dd>
           <dt>Par</dt><dd>12 clicks</dd>
           <dt>Time Limit</dt><dd>180 s</dd>
-          <dt>Difficulty</dt><dd>Advanced</dd>
+          <dt>Difficulty</dt><dd><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#BB000B;margin-right:4px;vertical-align:middle"></span>Advanced</dd>
         </dl>
         <div class="tags">
           <span class="tag">Batch / Lot</span>
           <span class="tag">Temp zone</span>
           <span class="tag">QI flag</span>
           <span class="tag">Cold chain</span>
-        </div>
-      </div>
-      <div class="launch">Launch Trainer →</div>
-    </a>
-    <a class="card" href="serialized_gr/index.html">
-      <div class="stripe" style="background:#E87600"></div>
-      <div class="card-body">
-        <span class="profile-badge" style="background:#FFF4E5;color:#9A5700">Serialized / High-Value</span>
-        <h2>Goods Receipt for High-Value Serialized Items (SAP MIGO)</h2>
-        <div class="site">TechVault DC · Austin, TX — Receiving Associate</div>
-        <dl class="meta">
-          <dt>Steps</dt><dd>8</dd>
-          <dt>Par</dt><dd>12 clicks</dd>
-          <dt>Time Limit</dt><dd>180 s</dd>
-          <dt>Difficulty</dt><dd>Intermediate</dd>
-        </dl>
-        <div class="tags">
-          <span class="tag">Serial capture</span>
-          <span class="tag">Secure cage</span>
-          <span class="tag">Manager approval</span>
-          <span class="tag">Shrinkage prevention</span>
-        </div>
-      </div>
-      <div class="launch">Launch Trainer →</div>
-    </a>
-    <a class="card" href="standard_dry_gr/index.html">
-      <div class="stripe" style="background:#6B7280"></div>
-      <div class="card-body">
-        <span class="profile-badge" style="background:#F3F4F6;color:#374151">Standard Dry</span>
-        <h2>Goods Receipt in SAP MIGO</h2>
-        <div class="site">Apex Auto Parts DC · Memphis, TN — Receiving Associate</div>
-        <dl class="meta">
-          <dt>Steps</dt><dd>6</dd>
-          <dt>Par</dt><dd>8 clicks</dd>
-          <dt>Time Limit</dt><dd>120 s</dd>
-          <dt>Difficulty</dt><dd>Beginner</dd>
-        </dl>
-        <div class="tags">
-          <span class="tag">No batch</span>
-          <span class="tag">No temp zone</span>
-          <span class="tag">No QI</span>
-          <span class="tag">Simplest flow</span>
         </div>
       </div>
       <div class="launch">Launch Trainer →</div>
@@ -297,43 +302,45 @@
       </div>
       <div class="grid">
     <a class="card hw" href="ar15_field_strip/index.html">
-      <div class="stripe" style="background:#FF8C00"></div>
+      <div class="stripe" style="background:#0070F2"></div>
       <div class="card-body">
-        <span class="profile-badge" style="background:#FFF3E0;color:#BF6000">Hardware</span>
+        <span class="profile-badge" style="background:#FFF3E0;color:#BF6000">Firearms Maintenance</span>
         <h2>AR-15 Safe Field Strip &amp; Cleaning</h2>
-        <div class="site">Range Safety Training Center — Armorer Trainee</div>
+        <div class="site">Range Safety Training Center</div>
+        <div class="role">Armorer Trainee</div>
         <dl class="meta">
           <dt>Steps</dt><dd>8</dd>
           <dt>Par</dt><dd>12 clicks</dd>
           <dt>Time Limit</dt><dd>300 s</dd>
-          <dt>Difficulty</dt><dd>Intermediate</dd>
+          <dt>Difficulty</dt><dd><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#0070F2;margin-right:4px;vertical-align:middle"></span>Intermediate</dd>
         </dl>
         <div class="tags">
-          <span class="tag">Verify the weapon is clear</span>
-          <span class="tag">Push out the takedown pins</span>
-          <span class="tag">Remove the bolt carrier group and charging handle</span>
-          <span class="tag">Remove the firing pin and cam pin from the bolt carrier</span>
+          <span class="tag">Safety check</span>
+          <span class="tag">Takedown pins</span>
+          <span class="tag">BCG removal</span>
+          <span class="tag">Bolt disassembly</span>
         </div>
       </div>
       <div class="launch">Launch Trainer →</div>
     </a>
     <a class="card hw" href="f150_trans_service/index.html">
-      <div class="stripe" style="background:#FF8C00"></div>
+      <div class="stripe" style="background:#0070F2"></div>
       <div class="card-body">
-        <span class="profile-badge" style="background:#FFF3E0;color:#BF6000">Hardware</span>
+        <span class="profile-badge" style="background:#FFF3E0;color:#BF6000">Automotive Service</span>
         <h2>F-150 Shift Lever &amp; Seal Service</h2>
-        <div class="site">Home Garage / Field Maintenance — Maintenance Technician</div>
+        <div class="site">Home Garage / Field Maintenance</div>
+        <div class="role">Maintenance Technician</div>
         <dl class="meta">
           <dt>Steps</dt><dd>7</dd>
           <dt>Par</dt><dd>10 clicks</dd>
           <dt>Time Limit</dt><dd>300 s</dd>
-          <dt>Difficulty</dt><dd>Intermediate</dd>
+          <dt>Difficulty</dt><dd><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#0070F2;margin-right:4px;vertical-align:middle"></span>Intermediate</dd>
         </dl>
         <div class="tags">
-          <span class="tag">Remove the shift lever boot and retainer clips</span>
-          <span class="tag">Remove the shift lever using the eccentric stud technique</span>
-          <span class="tag">Remove the inner shift lever boot</span>
-          <span class="tag">Raise the vehicle and inspect the extension housing seal</span>
+          <span class="tag">Boot removal</span>
+          <span class="tag">Eccentric stud</span>
+          <span class="tag">Seal inspection</span>
+          <span class="tag">Torque spec</span>
         </div>
       </div>
       <div class="launch">Launch Trainer →</div>

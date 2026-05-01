@@ -34,7 +34,7 @@ from scenarios.base import (
 
 SCENARIO = {
     "id":               "sedc_goods_receipt",
-    "title":            "Goods Receipt in SAP MIGO",
+    "title":            "Cold Chain Goods Receipt — SAP MIGO",
     "site":             "GlobalMart SE-DC · Atlanta, GA",
     "role":             "Receiving Associate",
     "handling_profile": "perishable",
