@@ -125,6 +125,7 @@ def _extract_tags(S):
 DOMAIN_STRIPE = {
     "software": "#0070F2",   # SAP blue
     "hardware": "#FF8C00",   # safety orange
+    "fusion":   "#7B5BD9",   # purple — neither blue nor orange, signals "both"
 }
 
 PROFILE_COLORS = {
@@ -135,6 +136,8 @@ PROFILE_COLORS = {
     "serialized":      {"badge_bg": "#FFF4E5", "badge_fg": "#9A5700"},
     # Hardware
     "hardware":        {"badge_bg": "#FFF3E0", "badge_fg": "#BF6000"},
+    # Fusion (HW/SW combined)
+    "fusion":          {"badge_bg": "#EDE9FE", "badge_fg": "#5B3FB7"},
 }
 
 DEFAULT_COLORS = {"badge_bg": "#F3F4F6", "badge_fg": "#374151"}
@@ -152,17 +155,21 @@ def generate_html(scenarios):
         key=lambda s: _DIFFICULTY_ORDER.get(s["difficulty"], 9),
     )
     hardware = [s for s in scenarios if s["training_domain"] == "hardware"]
+    fusion   = [s for s in scenarios if s["training_domain"] == "fusion"]
 
     cards_sw = "\n".join(_card_html(s) for s in software)
     cards_hw = "\n".join(_card_html(s) for s in hardware)
+    cards_fu = "\n".join(_card_html(s) for s in fusion)
 
     total = len(scenarios)
     sw_count = len(software)
     hw_count = len(hardware)
+    fu_count = len(fusion)
 
     # Domain section headers
     sw_section = ""
     hw_section = ""
+    fu_section = ""
 
     if software:
         sw_section = f"""
@@ -192,6 +199,22 @@ def generate_html(scenarios):
       </div>
       <div class="grid">
 {cards_hw}
+      </div>
+    </div>
+"""
+
+    if fusion:
+        fu_section = f"""
+    <div class="domain-section">
+      <div class="domain-header">
+        <div class="domain-icon fu">⚡</div>
+        <div>
+          <h2 class="domain-title">Hardware/Software Fusion</h2>
+          <p class="domain-sub">Procedures combining physical hardware and embedded software — {fu_count} scenario{"s" if fu_count != 1 else ""}</p>
+        </div>
+      </div>
+      <div class="grid">
+{cards_fu}
       </div>
     </div>
 """
@@ -265,6 +288,7 @@ def generate_html(scenarios):
   }}
   .domain-icon.sw {{ background: #E0F0FF; }}
   .domain-icon.hw {{ background: #FFF3E0; }}
+  .domain-icon.fu {{ background: #EDE9FE; }}
   .domain-title {{ font-size: 20px; font-weight: 700; color: var(--sap-shell); }}
   .domain-sub {{ font-size: 13px; color: var(--sap-label); margin-top: 2px; }}
 
@@ -367,7 +391,7 @@ def generate_html(scenarios):
     Each scenario has four levels that progressively remove guidance and add pressure.
     Start with a beginner scenario to learn the flow, then move to specialized handling profiles.
   </p>
-{sw_section}{hw_section}</div>
+{sw_section}{hw_section}{fu_section}</div>
 
 <div class="footer">
   Zero-Touch Training POC · {total} Scenario{"s" if total != 1 else ""} · 4 Difficulty Levels · Open in any browser
@@ -452,7 +476,12 @@ def main():
     print(f"  Found {len(scenarios)} scenario(s)")
 
     for s in scenarios:
-        domain_label = "🔧 HW" if s["training_domain"] == "hardware" else "⚙ SW"
+        if s["training_domain"] == "hardware":
+            domain_label = "🔧 HW"
+        elif s["training_domain"] == "fusion":
+            domain_label = "⚡ FU"
+        else:
+            domain_label = "⚙ SW"
         print(f"    {domain_label}  {s['id']:30s}  {s['title']}")
 
     html = generate_html(scenarios)

@@ -79,7 +79,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ## Phase 2: Expansion (Weeks 3-8)
 
-> **Status as of May 2026:** Phase 2 is in progress. Three of the eight planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), and refined demo materials. Five activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, Opal overlay pattern, and the HW/SW fusion scenario. The HW/SW fusion scenario is the next planned build per ROI ordering.
+> **Status as of May 2026:** Phase 2 is in progress. Four of the eight planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), HW/SW fusion scenario (drone pre-flight as PoC, with buyer-facing required-assets checklist), and refined demo materials. Four activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, and Opal overlay pattern.
 
 ### Scope
 - **3-5 Processes**: Expand from single process to multiple, including variations (e.g., standard PO, direct invoice, returns)
@@ -133,11 +133,13 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
    **Delivered:** `poc/detect_changes.py` (snapshot/check/status CLI), `poc/data/scenario_deps.yaml` (explicit scenario→source dependency map), `poc/snapshots/` (committed baselines), `poc/ci_examples/training-drift.yml` (reference GitHub Actions workflow), `docs/drift-detection-demo.md` (demo playbook). Markdown report shows step-level before/after values per change. End-to-end demo verified: modify Tosca → check correctly identifies changed fields, maps to all dependent scenarios, exits 1 for CI gating.
 
-7. **Build Hardware/Software Fusion Scenario** — 🔨 NEXT PLANNED
+7. **Build Hardware/Software Fusion Scenario** — ✅ COMPLETE (May 2026)
    - Identify a representative weapon-system maintenance or operator task that combines hardware identification with embedded-software workflow (candidates: FCS LRU diagnostic BIT execution, BFT software load verification, JBC-P configuration, M1A2 SEPv3 fault isolation)
    - Extend the scenario module pattern to support both photo-annotation steps (hardware) and Fiori-style screen steps (software) within a single trainer
    - Validate that the React engine handles mixed-domain step types without engine branching — the abstraction should already support this; this scenario proves it
    - Use as the centerpiece demo for Army weapon-system program offices, where the "almost every weapon system has embedded software" argument needs a concrete artifact
+
+   **Delivered:** `poc/generators/scenarios/drone_preflight.py` — 6-step alternating HW/SW fusion scenario (consumer drone pre-flight inspection). `docs/hw-sw-fusion-required-assets.md` — buyer-facing leave-behind documenting the seven asset categories needed to compile any HW/SW fusion scenario, with PoC substitutes called out explicitly. Index generator updated to render fusion scenarios as a third domain section alongside software and hardware. **Validation: the React engine rendered the alternating sequence with zero engine-code changes** — `training_domain: "fusion"` passes through the existing dispatch and the engine treats hardware and software step images identically. Scenario uses commercial-only assets (consumer drone, generic operator app) so the PoC has no classification, IP, or vendor-relationship dependencies. Buyer-facing pitch reframes from "weapon-system program office demo" to "if you have these seven asset categories, this works for any HW/SW procedure you maintain."
 
 8. **Alternate Character Render (Blue-Collar Warehouse Worker)** — ✅ COMPLETE (May 2026)
    - Add a second character set to the Veo 3 video pipeline alongside the Bigfoot cast

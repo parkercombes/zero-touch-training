@@ -129,6 +129,7 @@ zero-touch-training/
 | UI trainer — hardware base module | ✅ Done | `base_hardware.py` — photo annotation helpers, placeholder generation, HARDWARE_BRANDING |
 | UI trainer — AR-15 pilot scenario | ✅ Done | `ar15_field_strip.py` — 8-step field strip, placeholder diagrams, safety-first progression |
 | UI trainer — F-150 scenario | ✅ Done | `f150_trans_service.py` — 7-step shift lever & seal service, real manual photos, automotive maintenance |
+| UI trainer — drone pre-flight (HW/SW fusion) | ✅ Done | `drone_preflight.py` — 6-step alternating hardware-photo/software-app scenario; proves engine handles fusion with zero code changes (`training_domain: "fusion"`) |
 | Scenario selector generator | ✅ Done | `generate_index.py` — auto-discovers scenarios, groups by domain (software/hardware), generates index.html |
 | ERPNext capture pipeline | ✅ Done | `capture/capture_gr.py` — Playwright-based screen capture from live ERPNext, replaces drawn screens for standard_dry_gr |
 | Drift detection (Layer 6) | ✅ Done | `detect_changes.py` — snapshot/check/status CLI; diffs parsed Tosca/BPMN/overlay against committed baselines, maps changes to affected scenarios via `scenario_deps.yaml`, emits JSON + Markdown reports with step-level before/after values, exits 1 for CI gating |
@@ -287,6 +288,9 @@ python generators/ui_trainer.py scenarios.serialized
 python generators/ui_trainer.py scenarios.ar15_field_strip
 python generators/ui_trainer.py scenarios.f150_trans_service
 
+# UI trainer — HW/SW fusion scenario
+python generators/ui_trainer.py scenarios.drone_preflight
+
 # Regenerate the scenario selector (index.html) after adding/removing scenarios
 python generators/generate_index.py
 
@@ -297,14 +301,13 @@ python parsers/bpmn_parser.py data/bpmn/purchase_to_pay.xml
 
 ## What's Next (Phase 2 remaining)
 
-Three of the eight Phase 2 activities are complete (drift detection, character swap, refined demo materials). Still ahead, in rough ROI order:
+Four of the eight Phase 2 activities are complete (drift detection, character swap, HW/SW fusion scenario, refined demo materials). Still ahead, in rough ROI order:
 
-1. **Hardware/Software Fusion Scenario** — single trainer combining hardware photo-annotation steps with software workflow steps. Centerpiece demo for Army weapon-system program offices. Candidate scenarios: FCS LRU BIT execution, BFT software load verification, JBC-P configuration, M1A2 SEPv3 fault isolation. The React engine should already support mixed-domain step types — this scenario validates that.
-2. **Refined process-agnostic prompt templates** — current prompts are tuned for SAP MIGO. Need parameterized templates that work for any transaction type without rewriting per-scenario.
-3. **Opal overlay pattern** — formalize the configuration-driven overlay abstraction with real SE-DC site data; document the specification.
-4. **WalkMe integration design** — beyond the JSON draft format the generator already produces. Design the actual integration points with a deployed WalkMe instance.
-5. **Repeatable pipeline tooling** — versioning, rollback, automated asset validation, conflict detection.
-6. **3-5 additional process areas** — expand from PR/GR to 3-4 more processes (e.g. invoice receipt, returns, vendor master changes).
+1. **Refined process-agnostic prompt templates** — current prompts are tuned for SAP MIGO. Need parameterized templates that work for any transaction type without rewriting per-scenario.
+2. **Opal overlay pattern** — formalize the configuration-driven overlay abstraction with real SE-DC site data; document the specification.
+3. **WalkMe integration design** — beyond the JSON draft format the generator already produces. Design the actual integration points with a deployed WalkMe instance.
+4. **Repeatable pipeline tooling** — versioning, rollback, automated asset validation, conflict detection.
+5. **3-5 additional process areas** — expand from PR/GR to 3-4 more processes (e.g. invoice receipt, returns, vendor master changes).
 
 Phase 3 (multi-site rollout) and Phase 4 (operationalize / handoff) follow. See `docs/roadmap.md` for full detail.
 

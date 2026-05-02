@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive UI Trainer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a1a; margin: 0; }
+  #root { height: 100vh; overflow: hidden; }
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+// ── Scenario data (injected by ui_trainer.py) ──
+window.__SCENARIO__        = {
+  "id": "drone_preflight",
+  "title": "Drone Pre-Flight Inspection (HW/SW Fusion PoC)",
+  "site": "Commercial Operator \u2014 Generic Worksite",
+  "role": "Remote Pilot (Part 107)",
+  "training_domain": "fusion",
+  "branding": {
+    "shell_color": "#3C3C3C",
+    "accent_color": "#FF8C00",
+    "level_colors": [
+      "#22B14C",
+      "#2196F3",
+      "#FF8C00",
+      "#E53935"
+    ],
+    "level_names": [
+      "OBSERVE",
+      "FOLLOW ALONG",
+      "DO IT",
+      "SPEED RUN"
+    ],
+    "level_descriptions": [
+      "Walk through the pre-flight inspection. Hardware checks alternate with app checks. No timer.",
+      "Follow each step with visual guidance. Build the alternation rhythm.",
+      "No highlights. Skipping a check has consequences. Hints cost time.",
+      "Timed pre-flight. No help. Prove you can clear an aircraft for flight."
+    ]
+  },
+  "handling_profile": null,
+  "tutorial": [
+    {
+      "screen": "step1_propellers.png",
+      "step_kind": "hardware",
+      "goal": "Verify all four propellers are seated and matched (CW/CCW)",
+      "instruction": "Inspect each propeller. Confirm the locking mechanism is fully engaged and that CW/CCW propellers are on the correct arms.",
+      "hint": "One of the four propellers is highlighted \u2014 look for the one that doesn't match the others. A misseated propeller will appear loose or off-axis.",
+      "hotspot": {
+        "x": 380,
+        "y": 480,
+        "w": 130,
+        "h": 130
+      },
+      "feedback": "Propeller misseat caught. The trainee identified the rear-left propeller before takeoff.",
+      "consequence": "An unseated propeller separates in flight within seconds of throttle-up. The aircraft loses lift on that arm and crashes within a few rotor diameters of the takeoff point. This is one of the most common preventable causes of small-UAS hull losses, and it is always caught at pre-flight or never caught at all.",
+      "explore_info": [
+        "Propeller \u2014 generates lift. Rotates one direction only; FL and RR are CW, FR and RL are CCW (or vice versa per OEM).",
+        "Hub \u2014 locks the propeller to the motor shaft via a quarter-turn or push-and-twist mechanism.",
+        "Why this matters in pre-flight \u2014 propellers are removed for transport. They are also the single point that fails most often in flight, and the failure is silent until throttle-up."
+      ]
+    },
+    {
+      "screen": "step2_app_open.png",
+      "step_kind": "software",
+      "goal": "Confirm the aircraft is paired and on a compatible firmware",
+      "instruction": "Open the flight app. Verify the aircraft model, firmware version, and that it reports as Connected and Compatible.",
+      "hint": "Tap the OPEN FLIGHT button to enter the pre-flight checklist. Note the firmware and app version match the compatible list.",
+      "hotspot": {
+        "x": 880,
+        "y": 160,
+        "w": 300,
+        "h": 70
+      },
+      "feedback": "Aircraft connection confirmed: Mini 4 Pro, firmware v01.04.0500, app v1.13.4 \u2014 compatible.",
+      "consequence": "An aircraft on mismatched firmware will throttle some flight modes silently. The operator gets in the air thinking they have full obstacle sensing, discovers mid-flight that obstacle avoidance is disabled, and finds out from a tree. Always read the version banner before opening flight.",
+      "explore_info": [
+        "Firmware \u2014 embedded software on the aircraft. Updated periodically by the OEM.",
+        "App version \u2014 the operator's mobile/tablet app. Must be on the OEM's compatibility matrix for the firmware version.",
+        "Why this matters \u2014 firmware/app mismatches degrade flight features without obvious warnings. The compatibility check is a one-second tap that prevents silent feature loss."
+      ]
+    },
+    {
+      "screen": "step3_battery.png",
+      "step_kind": "hardware",
+      "goal": "Confirm battery is fully latched into the airframe",
+      "instruction": "Press the battery firmly into the compartment until the latch clicks. Visually verify there is no gap between battery and airframe.",
+      "hint": "The latch is on the right edge of the battery compartment. It should sit flush \u2014 any gap means it isn't fully engaged.",
+      "hotspot": {
+        "x": 870,
+        "y": 320,
+        "w": 60,
+        "h": 60
+      },
+      "feedback": "Battery latch fully engaged. Click confirmed.",
+      "consequence": "A battery that vibrates loose mid-flight cuts power to the motors instantaneously. The aircraft drops from altitude with no glide. This failure mode killed enough commercial sUAS programs that DJI added a redundant latch sensor in firmware \u2014 but that sensor only catches a fully unlatched battery, not a half-seated one. Mechanical click is still the gold-standard check.",
+      "explore_info": [
+        "Battery \u2014 the Intelligent Flight Battery powers both the motors and the avionics. Hot-swappable on the ground.",
+        "Latch \u2014 the physical mechanism that holds the battery in place against vibration and the upward thrust component.",
+        "LED indicator \u2014 battery state-of-charge. 4 LEDs = 100%, 1 LED = \u226425%. Pre-flight minimum is typically 50%."
+      ]
+    },
+    {
+      "screen": "step4_gps_lock.png",
+      "step_kind": "software",
+      "goal": "Confirm GPS satellite count meets minimum for stable hover",
+      "instruction": "Wait for satellite count to reach \u2265 12 before arming. Verify horizontal accuracy is < 2 m and that no NFZ alert is active for your location.",
+      "hint": "The satellite count is at the top of the Position Lock card. If it's still searching (orange), wait \u2014 never take off on a partial lock.",
+      "hotspot": {
+        "x": 90,
+        "y": 195,
+        "w": 300,
+        "h": 60
+      },
+      "feedback": "GPS lock acquired: 14 satellites, 1.2 m horizontal accuracy. Airspace clear.",
+      "consequence": "Taking off on a weak GPS lock means the aircraft can't hold position. It drifts on a windy day until it either hits something or the operator manually fights it back. In a worst case, the drift takes the aircraft outside the operator's visual line of sight (a Part 107 violation) before they realize it's drifting.",
+      "explore_info": [
+        "Satellite count \u2014 number of GPS/GNSS satellites the aircraft has lock on. More = more accurate position.",
+        "Horizontal accuracy \u2014 the radius of position uncertainty. Under 2 m is good for autonomous hover; over 5 m is unsafe.",
+        "NFZ (No-Fly Zone) \u2014 geofenced airspace where takeoff is blocked. Includes airports, stadiums during events, and active TFRs.",
+        "Part 107 \u2014 the FAA Part 107 small UAS rule, the regulatory framework for commercial sUAS operations."
+      ]
+    },
+    {
+      "screen": "step5_gimbal.png",
+      "step_kind": "hardware",
+      "goal": "Verify gimbal moves through full range on power-up self-test",
+      "instruction": "Watch the gimbal during the power-up sequence. It should pitch, yaw, and roll through its full range. No grinding, no stuck axes.",
+      "hint": "The gimbal is at the front of the aircraft. On a clean power-up it makes a smooth motion sweep. Any jerkiness or stuck axis means a bad gimbal motor or a transport-lock that wasn't removed.",
+      "hotspot": {
+        "x": 600,
+        "y": 340,
+        "w": 80,
+        "h": 80
+      },
+      "feedback": "Gimbal motion confirmed across all three axes. Self-test complete.",
+      "consequence": "A stuck gimbal that flies anyway produces unstable footage \u2014 every frame jitters because the gimbal is fighting against a stuck axis. For commercial operators, that's a wasted flight. For inspection or mapping work, it's a missed deliverable. Worse cases: a gimbal that disconnects mid-flight because of a damaged ribbon cable, dropping the camera assembly.",
+      "explore_info": [
+        "Gimbal \u2014 3-axis stabilized mount for the camera. Compensates for aircraft motion to produce smooth video.",
+        "Self-test \u2014 automatic motion sweep on power-up that verifies each motor and axis works.",
+        "Transport lock \u2014 a small clip some OEMs ship to immobilize the gimbal during transport. Easy to forget. Causes immediate self-test failure."
+      ]
+    },
+    {
+      "screen": "step6_rth_altitude.png",
+      "step_kind": "software",
+      "goal": "Set Return-to-Home altitude above local obstacles",
+      "instruction": "Set the RTH altitude in the field. The value must exceed the tallest obstacle within 500 m of the takeoff point (here: 105 m office tower \u2192 set 120 m or higher).",
+      "hint": "The RTH altitude field is at the top of the Return-to-Home card. Default is 30 m \u2014 too low for this site. Set 120 m.",
+      "hotspot": {
+        "x": 90,
+        "y": 195,
+        "w": 300,
+        "h": 50
+      },
+      "feedback": "RTH altitude set to 120 m, clearing the 105 m office tower with margin.",
+      "consequence": "If the aircraft loses controller signal and triggers RTH at the default 30 m, it climbs to 30 m and flies straight back to launch \u2014 directly into the 105 m office tower it just took off near. RTH-into-obstacle is one of the most preventable hull losses in commercial operation. The operator's responsibility is to know the obstacles and set the altitude above them, every flight, even if the takeoff site looks the same as yesterday.",
+      "explore_info": [
+        "RTH (Return-to-Home) \u2014 the autonomous flight mode the aircraft enters on signal loss, low battery, or operator command.",
+        "RTH altitude \u2014 the altitude the aircraft climbs to before flying back to the home point. Must exceed obstacles in the return path.",
+        "Home point \u2014 the GPS coordinate the aircraft considers its takeoff origin. Set automatically on satellite lock.",
+        "Why operator-set, not automatic \u2014 the OEM doesn't know your site's obstacles. Setting RTH altitude is the operator's affirmative pre-flight decision."
+      ]
+    }
+  ],
+  "premises": [
+    {
+      "headline": "First flight of the morning. Cold battery, half-light, hurry.",
+      "context": "You're the first to arrive on-site. Pre-flight feels routine after a thousand of them. The temptation to rush is highest right now."
+    },
+    {
+      "headline": "New site. You've never flown here before.",
+      "context": "Obstacles you haven't seen. Airspace you haven't checked. The default RTH altitude is the wrong altitude for this site."
+    },
+    {
+      "headline": "Firmware updated last night.",
+      "context": "The aircraft and app updated in the truck overnight. Compatibility is not guaranteed. The version banner is more important today than usual."
+    },
+    {
+      "headline": "Rental aircraft, returned by a previous operator.",
+      "context": "You don't know what's been done to this airframe. Propellers may have been swapped incorrectly. Battery may not be the original. Inspect every step."
+    }
+  ]
+};
+window.__SCREENS__         = {
+  "step1_propellers.png": "screens/step1_propellers.png",
+  "step2_app_open.png": "screens/step2_app_open.png",
+  "step3_battery.png": "screens/step3_battery.png",
+  "step4_gps_lock.png": "screens/step4_gps_lock.png",
+  "step5_gimbal.png": "screens/step5_gimbal.png",
+  "step6_rth_altitude.png": "screens/step6_rth_altitude.png"
+};
+window.__SCREENS_NEUTRAL__ = {
+  "step1_propellers.png": "screens_neutral/step1_propellers.png",
+  "step2_app_open.png": "screens_neutral/step2_app_open.png",
+  "step3_battery.png": "screens_neutral/step3_battery.png",
+  "step4_gps_lock.png": "screens_neutral/step4_gps_lock.png",
+  "step5_gimbal.png": "screens_neutral/step5_gimbal.png",
+  "step6_rth_altitude.png": "screens_neutral/step6_rth_altitude.png"
+};
+</script>
+
+<script type="text/babel">
+/**
+ * trainer_app.jsx — React Interactive UI Trainer
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * Four-level progression:
+ *   Level 0 — EXPLORE       Free roam, element descriptions, no pressure
+ *   Level 1 — GUIDED        Spotlight + step-by-step + free hints
+ *   Level 2 — ON YOUR OWN   No spotlight, hints cost XP (10s delay)
+ *   Level 3 — CHALLENGE     Timer, narrative premise, no hints
+ *
+ * Pre-play briefing screen with optional 3D exploded view is shown between
+ * level select and play for all levels (hardware scenarios).
+ *
+ * Scenario data is injected as window.__SCENARIO__ and window.__SCREENS__
+ * by the Python generator (ui_trainer.py).
+ */
+
+// Hooks from React global (loaded via CDN UMD build)
+const { useState, useReducer, useRef, useEffect, useCallback } = React;
+
+// ── Scenario data (injected by ui_trainer.py into the HTML wrapper) ─────────
+const SCENARIO        = window.__SCENARIO__;
+const SCREENS         = window.__SCREENS__;          // highlighted (L0, L1)
+const SCREENS_NEUTRAL = window.__SCREENS_NEUTRAL__;  // neutral    (L2, L3)
+const steps   = SCENARIO.tutorial;
+const mission = SCENARIO.mission;
+
+// ── Domain detection ──────────────────────────────────────────────────────────
+const IS_HARDWARE = SCENARIO.training_domain === "hardware";
+
+// ── Branding (injected from scenario, with SAP defaults as fallback) ────────
+const B = SCENARIO.branding || {};
+const SHELL_COLOR  = B.shell_color  || "#033D80";
+const ACCENT       = B.accent_color || "#E87600";
+const LEVEL_COLORS = B.level_colors || ["#107E3E", "#0070F2", "#E87600", "#BB000B"];
+const LEVEL_NAMES  = B.level_names  || ["EXPLORE", "GUIDED", "ON YOUR OWN", "CHALLENGE"];
+const LEVEL_DESCS  = B.level_descriptions || [
+  "Learn the screen. No pressure. Click around and see what everything does.",
+  "Follow the prompts. Each step is highlighted. Build the right habits.",
+  "No highlights. Hints cost XP. Wrong clicks show you what would have gone wrong.",
+  "Timer on. No help. Real scenario. Score goes on the board.",
+];
+// Derived colours — computed once from the 5 branding primaries
+const hexToRgb = (h) => { const n = parseInt(h.slice(1), 16); return `${(n>>16)&255},${(n>>8)&255},${n&255}`; };
+const SHELL_RGB  = hexToRgb(SHELL_COLOR);
+const ACCENT_RGB = hexToRgb(ACCENT);
+const LC_RGB     = LEVEL_COLORS.map(hexToRgb);  // level colour RGB strings
+
+// ── Audio cues (Web Audio API — no external files needed) ───────────────────
+const AudioCue = (() => {
+  let ctx = null;
+  const getCtx = () => {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return ctx;
+  };
+
+  const play = (freq, duration, type = "sine", gain = 0.15) => {
+    try {
+      const ac = getCtx();
+      const osc = ac.createOscillator();
+      const g = ac.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(gain, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + duration);
+      osc.connect(g);
+      g.connect(ac.destination);
+      osc.start();
+      osc.stop(ac.currentTime + duration);
+    } catch (e) { /* audio not available */ }
+  };
+
+  return {
+    correct() { play(880, 0.12, "sine", 0.12); setTimeout(() => play(1100, 0.18, "sine", 0.10), 120); },
+    wrong()   { play(220, 0.25, "square", 0.08); },
+    tick()    { play(1000, 0.05, "sine", 0.06); },
+    win()     { [0, 100, 200, 300].forEach((d, i) => setTimeout(() => play(660 + i * 110, 0.2, "sine", 0.10), d)); },
+    timeout() { play(180, 0.5, "sawtooth", 0.08); },
+  };
+})();
+
+// ── State machine via useReducer ────────────────────────────────────────────
+const initialState = {
+  screen: "level-select",   // "level-select" | "briefing" | "play" | "narrative" | "debrief" | "win" | "timeout" | "review"
+  level: -1,                // 0-3
+  stepIdx: 0,
+  exploreIdx: 0,
+  score: 0,
+  xp: 0,
+  wrongClicks: 0,
+  totalClicks: 0,
+  hintVisible: false,
+  hintPending: false,
+  hintCountdown: 0,
+  timeRemaining: 0,
+  timerRunning: false,
+  feedback: null,           // { type: "correct"|"wrong", msg: string, consequence?, goal? } | null
+  // Review mode
+  reviewOrder: [],          // shuffled step indices
+  reviewIdx: 0,             // position within reviewOrder
+  consecutiveErrors: 0,     // for adaptive hints (Gap #5a)
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "SELECT_LEVEL":
+      return {
+        ...initialState,
+        screen: "briefing",
+        level: action.level,
+        timeRemaining: mission.time_limit || 180,
+      };
+
+    case "BEGIN_TRAINING":
+      // Transition from briefing → play (or narrative for Level 3)
+      return {
+        ...state,
+        screen: state.level === 3 ? "narrative" : "play",
+        timerRunning: false,  // L3 timer starts after narrative, not briefing
+      };
+
+    case "START_CHALLENGE":
+      return { ...state, screen: "play", timerRunning: true };
+
+    case "NEXT_STEP": {
+      const bonus = action.skip ? 0 : 50;
+      const xpBonus = action.skip ? 0 : 5;
+      const nextIdx = state.stepIdx + 1;
+      if (nextIdx >= steps.length) {
+        // Show debrief after levels 1-2; skip for L0 (explore) and L3 (speed run)
+        const nextScreen = (state.level === 1 || state.level === 2) ? "debrief" : "win";
+        return {
+          ...state, screen: nextScreen, timerRunning: false,
+          score: state.score + bonus, xp: state.xp + xpBonus,
+        };
+      }
+      return {
+        ...state, stepIdx: nextIdx,
+        score: state.score + bonus, xp: state.xp + xpBonus,
+        hintVisible: false, hintPending: false, hintCountdown: 0,
+        wrongClicks: 0, feedback: null, consecutiveErrors: 0,
+      };
+    }
+
+    case "DEBRIEF_DONE":
+      return { ...state, screen: "win" };
+
+    case "START_REVIEW": {
+      // Pick up to 5 random steps, shuffled
+      const indices = steps.map((_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      const reviewOrder = indices.slice(0, Math.min(5, indices.length));
+      return {
+        ...initialState,
+        screen: "review",
+        level: 2, // use L2 mechanics (neutral screens, no spotlight)
+        stepIdx: reviewOrder[0],
+        reviewOrder,
+        reviewIdx: 0,
+        score: 0, xp: 0,
+      };
+    }
+
+    case "REVIEW_NEXT": {
+      const nextRI = state.reviewIdx + 1;
+      if (nextRI >= state.reviewOrder.length) {
+        return { ...state, screen: "win" };
+      }
+      return {
+        ...state,
+        reviewIdx: nextRI,
+        stepIdx: state.reviewOrder[nextRI],
+        wrongClicks: 0, feedback: null,
+        hintVisible: false, hintPending: false, hintCountdown: 0,
+        consecutiveErrors: 0,
+      };
+    }
+
+    case "CORRECT_CLICK": {
+      const base = state.level === 3 ? 200 : state.level === 2 ? 150 : 100;
+      const penalty = state.wrongClicks * 25;
+      const pts = Math.max(base - penalty, 10);
+      const xpGain = state.level === 3 ? 30 : state.level === 2 ? 20 : 10;
+      return {
+        ...state,
+        score: state.score + pts, xp: state.xp + xpGain,
+        totalClicks: state.totalClicks + 1,
+        consecutiveErrors: 0,
+        feedback: {
+          type: "correct",
+          msg: state.level === 3 ? "✓ Correct!" : steps[state.stepIdx].feedback,
+        },
+      };
+    }
+
+    case "WRONG_CLICK": {
+      const step = steps[state.stepIdx];
+      const newConsec = state.consecutiveErrors + 1;
+      let msg = "Wrong element. Try again.";
+      let consequence = null;
+      if (state.level >= 2 && step.consequence) {
+        msg = "Wrong element.";
+        consequence = step.consequence;
+      } else if (state.level === 1) {
+        msg = "Not quite — look for the highlighted area.";
+      }
+      // Adaptive: after 3 consecutive errors on L2, grant a free hint
+      const adaptiveHint = (state.level === 2 && newConsec >= 3 && !state.hintVisible);
+      return {
+        ...state,
+        wrongClicks: state.wrongClicks + 1,
+        totalClicks: state.totalClicks + 1,
+        consecutiveErrors: newConsec,
+        hintVisible: adaptiveHint ? true : state.hintVisible,
+        feedback: {
+          type: "wrong", msg, consequence, goal: step.goal,
+          adaptive: adaptiveHint,
+        },
+      };
+    }
+
+    case "CLEAR_FEEDBACK":
+      return { ...state, feedback: null };
+
+    case "SHOW_HINT":
+      return { ...state, hintVisible: true };
+
+    case "HIDE_HINT":
+      return { ...state, hintVisible: false };
+
+    case "REQUEST_COSTLY_HINT":
+      return {
+        ...state, hintPending: true, hintCountdown: 10,
+        xp: Math.max(state.xp - 50, 0),
+        feedback: { type: "wrong", msg: "−50 XP for hint. Revealing in 10 seconds..." },
+      };
+
+    case "HINT_COUNTDOWN_TICK": {
+      const next = state.hintCountdown - 1;
+      if (next <= 0) {
+        return { ...state, hintCountdown: 0, hintPending: false, hintVisible: true };
+      }
+      return { ...state, hintCountdown: next };
+    }
+
+    case "TIMER_TICK": {
+      const t = state.timeRemaining - 1;
+      if (t <= 0) return { ...state, timeRemaining: 0, timerRunning: false, screen: "timeout" };
+      return { ...state, timeRemaining: t };
+    }
+
+    case "EXPLORE_NAV": {
+      const next = state.exploreIdx + action.dir;
+      if (next < 0 || next >= steps.length) return state;
+      return { ...state, exploreIdx: next };
+    }
+
+    case "BACK_TO_LEVELS":
+      return { ...initialState };
+
+    case "RESTART":
+      return {
+        ...initialState,
+        screen: "briefing",
+        level: state.level,
+        timeRemaining: mission.time_limit || 180,
+      };
+
+    default:
+      return state;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HUD — top bar
+// ═══════════════════════════════════════════════════════════════════════════════
+function HUD({ state }) {
+  const { level, stepIdx, exploreIdx, score, xp, timeRemaining, timerRunning } = state;
+  const lv = level >= 0 ? level : 0;
+  const isReview = state.screen === "review";
+  const totalSteps = isReview ? state.reviewOrder.length : steps.length;
+  const currentStep = isReview ? state.reviewIdx : (level === 0 ? exploreIdx : stepIdx);
+  const pct = ((currentStep + 1) / totalSteps) * 100;
+
+  const mins = Math.floor(timeRemaining / 60);
+  const secs = timeRemaining % 60;
+  const timerText = `${mins}:${secs.toString().padStart(2, "0")}`;
+
+  let timerBg = `rgba(${LC_RGB[3]},0.3)`;
+  if (timeRemaining <= 30) timerBg = `rgba(${LC_RGB[3]},0.6)`;
+  else if (timeRemaining <= 60) timerBg = `rgba(${ACCENT_RGB},0.4)`;
+
+  return (
+    <div style={{
+      position: "fixed", top: 0, left: 0, right: 0, height: 52,
+      background: `rgba(${SHELL_RGB},0.95)`, backdropFilter: "blur(8px)",
+      display: "flex", alignItems: "center", gap: 16, padding: "0 20px",
+      zIndex: 100, borderBottom: `2px solid rgba(${LC_RGB[1]},0.6)`,
+    }}>
+      <a href="../index.html" title="Back to Scenario Selector" style={{
+        color: "#c0d4ff", textDecoration: "none", fontSize: 18, lineHeight: 1,
+        marginRight: 4, display: "inline-flex", alignItems: "center",
+      }}>←</a>
+      <div style={{ fontSize: 14, fontWeight: 700, color: "#fff", flex: 1 }}>
+        {SCENARIO.title} · {SCENARIO.site}
+      </div>
+      <div style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: 1, padding: "3px 10px",
+        borderRadius: 12, textTransform: "uppercase",
+        border: "1px solid rgba(255,255,255,0.25)", color: "#c0d4ff",
+      }}>
+        {(SCENARIO.handling_profile || SCENARIO.training_domain || "").replace(/_/g, " ")}
+      </div>
+      <div style={{
+        fontSize: 11, fontWeight: 700, letterSpacing: 1, padding: "3px 10px",
+        borderRadius: 12, textTransform: "uppercase",
+        background: isReview ? "#6B21A8" : LEVEL_COLORS[lv], color: "#fff",
+      }}>
+        {isReview ? "REVIEW" : LEVEL_NAMES[lv]}
+      </div>
+      <div style={{ fontSize: 13, color: "#a0c4ff" }}>
+        {state.screen === "review"
+          ? `Review ${state.reviewIdx + 1} of ${state.reviewOrder.length}`
+          : level === 0
+            ? `Screen ${exploreIdx + 1} of ${totalSteps}`
+            : `Step ${stepIdx + 1} of ${totalSteps}`}
+      </div>
+      <div style={{ width: 200, height: 6, background: "rgba(255,255,255,0.15)", borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: ACCENT, borderRadius: 3, transition: "width 0.4s ease" }} />
+      </div>
+      {level >= 2 && (
+        <div style={{ fontSize: 12, background: `rgba(${LC_RGB[0]},0.3)`, padding: "4px 12px", borderRadius: 12, color: "#6ee7a8" }}>
+          XP: {xp}
+        </div>
+      )}
+      {level === 3 && (
+        <div style={{
+          fontSize: 12, background: timerBg, padding: "4px 12px",
+          borderRadius: 12, color: "#ff8080", fontVariantNumeric: "tabular-nums",
+        }}>
+          {timerText}
+        </div>
+      )}
+      <div style={{ fontSize: 12, background: "rgba(255,255,255,0.1)", padding: "4px 12px", borderRadius: 12, color: "#e0e0e0" }}>
+        Score: {score}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LEVEL SELECT — 4-card grid
+// ═══════════════════════════════════════════════════════════════════════════════
+const levelCards = LEVEL_NAMES.map((name, i) => ({
+  num: `Level ${i}`, name, color: LEVEL_COLORS[i], desc: LEVEL_DESCS[i],
+}));
+
+function LevelSelect({ dispatch }) {
+  const [hovered, setHovered] = useState(-1);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,10,30,0.98)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 500, flexDirection: "column", gap: 32,
+    }}>
+      <a href="../index.html" style={{
+        color: "#a0c4ff", textDecoration: "none", fontSize: 13,
+        alignSelf: "flex-start", marginLeft: "5vw", marginBottom: -16,
+      }}>← All Scenarios</a>
+      <h1 style={{ fontSize: 32, color: "#fff", letterSpacing: 1 }}>Choose Your Level</h1>
+      <div style={{ fontSize: 14, color: "#a0c4ff", marginTop: -20 }}>
+        {SCENARIO.title} · {SCENARIO.role}
+      </div>
+      <div style={{
+        display: "flex", flexDirection: "column", gap: 12,
+        maxWidth: 540, width: "90vw",
+      }}>
+        {levelCards.map((card, i) => (
+          <div
+            key={i}
+            onClick={() => dispatch({ type: "SELECT_LEVEL", level: i })}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(-1)}
+            style={{
+              background: hovered === i ? `rgba(${LC_RGB[1]},0.12)` : "rgba(255,255,255,0.04)",
+              border: `1px solid ${hovered === i ? `rgba(${LC_RGB[1]},0.5)` : "rgba(255,255,255,0.12)"}`,
+              borderLeft: `4px solid ${card.color}`,
+              borderRadius: 8, padding: "16px 20px", cursor: "pointer",
+              transition: "all 0.2s",
+              transform: hovered === i ? "translateX(4px)" : "none",
+              display: "flex", alignItems: "center", gap: 16,
+            }}
+          >
+            <div style={{ flex: "0 0 auto", textAlign: "center", minWidth: 60 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: card.color }}>
+                {card.num}
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginTop: 2 }}>
+                {card.name}
+              </div>
+            </div>
+            <div style={{ fontSize: 13, color: "#a0c4ff", lineHeight: 1.5 }}>
+              {card.desc}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PLACEHOLDER COMPONENTS — filled in by subsequent chunks
+// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+// SCREEN VIEW — image + overlay canvas + click layer
+// ═══════════════════════════════════════════════════════════════════════════════
+function ScreenView({ state, dispatch }) {
+  const canvasRef = useRef(null);
+  const imgRef = useRef(null);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [tooltip, setTooltip] = useState(null); // { text, x, y }
+
+  const { level, stepIdx, exploreIdx } = state;
+  const currentStep = level === 0 ? steps[exploreIdx] : steps[stepIdx];
+  // L0/L1 use highlighted screens; L2/L3 use neutral (no visual hints baked in)
+  const screenMap = (level <= 1) ? SCREENS : SCREENS_NEUTRAL;
+  const screenSrc = screenMap[currentStep.screen];
+
+  // Reset imgLoaded when screen changes so overlay redraws on new image
+  useEffect(() => { setImgLoaded(false); setTooltip(null); }, [screenSrc]);
+
+  // Get scale factor from rendered image vs 1280px source
+  const getScale = useCallback(() => {
+    if (!imgRef.current) return 1;
+    return imgRef.current.getBoundingClientRect().width / 1280;
+  }, []);
+
+  // ── Draw overlay on canvas ──────────────────────────────────────────────
+  const drawOverlay = useCallback(() => {
+    const canvas = canvasRef.current;
+    const img = imgRef.current;
+    if (!canvas || !img) { console.warn("[ZTT] drawOverlay: missing canvas or img"); return; }
+
+    const rect = img.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    const ctx = canvas.getContext("2d");
+    const scale = getScale();
+    const hs = currentStep.hotspot;
+    console.log(`[ZTT] drawOverlay: level=${level} canvas=${canvas.width}x${canvas.height} scale=${scale.toFixed(3)} hs=(${hs.x},${hs.y},${hs.w},${hs.h})`);
+
+    if (level === 0) {
+      // Explore: light tint + dashed hotspot outline + label
+      ctx.fillStyle = "rgba(0,0,0,0.03)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.strokeStyle = `rgba(${LC_RGB[0]},0.5)`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.roundRect(
+        hs.x * scale - 4, hs.y * scale - 4,
+        hs.w * scale + 8, hs.h * scale + 8, 6
+      );
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.font = `${Math.round(11 * scale)}px -apple-system, sans-serif`;
+      ctx.fillStyle = `rgba(${LC_RGB[0]},0.8)`;
+      ctx.fillText("▶ Target element", hs.x * scale - 4, hs.y * scale - 10);
+
+    } else if (level === 1) {
+      // Guided: dark overlay with spotlight cutout + orange border
+      const hx = hs.x * scale, hy = hs.y * scale;
+      const hw = hs.w * scale, hh = hs.h * scale;
+      const pad = 12 * scale;
+
+      ctx.fillStyle = "rgba(0,0,0,0.62)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2);
+
+      // Hardware PNGs already have baked-in highlight annotations —
+      // only draw the React overlay border for software scenarios.
+      if (!IS_HARDWARE) {
+        ctx.strokeStyle = ACCENT;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = ACCENT;
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.roundRect(hx - pad, hy - pad, hw + pad * 2, hh + pad * 2, 6);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+    } else {
+      // Level 2+: subtle overlay only
+      ctx.fillStyle = "rgba(0,0,0,0.06)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  }, [level, currentStep, getScale]);
+
+  // Redraw overlay when image loads or step changes
+  useEffect(() => {
+    if (imgLoaded) drawOverlay();
+  }, [imgLoaded, drawOverlay]);
+
+  // Redraw on window resize
+  useEffect(() => {
+    const handleResize = () => drawOverlay();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [drawOverlay]);
+
+  // Pulse animation for Level 1
+  const pulseRef = useRef(null);
+  const pulsePhase = useRef(0);
+
+  useEffect(() => {
+    // Hardware scenarios already have baked-in highlight annotations in the PNG —
+    // skip the pulsing ellipse overlay to avoid double-highlighting.
+    if (level !== 1 || !imgLoaded || IS_HARDWARE) {
+      if (pulseRef.current) cancelAnimationFrame(pulseRef.current);
+      return;
+    }
+    const hs = currentStep.hotspot;
+    const animate = () => {
+      const canvas = canvasRef.current;
+      const img = imgRef.current;
+      if (!canvas || !img) return;
+      const scale = getScale();
+      const cx = (hs.x + hs.w / 2) * scale;
+      const cy = (hs.y + hs.h / 2) * scale;
+      const rx = (hs.w / 2 + 16) * scale;
+      const ry = (hs.h / 2 + 16) * scale;
+
+      pulsePhase.current = (pulsePhase.current + 0.04) % (Math.PI * 2);
+      const s = 1 + Math.sin(pulsePhase.current) * 0.08;
+      const alpha = 0.5 + Math.sin(pulsePhase.current) * 0.3;
+
+      drawOverlay();
+      const ctx = canvas.getContext("2d");
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(s, s);
+      ctx.strokeStyle = `rgba(${ACCENT_RGB},${alpha})`;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, rx / s, ry / s, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      pulseRef.current = requestAnimationFrame(animate);
+    };
+    pulseRef.current = requestAnimationFrame(animate);
+    return () => { if (pulseRef.current) cancelAnimationFrame(pulseRef.current); };
+  }, [level, currentStep, imgLoaded, drawOverlay, getScale]);
+
+  // ── Click handler ───────────────────────────────────────────────────────
+  const handleClick = useCallback((e) => {
+    const img = imgRef.current;
+    if (!img) { console.warn("[ZTT] handleClick: no img ref"); return; }
+    const rect = img.getBoundingClientRect();
+    const scale = getScale();
+    const mx = (e.clientX - rect.left) / scale;
+    const my = (e.clientY - rect.top) / scale;
+    const hs = currentStep.hotspot;
+    const tol = 20;
+    const hit = mx >= hs.x - tol && mx <= hs.x + hs.w + tol &&
+                my >= hs.y - tol && my <= hs.y + hs.h + tol;
+    console.log(`[ZTT] click @ (${mx.toFixed(0)},${my.toFixed(0)}) scale=${scale.toFixed(3)} hs=(${hs.x},${hs.y},${hs.w},${hs.h}) hit=${hit} level=${level}`);
+
+    if (level === 0) {
+      // Explore: clicking hotspot shows a brief tooltip
+      if (hit) {
+        const tx = Math.min(e.clientX - rect.left + 16, rect.width - 300);
+        const ty = Math.max(e.clientY - rect.top - 60, 10);
+        setTooltip({
+          text: "✓ " + currentStep.goal + " — this is the correct element for this step.",
+          x: tx, y: ty,
+        });
+        setTimeout(() => setTooltip(null), 2500);
+      }
+    } else {
+      // Levels 1-3 + Review: score hits/misses
+      if (hit) {
+        dispatch({ type: "CORRECT_CLICK" });
+        const isReview = state.screen === "review";
+        const delay = level === 3 ? 800 : level === 2 ? 1200 : 2200;
+        const nextAction = isReview ? "REVIEW_NEXT" : "NEXT_STEP";
+        setTimeout(() => dispatch({ type: nextAction, skip: false }), delay);
+      } else {
+        dispatch({ type: "WRONG_CLICK" });
+        // Level 1: auto-show hint on wrong click
+        if (level === 1) {
+          setTimeout(() => dispatch({ type: "SHOW_HINT" }), 400);
+        }
+      }
+    }
+  }, [level, state.screen, currentStep, getScale, dispatch]);
+
+  return (
+    <>
+      <div style={{ position: "relative", marginTop: 52, width: "100%", maxWidth: 1280, cursor: "crosshair" }}>
+        <img
+          ref={imgRef}
+          src={screenSrc}
+          alt="Application screen"
+          draggable={false}
+          onLoad={() => setImgLoaded(true)}
+          style={{ display: "block", width: "100%", height: "auto", userSelect: "none" }}
+        />
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
+        </div>
+        <div
+          style={{ position: "absolute", inset: 0, cursor: "crosshair" }}
+          onClick={handleClick}
+        />
+        {/* Tooltip (Explore mode click feedback) */}
+        {tooltip && (
+          <div style={{
+            position: "absolute", left: tooltip.x, top: tooltip.y, zIndex: 250,
+            background: "rgba(3,20,50,0.95)", border: `1px solid ${ACCENT}`,
+            borderRadius: 8, padding: "10px 14px", maxWidth: 280,
+            fontSize: 13, color: "#fff", lineHeight: 1.5, pointerEvents: "none",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+          }}>
+            {tooltip.text}
+          </div>
+        )}
+      </div>
+
+      {/* Explore panel (Level 0 only) */}
+      {level === 0 && <ExplorePanel state={state} dispatch={dispatch} />}
+    </>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// EXPLORE PANEL — bottom card with element descriptions + nav
+// ═══════════════════════════════════════════════════════════════════════════════
+function ExplorePanel({ state, dispatch }) {
+  const { exploreIdx } = state;
+  const step = steps[exploreIdx];
+  const infos = step.explore_info || [step.instruction];
+
+  return (
+    <div style={{
+      position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+      width: "min(780px, 95vw)", maxHeight: "40vh", overflowY: "auto",
+      background: "rgba(3,20,50,0.95)", backdropFilter: "blur(12px)",
+      border: `1px solid rgba(${LC_RGB[0]},0.5)`, borderBottom: "none",
+      borderRadius: "12px 12px 0 0", padding: "16px 22px 12px", zIndex: 200,
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: LEVEL_COLORS[0], textTransform: "uppercase" }}>
+          {LEVEL_NAMES[0]} Mode
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "#fff", flex: 1 }}>
+          {step.goal}
+        </div>
+      </div>
+
+      {/* Element descriptions */}
+      <div style={{ margin: "8px 0" }}>
+        {infos.map((info, i) => {
+          const dashIdx = info.indexOf(" — ");
+          return (
+            <div key={i} style={{
+              fontSize: 13, color: "#c0d4ff", lineHeight: 1.6, padding: "4px 0",
+              borderBottom: i < infos.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+            }}>
+              {dashIdx > 0 ? (
+                <>
+                  <span style={{ color: ACCENT, fontWeight: 600 }}>{info.substring(0, dashIdx)}</span>
+                  {" — "}{info.substring(dashIdx + 3)}
+                </>
+              ) : info}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Navigation */}
+      <div style={{
+        marginTop: 10, display: "flex", justifyContent: "center", gap: 12,
+        borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 10,
+      }}>
+        <NavBtn label="← Prev Screen" onClick={() => dispatch({ type: "EXPLORE_NAV", dir: -1 })} disabled={exploreIdx === 0} />
+        <span style={{ color: "#666", fontSize: 12, lineHeight: "32px" }}>
+          {exploreIdx + 1} / {steps.length}
+        </span>
+        <NavBtn label="Next Screen →" onClick={() => dispatch({ type: "EXPLORE_NAV", dir: 1 })} disabled={exploreIdx >= steps.length - 1} />
+        <NavBtn
+          label="Done Exploring"
+          onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
+          style={{ marginLeft: 16, borderColor: `rgba(${ACCENT_RGB},0.5)`, color: ACCENT }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function NavBtn({ label, onClick, disabled, style = {} }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        fontSize: 12, padding: "6px 16px", borderRadius: 6,
+        border: "1px solid rgba(255,255,255,0.2)", background: "transparent",
+        color: disabled ? "#444" : "#a0c4ff", cursor: disabled ? "default" : "pointer",
+        opacity: disabled ? 0.5 : 1, transition: "all 0.2s", ...style,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GOAL CARD — objective, instruction, hint, skip (Levels 1-3)
+// ═══════════════════════════════════════════════════════════════════════════════
+function GoalCard({ state, dispatch }) {
+  const { level, stepIdx, hintVisible, hintPending, hintCountdown, consecutiveErrors } = state;
+  const step = steps[stepIdx];
+  const isStruggling = level === 2 && consecutiveErrors >= 3;
+
+  const handleHint = () => {
+    if (level === 1) {
+      // Free toggle in guided mode
+      dispatch({ type: hintVisible ? "HIDE_HINT" : "SHOW_HINT" });
+    } else if (level === 2 && !hintPending && !hintVisible) {
+      if (isStruggling) {
+        // Adaptive: free hint after 3+ consecutive errors
+        dispatch({ type: "SHOW_HINT" });
+      } else {
+        // Costly hint with countdown
+        dispatch({ type: "REQUEST_COSTLY_HINT" });
+      }
+    }
+  };
+
+  // Determine what instruction text to show based on level
+  let instrText = "";
+  if (level === 1) instrText = step.instruction;
+  else if (level === 2) instrText = "You know this process. Find the right element.";
+  // Level 3: no instruction text
+
+  // Hint button label
+  let hintLabel = "💡 Hint";
+  if (level === 2) {
+    if (hintPending) hintLabel = `⏳ ${hintCountdown}s...`;
+    else if (hintVisible) hintLabel = "💡 Hint (shown)";
+    else if (isStruggling) hintLabel = "💡 Free Hint (struggling)";
+    else hintLabel = "💡 Hint (−50 XP)";
+  }
+
+  return (
+    <div style={{
+      position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)",
+      width: "min(680px, 90vw)",
+      background: "rgba(3,20,50,0.92)", backdropFilter: "blur(12px)",
+      border: `1px solid rgba(${LC_RGB[1]},0.5)`,
+      borderRadius: 12, padding: "18px 22px", zIndex: 200,
+    }}>
+      {/* Objective label */}
+      <div style={{
+        fontSize: 10, fontWeight: 700, letterSpacing: 2,
+        color: ACCENT, textTransform: "uppercase", marginBottom: 6,
+      }}>
+        Objective
+      </div>
+
+      {/* Goal text */}
+      <div style={{ fontSize: 17, fontWeight: 600, color: "#fff", marginBottom: 10, lineHeight: 1.4 }}>
+        {step.goal}
+      </div>
+
+      {/* Instruction text */}
+      {instrText && (
+        <div style={{ fontSize: 13, color: "#a0c4ff", marginBottom: 12, lineHeight: 1.5 }}>
+          {instrText}
+        </div>
+      )}
+
+      {/* Footer: hint + skip */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Hint button (L1 + L2 only; L3 has no hints) */}
+        {level <= 2 && (
+          <button
+            onClick={handleHint}
+            disabled={hintPending}
+            style={{
+              fontSize: 12, padding: "6px 14px", borderRadius: 6,
+              border: `1px solid ${level === 2 ? `rgba(${ACCENT_RGB},0.5)` : "rgba(255,255,255,0.2)"}`,
+              background: "transparent",
+              color: level === 2 ? "#ffd080" : "#a0c4ff",
+              cursor: hintPending ? "default" : "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            {hintLabel}
+          </button>
+        )}
+
+        {/* Hint text (shown when revealed) */}
+        {hintVisible && (
+          <div style={{ fontSize: 12, color: "#ffd080", flex: 1 }}>
+            {step.hint}
+          </div>
+        )}
+
+        {/* Skip button (L1 only) */}
+        {level === 1 && (
+          <button
+            onClick={() => dispatch({ type: "NEXT_STEP", skip: true })}
+            style={{
+              marginLeft: "auto", fontSize: 12, padding: "6px 14px", borderRadius: 6,
+              border: "1px solid rgba(255,255,255,0.1)", background: "transparent",
+              color: "#666", cursor: "pointer",
+            }}
+          >
+            Skip →
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEEDBACK FLASH — correct/wrong overlay
+// ═══════════════════════════════════════════════════════════════════════════════
+function FeedbackFlash({ feedback }) {
+  if (!feedback) return null;
+
+  const isCorrect = feedback.type === "correct";
+  const hasConsequence = !isCorrect && feedback.consequence;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, pointerEvents: "none", zIndex: 300,
+      display: "flex", alignItems: hasConsequence ? "flex-end" : "center",
+      justifyContent: "center",
+      paddingBottom: hasConsequence ? 100 : 0,
+      background: isCorrect ? `rgba(${LC_RGB[0]},0.25)` : `rgba(${LC_RGB[3]},0.25)`,
+      animation: "feedbackFadeIn 0.15s ease-out",
+    }}>
+      {hasConsequence ? (
+        /* Elaborated consequence panel for L2+ wrong clicks */
+        <div style={{
+          background: "rgba(10,5,20,0.95)", borderRadius: 12,
+          border: `2px solid ${LEVEL_COLORS[3]}`, maxWidth: 560, width: "90vw",
+          overflow: "hidden",
+        }}>
+          <div style={{
+            background: `rgba(${LC_RGB[3]},0.15)`, padding: "12px 20px",
+            borderBottom: `1px solid rgba(${LC_RGB[3]},0.3)`,
+            display: "flex", alignItems: "center", gap: 10,
+          }}>
+            <span style={{ fontSize: 18 }}>⚠</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: "#ff8080" }}>
+              Wrong Element
+            </span>
+            {feedback.goal && (
+              <span style={{ fontSize: 12, color: "#a0c4ff", marginLeft: "auto" }}>
+                Target: {feedback.goal}
+              </span>
+            )}
+          </div>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: 1,
+              color: LEVEL_COLORS[3], textTransform: "uppercase", marginBottom: 8,
+            }}>
+              What would happen in production
+            </div>
+            <div style={{
+              fontSize: 14, color: "#e0e0e0", lineHeight: 1.6,
+            }}>
+              {feedback.consequence}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Simple feedback for correct clicks and L0/L1 wrong clicks */
+        <div style={{
+          background: "rgba(0,0,0,0.85)", padding: "20px 32px", borderRadius: 12,
+          fontSize: 16, fontWeight: 600, maxWidth: 500, textAlign: "center",
+          lineHeight: 1.5,
+          border: `2px solid ${isCorrect ? LEVEL_COLORS[0] : LEVEL_COLORS[3]}`,
+          color: isCorrect ? "#6ee7a8" : "#ff8080",
+        }}>
+          {feedback.msg}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BRIEFING SCREEN — pre-play overview with optional 3D exploded view
+// ═══════════════════════════════════════════════════════════════════════════════
+function BriefingScreen({ state, dispatch }) {
+  const { level } = state;
+  const threeCanvasRef = useRef(null);
+  const threeInitRef = useRef(false);
+
+  // Check if scenario provides an exploded view (hardware scenarios)
+  const explodedView = SCENARIO.exploded_view || null;
+  const objectives = (mission.learning_objectives && mission.learning_objectives[level])
+    ? mission.learning_objectives[level]
+    : null;
+
+  // ── Three.js exploded view setup ─────────────────────────────────────────
+  useEffect(() => {
+    if (!explodedView || !threeCanvasRef.current || threeInitRef.current) return;
+
+    // Dynamically load Three.js if not already present
+    const initThree = () => {
+      if (typeof THREE === "undefined") return;
+      try {
+      threeInitRef.current = true;
+
+      const container = threeCanvasRef.current;
+      const W = container.clientWidth;
+      const H = container.clientHeight;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xd0d8df);
+
+      const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+      camera.position.set(10, 6, 14);
+      camera.lookAt(0, 0, 0);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(W, H);
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      // Lights
+      scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+      const key = new THREE.DirectionalLight(0xffffff, 1.0);
+      key.position.set(10, 15, 10);
+      key.castShadow = true;
+      scene.add(key);
+      scene.add(new THREE.DirectionalLight(0xd0d8ff, 0.5).translateX(-8).translateY(5));
+      scene.add(new THREE.DirectionalLight(0xffffff, 0.3).translateY(8).translateZ(-12));
+
+      // Ground
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(30, 30),
+        new THREE.MeshStandardMaterial({ color: 0xb8c0c8, roughness: 0.9 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -5;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      const grid = new THREE.GridHelper(24, 24, 0x9aa0a8, 0xb0b8c0);
+      grid.position.y = -4.95;
+      scene.add(grid);
+
+      // Build components from scenario's exploded_view.components array
+      const parts = [];
+      const group = new THREE.Group();
+
+      function shapeFromPoints(pts) {
+        const shape = new THREE.Shape();
+        shape.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i][0], pts[i][1]);
+        shape.closePath();
+        return shape;
+      }
+
+      (explodedView.components || []).forEach(comp => {
+        let geo;
+        if (comp.shape === "extrude") {
+          const shape = shapeFromPoints(comp.points);
+          if (comp.holes) {
+            comp.holes.forEach(holePts => {
+              const hole = new THREE.Path();
+              hole.moveTo(holePts[0][0], holePts[0][1]);
+              for (let i = 1; i < holePts.length; i++) hole.lineTo(holePts[i][0], holePts[i][1]);
+              hole.closePath();
+              shape.holes.push(hole);
+            });
+          }
+          geo = new THREE.ExtrudeGeometry(shape, {
+            steps: 1, depth: comp.depth || 0.8,
+            bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.02, bevelSegments: 2,
+          });
+          if (comp.translate) geo.translate(...comp.translate);
+        } else if (comp.shape === "cylinder") {
+          geo = new THREE.CylinderGeometry(comp.radiusTop || 0.1, comp.radiusBottom || 0.1, comp.height || 1, comp.segments || 8);
+          if (comp.rotateZ) geo.rotateZ(comp.rotateZ);
+          if (comp.rotateX) geo.rotateX(comp.rotateX);
+        } else if (comp.shape === "sphere") {
+          geo = new THREE.SphereGeometry(comp.radius || 0.3, 8, 8, 0, comp.arc || Math.PI * 2);
+        } else if (comp.shape === "box") {
+          geo = new THREE.BoxGeometry(comp.width || 1, comp.height || 1, comp.depth || 1);
+        }
+        if (!geo) return;
+
+        const mat = new THREE.MeshStandardMaterial({
+          color: comp.color || 0x888888, metalness: 0.35, roughness: 0.45,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(...(comp.assembledPos || [0, 0, 0]));
+        mesh.castShadow = true;
+        group.add(mesh);
+
+        parts.push({
+          mesh,
+          assembledPos: new THREE.Vector3(...(comp.assembledPos || [0, 0, 0])),
+          explodedPos: new THREE.Vector3(...(comp.explodedPos || [0, 0, 0])),
+          originalColor: comp.color || 0x888888,
+          step: comp.step || 0,
+        });
+      });
+
+      scene.add(group);
+      group.rotation.y = -0.3;
+
+      // Auto-explode animation
+      let isExploded = false;
+      let animStart = null;
+      let animDirection = 1;
+      const ANIM_DUR = 1500;
+
+      // Start auto-explode after a short delay
+      setTimeout(() => { animStart = Date.now(); animDirection = 1; isExploded = true; }, 800);
+
+      // Slow auto-rotate
+      let rotSpeed = 0.003;
+
+      // Manual orbit
+      let isDragging = false, prevMouse = { x: 0, y: 0 };
+      let sph = { theta: -0.5, phi: 1.0, radius: 20 };
+
+      const updateCam = () => {
+        camera.position.x = sph.radius * Math.sin(sph.phi) * Math.cos(sph.theta);
+        camera.position.y = sph.radius * Math.cos(sph.phi);
+        camera.position.z = sph.radius * Math.sin(sph.phi) * Math.sin(sph.theta);
+        camera.lookAt(0, 0, 0);
+      };
+
+      renderer.domElement.addEventListener("mousedown", (e) => { isDragging = true; prevMouse = { x: e.clientX, y: e.clientY }; rotSpeed = 0; });
+      renderer.domElement.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        sph.theta -= (e.clientX - prevMouse.x) * 0.008;
+        sph.phi = Math.max(0.2, Math.min(Math.PI - 0.2, sph.phi - (e.clientY - prevMouse.y) * 0.008));
+        prevMouse = { x: e.clientX, y: e.clientY };
+        updateCam();
+      });
+      renderer.domElement.addEventListener("mouseup", () => { isDragging = false; rotSpeed = 0.003; });
+      renderer.domElement.addEventListener("mouseleave", () => { isDragging = false; rotSpeed = 0.003; });
+      renderer.domElement.addEventListener("wheel", (e) => {
+        sph.radius = Math.max(8, Math.min(35, sph.radius + e.deltaY * 0.02));
+        updateCam();
+        e.preventDefault();
+      }, { passive: false });
+
+      updateCam();
+
+      // Animate
+      function tick() {
+        // Auto-rotate
+        if (rotSpeed > 0 && !isDragging) {
+          sph.theta += rotSpeed;
+          updateCam();
+        }
+
+        // Explode/collapse interpolation
+        if (animStart) {
+          const t = Math.min((Date.now() - animStart) / ANIM_DUR, 1);
+          const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          parts.forEach(p => {
+            const from = animDirection > 0 ? p.assembledPos : p.explodedPos;
+            const to = animDirection > 0 ? p.explodedPos : p.assembledPos;
+            p.mesh.position.lerpVectors(from, to, ease);
+          });
+          if (t >= 1) animStart = null;
+        }
+
+        renderer.render(scene, camera);
+        container._animId = requestAnimationFrame(tick);
+      }
+      tick();
+
+      // Cleanup function stored on container
+      container._cleanup = () => {
+        if (container._animId) cancelAnimationFrame(container._animId);
+        renderer.dispose();
+        if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+      };
+      } catch (err) {
+        console.error("[ZTT] Three.js exploded view init failed:", err);
+        // Graceful fallback — briefing screen still usable without 3D view
+      }
+    };
+
+    // Check if THREE is available (loaded via CDN in HTML wrapper)
+    if (typeof THREE !== "undefined") {
+      initThree();
+    } else {
+      // Load Three.js dynamically
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+      script.onload = initThree;
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      if (threeCanvasRef.current && threeCanvasRef.current._cleanup) {
+        threeCanvasRef.current._cleanup();
+      }
+      threeInitRef.current = false;
+    };
+  }, [explodedView]);
+
+  // ── Level-specific tips ──────────────────────────────────────────────────
+  const levelTips = [
+    "Explore mode: Click around freely. No scoring, no pressure. Learn where everything is.",
+    "Guided mode: Follow the highlighted prompts step by step. Hints are free.",
+    "On Your Own: No highlights. Hints cost 50 XP with a 10-second delay. Wrong clicks show consequences.",
+    `Challenge mode: ${(mission.time_limit || 180) / 60}-minute timer. No hints. No help. Go.`,
+  ];
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,10,30,0.98)",
+      display: "flex", zIndex: 500, overflow: "hidden",
+    }}>
+      {/* Left panel: briefing info */}
+      <div style={{
+        flex: "0 0 400px", padding: "40px 32px", display: "flex",
+        flexDirection: "column", gap: 16, overflowY: "auto",
+        borderRight: `1px solid rgba(${ACCENT_RGB},0.3)`,
+      }}>
+        <a href="../index.html" style={{
+          color: "#a0c4ff", textDecoration: "none", fontSize: 13, marginBottom: -8,
+        }}>← All Scenarios</a>
+
+        <div style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: 2,
+          color: LEVEL_COLORS[level], textTransform: "uppercase",
+        }}>
+          {LEVEL_NAMES[level]} Mode — Briefing
+        </div>
+
+        <h1 style={{ fontSize: 24, color: "#fff", lineHeight: 1.3 }}>
+          {SCENARIO.title}
+        </h1>
+
+        <div style={{ fontSize: 14, color: "#a0c4ff", lineHeight: 1.6 }}>
+          {mission.briefing}
+        </div>
+
+        {/* Procedure overview */}
+        <div style={{
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 8, padding: "12px 16px",
+        }}>
+          <div style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: 2,
+            color: ACCENT, textTransform: "uppercase", marginBottom: 8,
+          }}>
+            {steps.length}-Step Procedure
+          </div>
+          {steps.map((s, i) => (
+            <div key={i} style={{
+              fontSize: 12, color: "#c0d4ff", padding: "4px 0",
+              borderBottom: i < steps.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+            }}>
+              <span style={{ color: ACCENT, fontWeight: 700, marginRight: 8 }}>{i + 1}.</span>
+              {s.goal}
+            </div>
+          ))}
+        </div>
+
+        {/* Learning objectives for this level */}
+        {objectives && (
+          <div style={{
+            background: `rgba(${LC_RGB[level]},0.08)`,
+            border: `1px solid rgba(${LC_RGB[level]},0.3)`,
+            borderRadius: 8, padding: "12px 16px",
+          }}>
+            <div style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: 2,
+              color: LEVEL_COLORS[level], textTransform: "uppercase", marginBottom: 8,
+            }}>
+              Learning Objectives
+            </div>
+            {objectives.map((obj, i) => (
+              <div key={i} style={{
+                fontSize: 12, color: "#c0d4ff", padding: "3px 0", lineHeight: 1.5,
+              }}>
+                • {obj}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Level tip */}
+        <div style={{
+          fontSize: 13, color: "#ffd080", fontStyle: "italic",
+          background: `rgba(${ACCENT_RGB},0.08)`, borderRadius: 6,
+          padding: "10px 14px", lineHeight: 1.5,
+        }}>
+          {levelTips[level]}
+        </div>
+
+        <button
+          onClick={() => dispatch({ type: "BEGIN_TRAINING" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: LEVEL_COLORS[level], color: "#fff",
+            cursor: "pointer", marginTop: 8, alignSelf: "flex-start",
+            transition: "transform 0.15s",
+          }}
+          onMouseEnter={e => e.target.style.transform = "scale(1.03)"}
+          onMouseLeave={e => e.target.style.transform = "scale(1)"}
+        >
+          Begin Training →
+        </button>
+      </div>
+
+      {/* Right panel: 3D exploded view (or static image fallback) */}
+      <div style={{ flex: 1, position: "relative", background: "#d0d8df" }}>
+        {explodedView ? (
+          <>
+            <div
+              ref={threeCanvasRef}
+              style={{ width: "100%", height: "100%" }}
+            />
+            <div style={{
+              position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)",
+              fontSize: 11, color: "#556", background: "rgba(255,255,255,0.7)",
+              padding: "4px 12px", borderRadius: 4,
+            }}>
+              Drag to rotate · Scroll to zoom
+            </div>
+          </>
+        ) : (
+          /* Fallback: show first screen as a preview */
+          <div style={{
+            width: "100%", height: "100%", display: "flex",
+            alignItems: "center", justifyContent: "center", padding: 32,
+          }}>
+            <img
+              src={SCREENS[steps[0].screen]}
+              alt="Procedure preview"
+              style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 8, boxShadow: "0 4px 24px rgba(0,0,0,0.3)" }}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NARRATIVE SCREEN — Challenge mode intro (Level 3)
+// ═══════════════════════════════════════════════════════════════════════════════
+function NarrativeScreen({ dispatch }) {
+  const narratives = (mission.narratives && mission.narratives.length > 0)
+    ? mission.narratives : [mission.briefing];
+  const [narrative] = useState(
+    () => narratives[Math.floor(Math.random() * narratives.length)]
+  );
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,10,30,0.97)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 500, flexDirection: "column", gap: 24,
+    }}>
+      <h2 style={{ fontSize: 28, color: ACCENT, letterSpacing: 2 }}>
+        {LEVEL_NAMES[3]} MODE
+      </h2>
+      <div style={{
+        fontSize: 18, lineHeight: 1.8, color: "#c0d4ff", textAlign: "center",
+        maxWidth: 600, background: "rgba(255,255,255,0.05)",
+        border: `1px solid rgba(${ACCENT_RGB},0.3)`, borderRadius: 12,
+        padding: "24px 32px", fontStyle: "italic",
+      }}>
+        {narrative}
+      </div>
+      <div style={{
+        fontSize: 14, color: "#a0c4ff", textAlign: "center",
+        maxWidth: 600, whiteSpace: "pre-line", marginTop: -8,
+      }}>
+        {mission.briefing}
+      </div>
+      <button
+        onClick={() => dispatch({ type: "START_CHALLENGE" })}
+        style={{
+          fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+          border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
+        }}
+      >
+        Begin
+      </button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DEBRIEF SCREEN — post-level reflection ("why it matters")
+// ═══════════════════════════════════════════════════════════════════════════════
+function DebriefScreen({ state, dispatch }) {
+  const [expandedIdx, setExpandedIdx] = useState(-1);
+
+  // Build debrief items from steps that have consequences
+  const items = steps
+    .map((step, i) => ({ idx: i, goal: step.goal, consequence: step.consequence }))
+    .filter(item => item.consequence);
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,10,30,0.98)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 500, flexDirection: "column", gap: 20,
+    }}>
+      <h2 style={{ fontSize: 24, color: "#6ee7a8", letterSpacing: 1 }}>
+        Why Each Step Matters
+      </h2>
+      <p style={{ fontSize: 13, color: "#a0c4ff", marginTop: -12, maxWidth: 600, textAlign: "center" }}>
+        You completed {steps.length} steps. Here's what would happen in production if any of them were done wrong.
+        Click a step to see the real-world consequence.
+      </p>
+
+      <div style={{
+        maxWidth: 640, width: "90vw", maxHeight: "50vh", overflowY: "auto",
+        display: "flex", flexDirection: "column", gap: 6,
+        padding: "0 4px",
+      }}>
+        {items.map((item) => {
+          const isOpen = expandedIdx === item.idx;
+          return (
+            <div key={item.idx}
+              onClick={() => setExpandedIdx(isOpen ? -1 : item.idx)}
+              style={{
+                background: isOpen ? `rgba(${LC_RGB[1]},0.08)` : "rgba(255,255,255,0.03)",
+                border: `1px solid ${isOpen ? `rgba(${LC_RGB[1]},0.4)` : "rgba(255,255,255,0.08)"}`,
+                borderRadius: 8, padding: "12px 16px", cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{
+                  fontSize: 11, fontWeight: 700, color: ACCENT,
+                  background: `rgba(${ACCENT_RGB},0.15)`, padding: "2px 8px",
+                  borderRadius: 10, minWidth: 32, textAlign: "center",
+                }}>
+                  {item.idx + 1}
+                </span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#fff", flex: 1 }}>
+                  {item.goal}
+                </span>
+                <span style={{ fontSize: 12, color: "#666", transform: isOpen ? "rotate(90deg)" : "none", transition: "transform 0.2s" }}>
+                  ▸
+                </span>
+              </div>
+              {isOpen && (
+                <div style={{
+                  marginTop: 10, paddingTop: 10,
+                  borderTop: "1px solid rgba(255,255,255,0.08)",
+                  fontSize: 13, color: "#c0d4ff", lineHeight: 1.6,
+                }}>
+                  <span style={{ color: "#ff8080", fontWeight: 600, fontSize: 11, letterSpacing: 1, textTransform: "uppercase" }}>
+                    If done wrong:
+                  </span>
+                  <div style={{ marginTop: 4 }}>{item.consequence}</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        onClick={() => dispatch({ type: "DEBRIEF_DONE" })}
+        style={{
+          fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+          border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
+          marginTop: 8,
+        }}
+      >
+        Continue →
+      </button>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// WIN SCREEN — completion stats + confetti
+// ═══════════════════════════════════════════════════════════════════════════════
+function WinScreen({ state, dispatch }) {
+  const { level, score, xp, totalClicks, wrongClicks, timeRemaining } = state;
+
+  const accuracy = totalClicks > 0
+    ? Math.max(0, Math.round((totalClicks - wrongClicks * 2) / totalClicks * 100))
+    : 100;
+
+  const levelMsg = [
+    "Nice exploring! Ready to try Guided mode?",
+    'Tutorial complete! Try "On Your Own" next.',
+    "Great work without the safety net! Ready for the Challenge?",
+    `${SCENARIO.title} — challenge crushed!`,
+  ];
+
+  // Confetti for Level 2+
+  useEffect(() => {
+    if (level < 2) return;
+    const colors = [ACCENT, LEVEL_COLORS[1], LEVEL_COLORS[0], "#6ee7a8", "#ffd080", "#ff8080", "#c0d4ff"];
+    const pieces = [];
+    for (let i = 0; i < 60; i++) {
+      const piece = document.createElement("div");
+      Object.assign(piece.style, {
+        position: "fixed", width: `${6 + Math.random() * 8}px`, height: `${6 + Math.random() * 8}px`,
+        zIndex: "700", pointerEvents: "none", opacity: "0",
+        left: `${Math.random() * 100}vw`, top: "-20px",
+        background: colors[Math.floor(Math.random() * colors.length)],
+        borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+        animation: `confetti-fall ${2 + Math.random() * 2}s ease-out ${Math.random() * 1.5}s forwards`,
+      });
+      document.body.appendChild(piece);
+      pieces.push(piece);
+    }
+    return () => pieces.forEach(p => p.remove());
+  }, [level]);
+
+  // Build stats line
+  let stats = `Level: ${LEVEL_NAMES[level]}`;
+  if (level >= 1) stats += ` | Score: ${score} | Accuracy: ${accuracy}%`;
+  if (level >= 2) stats += ` | XP: ${xp}`;
+  if (level === 3 && timeRemaining > 0) {
+    const elapsed = (mission.time_limit || 180) - timeRemaining;
+    const m = Math.floor(elapsed / 60);
+    const s = elapsed % 60;
+    stats += ` | Time: ${m}:${s.toString().padStart(2, "0")}`;
+  }
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,20,10,0.97)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 600, flexDirection: "column", gap: 20,
+    }}>
+      <h1 style={{ fontSize: 48, color: "#6ee7a8" }}>Complete!</h1>
+      <p style={{ fontSize: 18, color: "#a0c4ff", textAlign: "center", maxWidth: 480 }}>
+        {levelMsg[level] || "Complete!"}
+      </p>
+      <div style={{ fontSize: 15, color: "#e0e0e0", textAlign: "center" }}>
+        {stats}
+      </div>
+      <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+        <button
+          onClick={() => dispatch({ type: "RESTART" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
+          }}
+        >
+          Play Again
+        </button>
+        {level >= 1 && (
+          <button
+            onClick={() => dispatch({ type: "START_REVIEW" })}
+            style={{
+              fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+              border: "none", background: "#6B21A8", color: "#fff", cursor: "pointer",
+            }}
+          >
+            Review (Scrambled)
+          </button>
+        )}
+        <button
+          onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: SHELL_COLOR, color: "#fff", cursor: "pointer",
+          }}
+        >
+          Change Level
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TIMEOUT SCREEN — time's up (Level 3)
+// ═══════════════════════════════════════════════════════════════════════════════
+function TimeoutScreen({ state, dispatch }) {
+  const { stepIdx, score, xp } = state;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, background: "rgba(5,20,10,0.97)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      zIndex: 600, flexDirection: "column", gap: 20,
+    }}>
+      <h1 style={{ fontSize: 48, color: "#ff8080" }}>Time's Up!</h1>
+      <p style={{ fontSize: 18, color: "#a0c4ff", textAlign: "center", maxWidth: 480 }}>
+        You made it to step {stepIdx + 1} of {steps.length}. Try again!
+      </p>
+      <div style={{ fontSize: 15, color: "#e0e0e0", textAlign: "center" }}>
+        Score: {score} | XP: {xp}
+      </div>
+      <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
+        <button
+          onClick={() => dispatch({ type: "RESTART" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: LEVEL_COLORS[1], color: "#fff", cursor: "pointer",
+          }}
+        >
+          Try Again
+        </button>
+        <button
+          onClick={() => dispatch({ type: "BACK_TO_LEVELS" })}
+          style={{
+            fontSize: 16, fontWeight: 700, padding: "14px 40px", borderRadius: 8,
+            border: "none", background: SHELL_COLOR, color: "#fff", cursor: "pointer",
+          }}
+        >
+          Change Level
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// APP — root component + state machine
+// ═══════════════════════════════════════════════════════════════════════════════
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Timer tick effect (Level 3)
+  useEffect(() => {
+    if (!state.timerRunning) return;
+    const id = setInterval(() => dispatch({ type: "TIMER_TICK" }), 1000);
+    return () => clearInterval(id);
+  }, [state.timerRunning]);
+
+  // Hint countdown effect (Level 2)
+  useEffect(() => {
+    if (!state.hintPending || state.hintCountdown <= 0) return;
+    const id = setInterval(() => dispatch({ type: "HINT_COUNTDOWN_TICK" }), 1000);
+    return () => clearInterval(id);
+  }, [state.hintPending, state.hintCountdown]);
+
+  // Auto-clear feedback (longer for consequence panels) + audio cue
+  useEffect(() => {
+    if (!state.feedback) return;
+    // Audio cue on feedback
+    if (state.feedback.type === "correct") AudioCue.correct();
+    else if (state.feedback.type === "wrong") AudioCue.wrong();
+
+    let ms = 1200;
+    if (state.feedback.type === "correct") ms = 2000;
+    else if (state.feedback.consequence) ms = 5000;
+    else if (state.level >= 2) ms = 3000;
+    const id = setTimeout(() => dispatch({ type: "CLEAR_FEEDBACK" }), ms);
+    return () => clearTimeout(id);
+  }, [state.feedback, state.level]);
+
+  // Audio cue for timer countdown (last 10s) and screen transitions
+  useEffect(() => {
+    if (state.timerRunning && state.timeRemaining <= 10 && state.timeRemaining > 0) {
+      AudioCue.tick();
+    }
+  }, [state.timeRemaining, state.timerRunning]);
+
+  useEffect(() => {
+    if (state.screen === "win") AudioCue.win();
+    if (state.screen === "timeout") AudioCue.timeout();
+  }, [state.screen]);
+
+  // Set page title + inject keyframes for confetti animation
+  useEffect(() => {
+    document.title = `${SCENARIO.title} — Interactive Trainer`;
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes confetti-fall {
+        0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+        100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.3); }
+      }
+      @keyframes feedbackFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => style.remove();
+  }, []);
+
+  return (
+    <div style={{
+      background: "#0a0a1a", fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif',
+      color: "#fff", height: "100vh", overflow: "hidden",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+    }}>
+      {state.screen === "level-select" && (
+        <LevelSelect dispatch={dispatch} />
+      )}
+
+      {state.screen === "briefing" && (
+        <BriefingScreen state={state} dispatch={dispatch} />
+      )}
+
+      {(state.screen === "play" || state.screen === "review") && (
+        <>
+          <HUD state={state} />
+          <ScreenView state={state} dispatch={dispatch} />
+          {state.level >= 1 && <GoalCard state={state} dispatch={dispatch} />}
+          <FeedbackFlash feedback={state.feedback} />
+        </>
+      )}
+
+      {state.screen === "narrative" && (
+        <NarrativeScreen dispatch={dispatch} />
+      )}
+
+      {state.screen === "debrief" && (
+        <DebriefScreen state={state} dispatch={dispatch} />
+      )}
+
+      {state.screen === "win" && (
+        <WinScreen state={state} dispatch={dispatch} />
+      )}
+
+      {state.screen === "timeout" && (
+        <TimeoutScreen state={state} dispatch={dispatch} />
+      )}
+    </div>
+  );
+}
+
+// ── Mount ──
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
