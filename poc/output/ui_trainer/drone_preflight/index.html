@@ -173,24 +173,40 @@ window.__SCENARIO__        = {
       ]
     }
   ],
-  "premises": [
-    {
-      "headline": "First flight of the morning. Cold battery, half-light, hurry.",
-      "context": "You're the first to arrive on-site. Pre-flight feels routine after a thousand of them. The temptation to rush is highest right now."
-    },
-    {
-      "headline": "New site. You've never flown here before.",
-      "context": "Obstacles you haven't seen. Airspace you haven't checked. The default RTH altitude is the wrong altitude for this site."
-    },
-    {
-      "headline": "Firmware updated last night.",
-      "context": "The aircraft and app updated in the truck overnight. Compatibility is not guaranteed. The version banner is more important today than usual."
-    },
-    {
-      "headline": "Rental aircraft, returned by a previous operator.",
-      "context": "You don't know what's been done to this airframe. Propellers may have been swapped incorrectly. Battery may not be the original. Inspect every step."
+  "mission": {
+    "title": "Pre-Flight Inspection",
+    "briefing": "You're the operator. Six checks stand between this aircraft and the air. Three are physical \u2014 propellers, battery, gimbal. Three are software \u2014 app connection, GPS lock, RTH altitude. Skip any of them and you're trusting luck. Walk through it like a pro.",
+    "par_clicks": 6,
+    "time_limit": 240,
+    "narratives": [
+      "First flight of the morning. Cold battery, half-light, hurry \u2014 the temptation to rush is highest right now.",
+      "New site. You've never flown here before. Obstacles you haven't seen, airspace you haven't checked. The default RTH altitude is the wrong altitude for this site.",
+      "Firmware updated last night. The aircraft and app updated in the truck overnight. Compatibility is not guaranteed. The version banner is more important today than usual.",
+      "Rental aircraft, returned by a previous operator. You don't know what's been done to this airframe. Inspect every step."
+    ],
+    "learning_objectives": {
+      "0": [
+        "Identify the four physical pre-flight checks: propellers, battery latch, gimbal motion",
+        "Identify the three software pre-flight checks: app connection, GPS lock, RTH altitude",
+        "Understand why pre-flight alternates between hardware and software"
+      ],
+      "1": [
+        "Follow the correct alternation rhythm: physical \u2192 app \u2192 physical \u2192 app",
+        "Build muscle memory for visual inspection and app navigation in sequence",
+        "Recognize the most common preventable failure modes"
+      ],
+      "2": [
+        "Perform the full pre-flight from memory with minimal hints",
+        "Recognize when a step's failure mode is mechanical vs. configurational",
+        "Make the RTH altitude decision based on local obstacles"
+      ],
+      "3": [
+        "Execute the full pre-flight under time pressure",
+        "Demonstrate that no check was skipped under hurry",
+        "Clear the aircraft for flight in under four minutes"
+      ]
     }
-  ]
+  }
 };
 window.__SCREENS__         = {
   "step1_propellers.png": "screens/step1_propellers.png",
