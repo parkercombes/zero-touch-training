@@ -39,6 +39,7 @@ SCENARIO = {
     "role":             "Receiving Associate",
     "handling_profile": "perishable",
     "training_domain":  "software",
+    "asset_source":     "placeholder",
     "branding":         SAP_BRANDING,
     "tutorial": [
         {

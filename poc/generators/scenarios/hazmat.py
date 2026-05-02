@@ -41,6 +41,7 @@ SCENARIO = {
     "role":             "Receiving Associate",
     "handling_profile": "hazmat",
     "training_domain":  "software",
+    "asset_source":     "placeholder",
     "branding":         SAP_BRANDING,
     "tutorial": [
         {

@@ -43,6 +43,7 @@ SCENARIO = {
     "role":             "Receiving Associate (GxP Qualified)",
     "handling_profile": "regulated_pharma",
     "training_domain":  "software",
+    "asset_source":     "placeholder",
     "branding":         SAP_BRANDING,
     "tutorial": [
         {

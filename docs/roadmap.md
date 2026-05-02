@@ -79,7 +79,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ## Phase 2: Expansion (Weeks 3-8)
 
-> **Status as of May 2026:** Phase 2 is in progress. Four of the eight planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), HW/SW fusion scenario (drone pre-flight as PoC, with buyer-facing required-assets checklist), and refined demo materials. Four activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, and Opal overlay pattern.
+> **Status as of May 2026:** Phase 2 is in progress. Four of the ten planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), HW/SW fusion scenario (drone pre-flight as PoC, with buyer-facing required-assets checklist), and refined demo materials. Six activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, Opal overlay pattern, scenario schema validator, and the Pillow-to-real-assets phase-out (in progress).
 
 ### Scope
 - **3-5 Processes**: Expand from single process to multiple, including variations (e.g., standard PO, direct invoice, returns)
@@ -149,6 +149,22 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
    **Delivered:** `poc/generators/video_casts.py` (Cast dataclass, CAST_BIGFOOT, CAST_HUMAN, shared 13-scene template, builder functions), refactored `video_render_veo3.py` and `video_render_veo3_poc.py` to accept `--cast {bigfoot,human}`. Module-level character constants kept for backward compatibility with resume script. Both casts validated: 13 scenes build with no unfilled tokens, no double-spaces, no species-phrase leakage in human cast. Render confirmed working on real Veo 3 ($3.60 per 3-scene POC).
 
+9. **Scenario Schema Validator** — 🔨 NEXT PLANNED
+   - Build a small validator that checks every scenario module against the engine's required SCENARIO contract before it's added to the index
+   - Required fields the engine reads from SCENARIO: `id`, `title`, `site`, `role`, `training_domain`, `branding`, `tutorial`, `mission` (with sub-keys `briefing`, `time_limit`, `narratives`, `learning_objectives`)
+   - Required per-step keys: `screen`, `goal`, `instruction`, `hint`, `hotspot`, `feedback`, `consequence`, `explore_info`
+   - Driven by the drone scenario black-screen incident (May 2026): a missing `mission` dict caused the entire React tree to die silently on level click. There's no schema enforcement today, only convention by copy-paste. Without a validator, every new scenario is one schema gap from a black-screen demo failure.
+   - Implementation: ~30-line Python script run before `generate_index.py`. Fails the build with named missing fields, doesn't try to be clever about types.
+
+10. **Phase Out Pillow Placeholders** — 🔨 IN PROGRESS
+    - Pillow-drawn placeholders served Phase 1 well: they let the engine and pedagogy be reviewed independently of asset sourcing. They are not appropriate for buy-in conversations because they read as "early hack" to a sharp viewer and contradict the Training-as-Code premise (compiling training from real assets, not drawn ones).
+    - Migration path, scenario by scenario:
+      - **F-150** ✅ already uses real source material (Chilton manual scans)
+      - **5 SAP scenarios (sedc, standard_dry, regulated_pharma, hazmat, serialized)** — migrate to Playwright-captured screens against the running ERPNext instance. Capture pipeline already exists for `standard_dry_gr`; other four are 30-min capture sessions each.
+      - **AR-15** — replace placeholder diagrams with publicly available disassembly photos from FN/Colt manuals or military-issue training materials.
+      - **Drone (HW/SW fusion)** — replace placeholders with DJI Mini 4 Pro marketing photos (publicly available) and DJI Fly app store screenshots.
+    - Add an "asset source fidelity" indicator to each scenario card in the index (placeholder / textbook scan / OEM marketing / real capture / custom photography) so demo audiences see the credibility tier honestly. Preempts the "wait, that's a Pillow drawing" objection by labeling it before they ask.
+
 ### Exit Criteria
 - Content quality remains ≥95% accurate across all expanded processes
 - Pipeline execution is repeatable and documented (not one-off manual steps)
@@ -157,6 +173,8 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 - Drift detection PoC: changes in source Tosca/BPMN correctly flag affected scenarios in <1 minute, demonstrated end-to-end
 - HW/SW fusion scenario operational and runnable through the existing trainer engine
 - Alternate (warehouse worker) character render available as a parameter swap; both versions of POC cut produced
+- Scenario schema validator catches missing mission/tutorial fields before scenarios reach the index
+- All scenarios migrated off Pillow placeholders to real assets (textbook, OEM marketing, ERPNext capture, or custom photography); fidelity indicator visible in the index
 - Team can execute pipeline for new processes with minimal rework
 
 ### Deliverables
@@ -167,6 +185,8 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 - `detect_changes.py` CLI + sample CI integration snippet (GitHub Actions YAML) + 3-minute demo recording
 - HW/SW fusion scenario module and built trainer
 - Dual-character POC video cut (Bigfoot + warehouse worker, same script)
+- Scenario schema validator + integration into `generate_index.py` build flow
+- All scenarios on real assets with `asset_source` field populated; index displays fidelity tiers
 - Lessons learned and scaling recommendations
 - Updated roadmap for multi-site rollout
 

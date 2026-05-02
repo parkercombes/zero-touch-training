@@ -233,6 +233,76 @@ The JSX resolves branding at runtime via `SCENARIO.branding || {}` with SAP defa
 
 `generate_index.py` auto-discovers all scenario modules, reads their SCENARIO metadata, groups them by `training_domain`, and generates `output/ui_trainer/index.html` with domain sections (Software Training / Hardware Training), profile-colored cards, and inferred tags.
 
+## Scenario Authoring Contract
+
+Every scenario module is a contract with the React engine in `trainer_app.jsx`. There is no schema validator yet (Phase 2 work — see What's Next), so author scenarios by reading this section before copy-pasting from another module. The drone scenario's May 2026 black-screen incident was caused by a missing `mission` dict; that bug is preventable by understanding what the engine reads.
+
+### Required SCENARIO fields (top level)
+
+The engine reads these directly from `SCENARIO`:
+
+| Field | Type | Used for |
+|---|---|---|
+| `id` | str | Output directory name, scenario ID throughout |
+| `title` | str | Header banners, page title, win-screen messages |
+| `site` | str | Header subtitle |
+| `role` | str | Footer subtitle |
+| `training_domain` | str | `"software"`, `"hardware"`, or `"fusion"`; gates `IS_HARDWARE` flag and index domain section |
+| `branding` | dict | Color tokens, level names, level descriptions (see SAP_BRANDING / HARDWARE_BRANDING) |
+| `tutorial` | list[dict] | Ordered step list (see step contract below) |
+| `mission` | dict | Per-level briefings, time limit, narratives, learning objectives |
+| `handling_profile` | str or None | Optional; profile-specific tags in the index |
+| `exploded_view` | dict or None | Optional; Three.js exploded-view data for hardware scenarios |
+
+### Required `mission` sub-fields
+
+Engine reads these from `SCENARIO.mission`. Missing any of these breaks level entry.
+
+| Field | Type | Used for |
+|---|---|---|
+| `title` | str | Mission card title |
+| `briefing` | str | Pre-play briefing text |
+| `time_limit` | int | Seconds, used as countdown for Level 3 |
+| `narratives` | list[str] | Rotating premise cards shown before Level 3 (prevent memorization gaming) |
+| `learning_objectives` | dict[int, list[str]] | Per-level objectives (keys 0/1/2/3); shown on briefing screen |
+| `par_clicks` | int | Optional metadata, not currently rendered |
+
+### Required per-step fields (each item in `tutorial`)
+
+| Field | Type | Used for |
+|---|---|---|
+| `screen` | str | PNG filename in `screens/` and `screens_neutral/` |
+| `goal` | str | Step title shown to learner |
+| `instruction` | str | Detailed instruction at Level 1 |
+| `hint` | str | Adaptive hint after 3 wrong clicks |
+| `hotspot` | dict | `{x, y, w, h}` — correct click region |
+| `feedback` | str | Success message on correct click |
+| `consequence` | str | Layer 5 rationale shown on wrong click and in debrief |
+| `explore_info` | list[str] | Bullet list shown at Level 0 EXPLORE |
+
+### Required scenario-level functions
+
+Each scenario module must expose:
+
+```python
+def generate_screens(screens_dir):
+    """Generate annotated PNGs into screens_dir/ and screens_neutral/.
+    Return list of filenames."""
+```
+
+The engine renders each step from two PNGs: one with the hotspot highlighted (for Level 1 GUIDED), one neutral (for Levels 0, 2, 3). The function writes both versions and returns the filename list.
+
+### Common authoring mistakes (lessons from this codebase)
+
+1. **Forgetting `mission`.** Engine reads `mission.time_limit` at level click; if `mission` is undefined, React tree dies → black screen. Drone scenario hit this in May 2026.
+2. **Forgetting `screens_neutral` rendering.** If renderers don't accept an `hl=True/False` parameter, only the highlighted version exists; Level 0 falls back to highlighted screens, breaking the EXPLORE pedagogy.
+3. **Inventing field names.** The engine reads what it reads. Adding an undocumented field (like the drone scenario's `premises`) is dead code; nothing renders it. If you need new metadata, add it to the engine first.
+4. **Hardcoding scenario-specific text in renderers.** Renderers should produce images; scenario-specific dialogue belongs in `tutorial[].instruction`, not in the PNG.
+
+### When to use Pillow vs. real assets
+
+Pillow-drawn placeholders are appropriate for engine-and-pedagogy validation (Phase 1) but read as "early hack" in buy-in conversations. Real-asset migration is Phase 2 work; in the meantime, the index will display an `asset_source` indicator per scenario so demo audiences see fidelity tiers honestly. See `docs/asset-fidelity.md`.
+
 ## Getting Started
 
 ```bash
@@ -301,13 +371,15 @@ python parsers/bpmn_parser.py data/bpmn/purchase_to_pay.xml
 
 ## What's Next (Phase 2 remaining)
 
-Four of the eight Phase 2 activities are complete (drift detection, character swap, HW/SW fusion scenario, refined demo materials). Still ahead, in rough ROI order:
+Four of the ten Phase 2 activities are complete (drift detection, character swap, HW/SW fusion scenario, refined demo materials). Still ahead, in rough ROI order:
 
-1. **Refined process-agnostic prompt templates** — current prompts are tuned for SAP MIGO. Need parameterized templates that work for any transaction type without rewriting per-scenario.
-2. **Opal overlay pattern** — formalize the configuration-driven overlay abstraction with real SE-DC site data; document the specification.
-3. **WalkMe integration design** — beyond the JSON draft format the generator already produces. Design the actual integration points with a deployed WalkMe instance.
-4. **Repeatable pipeline tooling** — versioning, rollback, automated asset validation, conflict detection.
-5. **3-5 additional process areas** — expand from PR/GR to 3-4 more processes (e.g. invoice receipt, returns, vendor master changes).
+1. **Scenario schema validator** — small Python script that checks every scenario module for the engine's required SCENARIO contract before it lands in the index. Driven by the May 2026 drone black-screen incident, where a missing `mission` dict killed the React tree silently. ~30 lines of code; high payoff.
+2. **Phase out Pillow placeholders** — migrate every scenario from Pillow-drawn screens to real source assets (textbook scans, OEM marketing, Playwright captures, custom photography). F-150 is already there. Drone is in progress. Five SAP scenarios migrate via the existing ERPNext capture pipeline. AR-15 needs publicly available disassembly photos. Add `asset_source` field per scenario so the index shows fidelity tiers honestly.
+3. **Refined process-agnostic prompt templates** — current prompts are tuned for SAP MIGO. Need parameterized templates that work for any transaction type without rewriting per-scenario.
+4. **Opal overlay pattern** — formalize the configuration-driven overlay abstraction with real SE-DC site data; document the specification.
+5. **WalkMe integration design** — beyond the JSON draft format the generator already produces. Design the actual integration points with a deployed WalkMe instance.
+6. **Repeatable pipeline tooling** — versioning, rollback, automated asset validation, conflict detection.
+7. **3-5 additional process areas** — expand from PR/GR to 3-4 more processes (e.g. invoice receipt, returns, vendor master changes).
 
 Phase 3 (multi-site rollout) and Phase 4 (operationalize / handoff) follow. See `docs/roadmap.md` for full detail.
 

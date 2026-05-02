@@ -40,6 +40,7 @@ SCENARIO = {
     "role":             "Receiving Associate",
     "handling_profile": "standard_dry",
     "training_domain":  "software",
+    "asset_source":     "captured",
     "branding":         SAP_BRANDING,
     "tutorial": [
         {

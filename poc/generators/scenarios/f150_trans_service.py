@@ -63,6 +63,7 @@ SCENARIO = {
     "site":             "Home Garage / Field Maintenance",
     "role":             "Maintenance Technician",
     "training_domain":  "hardware",
+    "asset_source":     "textbook",
     "branding":         F150_BRANDING,
     "handling_profile": None,
     "tutorial": [

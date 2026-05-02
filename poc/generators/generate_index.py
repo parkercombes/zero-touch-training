@@ -64,6 +64,7 @@ def discover_scenarios():
             "accent_color":     branding.get("accent_color", "#E87600"),
             "shell_color":      branding.get("shell_color", "#033D80"),
             "level_names":      branding.get("level_names", []),
+            "asset_source":     S.get("asset_source", "placeholder"),
         })
 
     return results
@@ -141,6 +142,44 @@ PROFILE_COLORS = {
 }
 
 DEFAULT_COLORS = {"badge_bg": "#F3F4F6", "badge_fg": "#374151"}
+
+
+# ── Asset fidelity tier metadata ─────────────────────────────────────────────
+# Each scenario declares its asset source via SCENARIO["asset_source"]. The
+# index displays a small badge per card so audiences see fidelity tier honestly.
+# Tiers and migration plan are in docs/asset-fidelity.md.
+ASSET_SOURCE_META = {
+    "placeholder": {
+        "label": "Placeholder",
+        "icon":  "🔴",
+        "bg":    "#FDE8E8",
+        "fg":    "#9B0000",
+    },
+    "textbook": {
+        "label": "Textbook scan",
+        "icon":  "🟡",
+        "bg":    "#FFF4E5",
+        "fg":    "#9A5700",
+    },
+    "oem_marketing": {
+        "label": "OEM marketing",
+        "icon":  "🟢",
+        "bg":    "#E0F0FF",
+        "fg":    "#004A9E",
+    },
+    "captured": {
+        "label": "Live capture",
+        "icon":  "🟢",
+        "bg":    "#E6F4EA",
+        "fg":    "#0D652D",
+    },
+    "photographed": {
+        "label": "Custom photo",
+        "icon":  "🟢",
+        "bg":    "#EDE9FE",
+        "fg":    "#5B3FB7",
+    },
+}
 
 
 # ── HTML generation ──────────────────────────────────────────────────────────
@@ -318,6 +357,14 @@ def generate_html(scenarios):
 
   .card-body {{ padding: 24px 24px 20px; flex: 1; display: flex; flex-direction: column; }}
 
+  .card .badge-row {{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+    align-items: center;
+  }}
+
   .card .profile-badge {{
     display: inline-block;
     font-size: 11px;
@@ -326,8 +373,19 @@ def generate_html(scenarios):
     letter-spacing: 0.6px;
     padding: 3px 10px;
     border-radius: 4px;
-    margin-bottom: 12px;
-    align-self: flex-start;
+  }}
+
+  .card .fidelity-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: help;
   }}
 
   .card h2 {{ font-size: 17px; font-weight: 600; margin-bottom: 6px; line-height: 1.3; }}
@@ -428,6 +486,16 @@ def _card_html(s):
     else:
         badge_text = badge_labels.get(profile, profile.replace("_", " ").title())
 
+    # Asset fidelity badge — honest signal about what kind of source material the scenario uses
+    asset_meta = ASSET_SOURCE_META.get(s["asset_source"], ASSET_SOURCE_META["placeholder"])
+    fidelity_html = (
+        f'<span class="fidelity-badge" '
+        f'title="Asset source: {escape(asset_meta["label"])}" '
+        f'style="background:{asset_meta["bg"]};color:{asset_meta["fg"]}">'
+        f'{asset_meta["icon"]} {escape(asset_meta["label"])}'
+        f'</span>'
+    )
+
     # Tags HTML
     tags_html = ""
     if s["tags"]:
@@ -444,7 +512,10 @@ def _card_html(s):
     return f"""    <a class="card{hw_class}" href="{escape(s['id'])}/index.html">
       <div class="stripe" style="background:{stripe_color}"></div>
       <div class="card-body">
-        <span class="profile-badge" style="background:{colors['badge_bg']};color:{colors['badge_fg']}">{escape(badge_text)}</span>
+        <div class="badge-row">
+          <span class="profile-badge" style="background:{colors['badge_bg']};color:{colors['badge_fg']}">{escape(badge_text)}</span>
+          {fidelity_html}
+        </div>
         <h2>{escape(s['title'])}</h2>
         <div class="site">{escape(s['site'])}</div>
         <div class="role">{escape(s['role'])}</div>

@@ -320,6 +320,7 @@ SCENARIO = {
     # images simply look like hardware photos within that same engine flow.
     # This is what we wanted to validate: no engine code changes needed.
     "training_domain":  "fusion",
+    "asset_source":     "placeholder",
     "branding":         DRONE_BRANDING,
     "handling_profile": None,
     "tutorial": [

@@ -43,6 +43,7 @@ SCENARIO = {
     "site":             "Range Safety Training Center",
     "role":             "Armorer Trainee",
     "training_domain":  "hardware",
+    "asset_source":     "placeholder",
     "branding":         HARDWARE_BRANDING,
     "handling_profile": None,
     "tutorial": [
