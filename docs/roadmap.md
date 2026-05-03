@@ -79,7 +79,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ## Phase 2: Expansion (Weeks 3-8)
 
-> **Status as of May 2026:** Phase 2 is in progress. Four of the ten planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), HW/SW fusion scenario (drone pre-flight as PoC, with buyer-facing required-assets checklist), and refined demo materials. Six activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, Opal overlay pattern, scenario schema validator, and the Pillow-to-real-assets phase-out (in progress).
+> **Status as of May 2026:** Phase 2 is in progress. Five of the ten planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), HW/SW fusion scenario (drone pre-flight as PoC, with buyer-facing required-assets checklist), refined demo materials, and scenario schema validator. Five activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, Opal overlay pattern, and the Pillow-to-real-assets phase-out (in progress).
 
 ### Scope
 - **3-5 Processes**: Expand from single process to multiple, including variations (e.g., standard PO, direct invoice, returns)
@@ -149,12 +149,14 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
    **Delivered:** `poc/generators/video_casts.py` (Cast dataclass, CAST_BIGFOOT, CAST_HUMAN, shared 13-scene template, builder functions), refactored `video_render_veo3.py` and `video_render_veo3_poc.py` to accept `--cast {bigfoot,human}`. Module-level character constants kept for backward compatibility with resume script. Both casts validated: 13 scenes build with no unfilled tokens, no double-spaces, no species-phrase leakage in human cast. Render confirmed working on real Veo 3 ($3.60 per 3-scene POC).
 
-9. **Scenario Schema Validator** — 🔨 NEXT PLANNED
+9. **Scenario Schema Validator** — ✅ COMPLETE (May 2026)
    - Build a small validator that checks every scenario module against the engine's required SCENARIO contract before it's added to the index
    - Required fields the engine reads from SCENARIO: `id`, `title`, `site`, `role`, `training_domain`, `branding`, `tutorial`, `mission` (with sub-keys `briefing`, `time_limit`, `narratives`, `learning_objectives`)
    - Required per-step keys: `screen`, `goal`, `instruction`, `hint`, `hotspot`, `feedback`, `consequence`, `explore_info`
    - Driven by the drone scenario black-screen incident (May 2026): a missing `mission` dict caused the entire React tree to die silently on level click. There's no schema enforcement today, only convention by copy-paste. Without a validator, every new scenario is one schema gap from a black-screen demo failure.
    - Implementation: ~30-line Python script run before `generate_index.py`. Fails the build with named missing fields, doesn't try to be clever about types.
+
+   **Delivered:** `poc/generators/validate_scenario_schema.py` (350 lines — turned out larger than the 30-line estimate because graceful WARN/ERROR distinction needed real enum checks, hotspot dict validation, and per-scenario grouped reporting). Integrated into `generate_index.py` with a `--skip-validation` escape hatch. Validator distinguishes hard requirements (missing → ERROR, exit 1, build halts) from soft requirements (missing → WARN, build proceeds, engine has fallback). Ran against existing scenarios on first build: caught 5 real WARN cases (SAP scenarios missing `mission.learning_objectives`) — gaps the engine handles gracefully via null-check but that authors meant to fill in. Validator stress-tested against the actual May 2026 drone bug (missing `mission`) — fails with exact field path: `SCENARIO.mission: field is missing`. Distinct from existing `poc/output/ui_trainer/validate_scenarios.py` which validates built artifacts (rendered images, hotspot bounds); this one validates source modules pre-build.
 
 10. **Phase Out Pillow Placeholders** — 🔨 IN PROGRESS
     - Pillow-drawn placeholders served Phase 1 well: they let the engine and pedagogy be reviewed independently of asset sourcing. They are not appropriate for buy-in conversations because they read as "early hack" to a sharp viewer and contradict the Training-as-Code premise (compiling training from real assets, not drawn ones).

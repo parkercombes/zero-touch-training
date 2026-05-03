@@ -371,10 +371,10 @@ python parsers/bpmn_parser.py data/bpmn/purchase_to_pay.xml
 
 ## What's Next (Phase 2 remaining)
 
-Four of the ten Phase 2 activities are complete (drift detection, character swap, HW/SW fusion scenario, refined demo materials). Still ahead, in rough ROI order:
+Five of the ten Phase 2 activities are complete (drift detection, character swap, HW/SW fusion scenario, refined demo materials, scenario schema validator). Still ahead, in rough ROI order:
 
-1. **Scenario schema validator** — small Python script that checks every scenario module for the engine's required SCENARIO contract before it lands in the index. Driven by the May 2026 drone black-screen incident, where a missing `mission` dict killed the React tree silently. ~30 lines of code; high payoff.
-2. **Phase out Pillow placeholders** — migrate every scenario from Pillow-drawn screens to real source assets (textbook scans, OEM marketing, Playwright captures, custom photography). F-150 is already there. Drone is in progress. Five SAP scenarios migrate via the existing ERPNext capture pipeline. AR-15 needs publicly available disassembly photos. Add `asset_source` field per scenario so the index shows fidelity tiers honestly.
+1. **Phase out Pillow placeholders** — migrate every scenario from Pillow-drawn screens to real source assets (textbook scans, OEM marketing, Playwright captures, custom photography). F-150 is already there. Drone is in progress. Five SAP scenarios migrate via the existing ERPNext capture pipeline. AR-15 needs publicly available disassembly photos. Add `asset_source` field per scenario so the index shows fidelity tiers honestly.
+2. **Backfill mission.learning_objectives on the 5 SAP scenarios** — the validator surfaced this gap. Engine handles it gracefully but authors meant to fill in per-level objectives. Content task, not engineering.
 3. **Refined process-agnostic prompt templates** — current prompts are tuned for SAP MIGO. Need parameterized templates that work for any transaction type without rewriting per-scenario.
 4. **Opal overlay pattern** — formalize the configuration-driven overlay abstraction with real SE-DC site data; document the specification.
 5. **WalkMe integration design** — beyond the JSON draft format the generator already produces. Design the actual integration points with a deployed WalkMe instance.

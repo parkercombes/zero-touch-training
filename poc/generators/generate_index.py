@@ -13,6 +13,7 @@ Usage:
 """
 
 import argparse
+import sys
 import importlib
 import sys
 from pathlib import Path
@@ -536,11 +537,32 @@ def main():
     parser = argparse.ArgumentParser(description="Generate the scenario selector index.html")
     parser.add_argument("--out", default=None,
                         help="Output path (default: ../output/ui_trainer/index.html)")
+    parser.add_argument("--skip-validation", action="store_true",
+                        help="Skip schema validation of scenario modules (escape hatch; "
+                             "use only if you know what you're doing).")
     args = parser.parse_args()
 
     out_path = Path(args.out) if args.out else (
         Path(__file__).resolve().parent.parent / "output" / "ui_trainer" / "index.html"
     )
+
+    # Validate scenario schemas before discovery. A failed validation means at
+    # least one scenario has a contract violation that will probably manifest
+    # as a black-screen at run-time (see drone_preflight May 2026 incident).
+    # Better to fail the build here with a specific error than to ship broken.
+    if not args.skip_validation:
+        print("Validating scenario schemas...")
+        try:
+            import validate_scenario_schema as vs
+            modules = vs.discover_scenario_modules()
+            rc = vs.run(modules, quiet=True)
+            if rc != 0:
+                print("✗ Schema validation failed. Fix errors above before regenerating the index.")
+                print("  (To bypass during development, use --skip-validation.)")
+                sys.exit(1)
+        except ImportError:
+            print("  (validate_scenario_schema not available — skipping)")
+        print()
 
     print("Discovering scenarios...")
     scenarios = discover_scenarios()
