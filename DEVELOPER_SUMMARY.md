@@ -298,6 +298,7 @@ The engine renders each step from two PNGs: one with the hotspot highlighted (fo
 2. **Forgetting `screens_neutral` rendering.** If renderers don't accept an `hl=True/False` parameter, only the highlighted version exists; Level 0 falls back to highlighted screens, breaking the EXPLORE pedagogy.
 3. **Inventing field names.** The engine reads what it reads. Adding an undocumented field (like the drone scenario's `premises`) is dead code; nothing renders it. If you need new metadata, add it to the engine first.
 4. **Hardcoding scenario-specific text in renderers.** Renderers should produce images; scenario-specific dialogue belongs in `tutorial[].instruction`, not in the PNG.
+5. **Confusing "build runs" with "trainer works."** The schema validator passing and `ui_trainer.py` exiting cleanly tells you the data is well-formed and the build didn't crash. It does not tell you the trainer is *usable* by a human. The system-wide GoalCard/ExplorePanel overlap bug (May 2026) shipped in every scenario for months because we only ever spot-checked the briefing screen, never sat down to play through a level on a real-sized viewport. The discipline: at minimum, manually click through Level 0 and Level 1 of any new scenario at a typical demo viewport (1440-1920px wide) before considering it done. Better long-term answer is visual regression testing in CI; that's queued in Phase 2 item 7 (Repeatable pipeline tooling).
 
 ### When to use Pillow vs. real assets
 
@@ -371,15 +372,16 @@ python parsers/bpmn_parser.py data/bpmn/purchase_to_pay.xml
 
 ## What's Next (Phase 2 remaining)
 
-Five of the ten Phase 2 activities are complete (drift detection, character swap, HW/SW fusion scenario, refined demo materials, scenario schema validator). Still ahead, in rough ROI order:
+Five of the eleven Phase 2 activities are complete (drift detection, character swap, HW/SW fusion scenario, refined demo materials, scenario schema validator). The Pillow phase-out is partially done (drone_anatomy, F-150, standard_dry_gr) and partially pending. Still ahead, in rough ROI order:
 
-1. **Phase out Pillow placeholders** — migrate every scenario from Pillow-drawn screens to real source assets (textbook scans, OEM marketing, Playwright captures, custom photography). F-150 is already there. Drone is in progress. Five SAP scenarios migrate via the existing ERPNext capture pipeline. AR-15 needs publicly available disassembly photos. Add `asset_source` field per scenario so the index shows fidelity tiers honestly.
-2. **Backfill mission.learning_objectives on the 5 SAP scenarios** — the validator surfaced this gap. Engine handles it gracefully but authors meant to fill in per-level objectives. Content task, not engineering.
-3. **Refined process-agnostic prompt templates** — current prompts are tuned for SAP MIGO. Need parameterized templates that work for any transaction type without rewriting per-scenario.
-4. **Opal overlay pattern** — formalize the configuration-driven overlay abstraction with real SE-DC site data; document the specification.
-5. **WalkMe integration design** — beyond the JSON draft format the generator already produces. Design the actual integration points with a deployed WalkMe instance.
-6. **Repeatable pipeline tooling** — versioning, rollback, automated asset validation, conflict detection.
-7. **3-5 additional process areas** — expand from PR/GR to 3-4 more processes (e.g. invoice receipt, returns, vendor master changes).
+1. **Trainer UI Layout Refactor (Scope B — Responsive Grid)** — system-wide bug discovered May 2026: `GoalCard` and `ExplorePanel` are `position: fixed; bottom: 0/20` at z-index 200, sitting on top of the screen image. Visible across every scenario (software, hardware, fusion) at every viewport including 1920px+. Fix: responsive CSS Grid putting card to the right of the image at wide viewports, stacked below at narrow ones. Image `max-height` respects viewport so user never has to scroll to read instruction. Touches `ScreenView`, `GoalCard`, `ExplorePanel`, and parent layout in `App()`. Validation: manual check at 1280, 1440, 1920, 2560px.
+2. **Continue Pillow phase-out** — drone_preflight (HW/SW fusion) needs real DJI Fly app screenshots from a phone running the actual app (not marketing captures). AR-15 needs publicly-available disassembly photos. 4 SAP scenarios (sedc, regulated_pharma, hazmat, serialized) need ERPNext Playwright capture (pipeline already exists for standard_dry_gr).
+3. **Backfill mission.learning_objectives on the 5 SAP scenarios** — the validator surfaced this gap. Engine handles it gracefully but authors meant to fill in per-level objectives. Content task, not engineering.
+4. **Refined process-agnostic prompt templates** — current prompts are tuned for SAP MIGO. Need parameterized templates that work for any transaction type without rewriting per-scenario.
+5. **Opal overlay pattern** — formalize the configuration-driven overlay abstraction with real SE-DC site data; document the specification.
+6. **WalkMe integration design** — beyond the JSON draft format the generator already produces. Design the actual integration points with a deployed WalkMe instance.
+7. **Repeatable pipeline tooling** — versioning, rollback, automated asset validation, conflict detection. **Visual regression testing** (headless Chromium screenshot diffing) belongs here — would catch the layout-overlap class of bug we just discovered.
+8. **3-5 additional process areas** — expand from PR/GR to 3-4 more processes (e.g. invoice receipt, returns, vendor master changes).
 
 Phase 3 (multi-site rollout) and Phase 4 (operationalize / handoff) follow. See `docs/roadmap.md` for full detail.
 

@@ -79,7 +79,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 ## Phase 2: Expansion (Weeks 3-8)
 
-> **Status as of May 2026:** Phase 2 is in progress. Five of the ten planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), HW/SW fusion scenario (drone pre-flight as PoC, with buyer-facing required-assets checklist), refined demo materials, and scenario schema validator. Five activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, Opal overlay pattern, and the Pillow-to-real-assets phase-out (in progress).
+> **Status as of May 2026:** Phase 2 is in progress. Five of the eleven planned activities are complete: drift detection PoC (Layer 6 demoable artifact), alternate character render (Bigfoot ↔ human warehouse worker), HW/SW fusion scenario (drone pre-flight as PoC, with buyer-facing required-assets checklist), refined demo materials, and scenario schema validator. The Pillow-to-real-assets phase-out is in progress (drone_anatomy complete with Mavic 3 Pro photos; AR-15 and 4 SAP scenarios still pending). Six activities remain: additional process areas, prompt template refinement, repeatable pipeline tooling, WalkMe integration prototype, Opal overlay pattern, and the trainer UI layout refactor (next planned — fixes the system-wide GoalCard/ExplorePanel overlap bug discovered May 2026).
 
 ### Scope
 - **3-5 Processes**: Expand from single process to multiple, including variations (e.g., standard PO, direct invoice, returns)
@@ -160,12 +160,21 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 
 10. **Phase Out Pillow Placeholders** — 🔨 IN PROGRESS
     - Pillow-drawn placeholders served Phase 1 well: they let the engine and pedagogy be reviewed independently of asset sourcing. They are not appropriate for buy-in conversations because they read as "early hack" to a sharp viewer and contradict the Training-as-Code premise (compiling training from real assets, not drawn ones).
-    - Migration path, scenario by scenario:
-      - **F-150** ✅ already uses real source material (Chilton manual scans)
-      - **5 SAP scenarios (sedc, standard_dry, regulated_pharma, hazmat, serialized)** — migrate to Playwright-captured screens against the running ERPNext instance. Capture pipeline already exists for `standard_dry_gr`; other four are 30-min capture sessions each.
+    - Migration status by scenario:
+      - **F-150** ✅ already uses real source material (Chilton manual scans, `textbook` tier)
+      - **drone_anatomy** ✅ COMPLETE (May 2026) — DJI Mavic 3 Pro marketing photos, `oem_marketing` tier. 5-step pure-hardware visual inspection scenario validates the engine handles real-photo source assets through the same code path as Pillow placeholders.
+      - **drone_preflight (HW/SW fusion)** — still uses Pillow placeholders for both the drone illustrations and the DJI Fly app screenshots. The Mavic 3 Pro source library doesn't include real DJI Fly app captures (the screenshots in the source folder are marketing-page captures, not in-app states). Real app screenshots require running DJI Fly on a real phone with a Mavic 3 Pro and capturing each step state. Either (a) source those via field capture, or (b) accept that this scenario stays Pillow until field capture happens.
+      - **5 SAP scenarios (sedc, standard_dry, regulated_pharma, hazmat, serialized)** — migrate to Playwright-captured screens against the running ERPNext instance. Capture pipeline already exists for `standard_dry_gr` (`captured` tier); other four are 30-min capture sessions each.
       - **AR-15** — replace placeholder diagrams with publicly available disassembly photos from FN/Colt manuals or military-issue training materials.
-      - **Drone (HW/SW fusion)** — replace placeholders with DJI Mini 4 Pro marketing photos (publicly available) and DJI Fly app store screenshots.
-    - Add an "asset source fidelity" indicator to each scenario card in the index (placeholder / textbook scan / OEM marketing / real capture / custom photography) so demo audiences see the credibility tier honestly. Preempts the "wait, that's a Pillow drawing" objection by labeling it before they ask.
+    - Add an "asset source fidelity" indicator to each scenario card in the index (placeholder / textbook scan / OEM marketing / real capture / custom photography) so demo audiences see the credibility tier honestly. ✅ DONE — implemented in `generate_index.py` with the `ASSET_SOURCE_META` lookup table; cards display badges like "🟢 OEM marketing" and "🔴 Placeholder" automatically.
+
+11. **Trainer UI Layout Refactor (Scope B — Responsive Grid)** — 🔨 NEXT PLANNED (May 2026)
+    - The play screen has a system-wide overlap bug that has been hiding in plain sight: GoalCard (lines 764-770 of `trainer_app.jsx`) and ExplorePanel (lines 651-658) are both `position: fixed; bottom: 0/20` at z-index 200, sitting on top of the screen image. Bug appears at 1920px+ external monitor (not just narrow viewports), and visible across every scenario in the codebase. The validator and existing artifact validator never caught this because both validate data, not rendered visual output.
+    - The fix is a responsive grid layout: at wide viewports (≥1400px or so), the goal/explore card sits to the right of the screen image. At narrower viewports, the card stacks below the image. Image's `max-height` respects viewport so the user never has to scroll to see the instruction card. Removes `position: fixed` overlay entirely.
+    - Why Scope B (full responsive) rather than Scope A (just stack below): scrolling between image and instruction in either direction is "clunky" for demo flow. Side-by-side on wide viewports keeps the trainer in one view; vertical stack on narrow viewports remains usable.
+    - Touches `ScreenView`, `GoalCard`, `ExplorePanel`, and the parent layout in `App()`. Doesn't change scenario module schema — purely engine-side rendering.
+    - Validation expectation: trainer renders cleanly at 1280px, 1440px, 1920px, and 2560px without overlap. Manual visual check at each width before marking complete (no automated visual regression test in this PoC).
+    - Honest acknowledgment: this bug shipped in every scenario for months because we never sat down to play through a level past the briefing screen on a real-sized viewport. The lesson is that "build runs, scenario passes validator" is not the same as "user can complete the scenario." Adding visual-regression testing is correctly in Phase 2 item 6 (Repeatable pipeline tooling) territory.
 
 ### Exit Criteria
 - Content quality remains ≥95% accurate across all expanded processes
@@ -177,6 +186,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 - Alternate (warehouse worker) character render available as a parameter swap; both versions of POC cut produced
 - Scenario schema validator catches missing mission/tutorial fields before scenarios reach the index
 - All scenarios migrated off Pillow placeholders to real assets (textbook, OEM marketing, ERPNext capture, or custom photography); fidelity indicator visible in the index
+- Trainer UI renders cleanly at 1280px, 1440px, 1920px, and 2560px viewport widths without GoalCard/ExplorePanel overlapping the screen image
 - Team can execute pipeline for new processes with minimal rework
 
 ### Deliverables
@@ -189,6 +199,7 @@ Weeks 1-2           Weeks 3-8            Weeks 9-16           Weeks 17-24
 - Dual-character POC video cut (Bigfoot + warehouse worker, same script)
 - Scenario schema validator + integration into `generate_index.py` build flow
 - All scenarios on real assets with `asset_source` field populated; index displays fidelity tiers
+- Responsive trainer layout (CSS Grid; image and goal/explore card side-by-side on wide viewports, stacked on narrow); manual visual check passing at the four target viewport widths
 - Lessons learned and scaling recommendations
 - Updated roadmap for multi-site rollout
 
