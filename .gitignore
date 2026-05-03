@@ -42,3 +42,8 @@ poc/output/drift_report.md
 credentials/
 *.key
 *.pem
+
+# DJI Mavic 3 source library — only photos referenced by scenarios are tracked.
+# Manual PDF and unused screenshots stay local; see docs/DJI_Mavic_3/README.md.
+docs/DJI_Mavic_3/*.pdf
+docs/DJI_Mavic_3/.DS_Store
